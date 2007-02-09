@@ -70,27 +70,7 @@ public class RDBMSReader
 		username = props.getProperty("jdbc.username");
 		password = props.getProperty("jdbc.password");
 		
-		indexLocation = props.getProperty("lucene.index.location");
-		
-		//keep track of tables not to be indexed
-		noIndexPrefix = new ArrayList<String>();
-		noIndexTable = new ArrayList<String>();
-		
-		Scanner s = new Scanner(props.getProperty("lucene.noindex.prefix"));
-		s.useDelimiter("\\s*,\\s*");
-		while(s.hasNext())
-		{
-			noIndexPrefix.add(s.next());
-		}
-		
-		s= new Scanner(props.getProperty("lucene.noindex.table"));
-		s.useDelimiter("\\s*,\\s*");
-		while(s.hasNext())
-		{
-			noIndexTable.add(s.next());
-		}
-		
-		System.out.println("Properties file read successfully...");
+		System.out.println("Database Properties file read successfully...");
 		
 		//both of the calls work well
 		indexConnection = DriverManager.getConnection(url+"?user="+username+"&password="+password);
@@ -112,8 +92,6 @@ public class RDBMSReader
 			System.out.println("Maximum Concurrent statements : "+MAX_STATEMENTS );
 		}
 		
-		//create the database index directory 
-		databaseIndexDir = new File(new File(indexLocation),database+"_index");
 		
 		
 	}
@@ -147,36 +125,7 @@ public class RDBMSReader
 	 */
 	public boolean index() throws SQLException, IOException
 	{
-		//for each table in the database
-		//index it
-		
-		databaseIndexDir.mkdirs();
-		
-		long start = new Date().getTime();
-		
-		
-		DatabaseMetaData dbmd = indexConnection.getMetaData();
-		
-		ResultSet tables = dbmd.getTables(null, null, null, null);
-		
-		while(tables.next())
-		{
-			String tableName = tables.getString("TABLE_NAME");
-			
-			if(!toIndex(tableName))
-				continue;
-			
-			System.out.println("Indexing "+tableName+"...");
-			
-			indexTable(tableName);
-		}
-		
-		long end = new Date().getTime();
-		
-		System.out.println("Congrats ! indexing completed successfully !");
-		System.out.println("\nIndexing database "+database+" took "+(end-start)/1000.0+" seconds");
-		
-		return true;
+			return true;
 	}
 	
 	/**
@@ -197,9 +146,9 @@ public class RDBMSReader
 		while(rs.next())
 		{
 			String tableName = rs.getString("TABLE_NAME");
-			
+			/*
 			if(!toIndex(tableName))
-				continue;
+				continue;*/
 			
 			tableList.add(tableName);
 				
@@ -309,111 +258,10 @@ public class RDBMSReader
 	
 	
 	
-	/**
-	 * index the given table
-	 * @param tableName the table to be indexed
-	 * @throws IOException
-	 * @throws SQLException
-	 */
-	private void indexTable(String tableName) throws IOException,SQLException
-	{
-		long start = new Date().getTime();
-		
-		File tableIndexDir = new File(databaseIndexDir,tableName+"_index");
-				
-		//RAMDirectory does not have a method to flush to the hard disk ! this is  bad !
-		//RAMDirectory indexDir = new RAMDirectory(tableIndexDir);
-		Directory indexDir = FSDirectory.getDirectory(tableIndexDir,true);
-		
-		//	specify the index directory
-		IndexWriter indexWriter = new IndexWriter(indexDir, new StandardAnalyzer(), true);
-		
-		indexstmt = indexConnection.prepareStatement("SELECT * FROM  "+tableName+";");
-		
-		System.out.println("executing :   "+indexstmt);
-		rs1 = indexstmt.executeQuery();
-		
-		while(rs1.next())
-		{
-			RDBMSRecordParser parser = new RDBMSRecordParser(rs1);
-			
-			String content = parser.getParse(new Content()).getText();
-			indexWriter.addDocument(makeDocument(content, rs1, tableName));
-			
-				
-		}
-		
-		indexWriter.optimize();
-		indexWriter.close();
-		indexDir.close();
-		
-		
-		long end = new Date().getTime();	
-		
-		System.out.println("\nCompleted in "+(end-start)/1000.0+" seconds");
-		indexstmt.close();
-		
-	}
 	
-	/**
-	 * make document to be indexed
-	 * @param content the content to be indexed 
-	 * @param rs the corresponding resultset
-	 * @param tableName the name of the table
-	 * @return a Document that can be added to the index
-	 * @throws SQLException
-	 */
-	private Document makeDocument(String content, ResultSet rs, String tableName) throws SQLException
-	{
-		Document doc = new Document();
-		
-		//get the set of primary keys
-		ResultSet pk = indexConnection.getMetaData().getBestRowIdentifier(null, null, tableName, DatabaseMetaData.bestRowSession, false);
-		
-		doc.add(new Field("table", tableName, Field.Store.YES, Field.Index.UN_TOKENIZED));
-		
-		while(pk.next())
-		{
-			//sample addition
-			//doc.add(new Field("ID",rs1.getString("ID"),Field.Store.YES,Field.Index.TOKENIZED));
-			//doc.add(new Field("TableName","City",Field.Store.YES,Field.Index.TOKENIZED));
-			
-			String columnName = pk.getString("COLUMN_NAME");
-			String columnValue = rs.getString(columnName);
-			
-			doc.add(new Field(columnName, columnValue, Field.Store.YES, Field.Index.NO ));
-		}
-		
-		pk.close();
-		
-		
-		doc.add(new Field("content", content,Field.Store.NO, Field.Index.TOKENIZED));
-		
-		
-		return doc;
-		
-	}
 	
-	private boolean toIndex(String tableName)
-	{
-		if(noIndexTable.contains(tableName))
-		{
-			System.out.println("\nMatched table name : skipping "+tableName+"...");
-			return false;
-		}
-			
-		
-		for(String prefix : noIndexPrefix)
-		{
-			if(tableName.startsWith(prefix))
-			{
-				System.out.println("\nMatched prefix : skipping "+tableName+"...");
-				return false;
-			}
-		}
-		
-		return true;
-	}
+
+	
 	
 	/**
 	 * close the database connections
