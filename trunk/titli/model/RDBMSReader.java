@@ -4,6 +4,7 @@
 package titli.model;
 
 
+
 import java.util.*;
 import java.io.*;
 import java.sql.*;
@@ -432,10 +433,10 @@ public class RDBMSReader
 	 */
 	public static void main(String[] args) throws Exception
 	{
-		RDBMSReader r = new RDBMSReader("E:/juber/workspace/ValueSearch_POC/poc/database.properties");
+		RDBMSReader r = new RDBMSReader("E:/juber/workspace/TiTLi/titli/model/database.properties");
 		
 		//do not open unless you want to index !
-		//r.index();
+		r.index();
 		
 		
 		//r.fetch(r.search("Pari?"));
@@ -450,7 +451,7 @@ public class RDBMSReader
 		//r.fetch(r.search("+new AND NOT table:(city OR film)" ));
 		
 		
-		r.fetch(r.search("ajay*"));
+		//r.fetch(r.search("ajay*"));
 		
 		
 
