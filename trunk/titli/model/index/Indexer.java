@@ -43,11 +43,12 @@ public class Indexer
 		
 		//load the properties from the file
 		Properties props = new Properties();
-		try{
-		FileInputStream in = new FileInputStream(indexProperties);
-		props.load(in);
-		in.close();
-		
+		try
+		{
+			FileInputStream in = new FileInputStream(indexProperties);
+			props.load(in);
+			in.close();
+			
 		}
 		catch(FileNotFoundException e)
 		{
@@ -82,8 +83,9 @@ public class Indexer
 			noIndexTable.add(s.next());
 		}
 		
-		try{
-		dbmd = conn.getMetaData();
+		try
+		{
+			dbmd = conn.getMetaData();
 		}
 		catch(SQLException e)
 		{

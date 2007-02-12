@@ -54,17 +54,9 @@ public class RDBMSReader
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public RDBMSReader(String propertiesUrl)  throws FileNotFoundException, IOException, SQLException
+	public RDBMSReader(Properties props)  throws  SQLException
 	{
 		
-		Properties props = new Properties();
-		FileInputStream in = new FileInputStream(propertiesUrl);
-		
-		props.load(in);
-		in.close();
-		
-		//set all the private fields to proper values
-		System.setProperty("jdbc.drivers", props.getProperty("jdbc.drivers"));
 		url = props.getProperty("jdbc.url");
 		database = props.getProperty("jdbc.database");
 		username = props.getProperty("jdbc.username");
@@ -120,102 +112,7 @@ public class RDBMSReader
 	}*/
 	
 	
-	/**
-	 *  index all the tables in the current database
-	 */
-	public boolean index() throws SQLException, IOException
-	{
-			return true;
-	}
 	
-	/**
-	 * search for the given query using the index
-	 * @param searchString the user query to be searched 
-	 * @return a list of matches
-	 * @throws IOException
-	 * @throws SQLException
-	 * @throws org.apache.lucene.queryParser.ParseException
-	 */
-	public MatchList search(String searchString) throws IOException, SQLException, org.apache.lucene.queryParser.ParseException
-	{
-		
-		//discover table names
-		ArrayList<String> tableList = new ArrayList<String>();
-		DatabaseMetaData dbmd = searchConnection.getMetaData();
-		ResultSet rs = dbmd.getTables(null, null, null, null);
-		while(rs.next())
-		{
-			String tableName = rs.getString("TABLE_NAME");
-			/*
-			if(!toIndex(tableName))
-				continue;*/
-			
-			tableList.add(tableName);
-				
-		}
-		rs.close();
-			
-		MatchList matchList = new MatchList();
-		
-		System.out.println("Searching for " +searchString+"...");
-		Analyzer analyzer = new StandardAnalyzer();
-		
-		int numTables = tableList.size();
-		IndexSearcher[] searchers = new IndexSearcher[numTables];
-		
-		for (int i=0; i<numTables; i++)
-		{
-			
-			RAMDirectory ramDir = new RAMDirectory(new File(databaseIndexDir, tableList.get(i)+"_index"));
-			searchers[i] = new IndexSearcher(ramDir);
-			
-		}
-		
-		MultiSearcher ms = new MultiSearcher(searchers);
-		QueryParser qp = new QueryParser("content", analyzer);
-		
-		Query query = qp.parse(searchString);
-		
-		long start = new Date().getTime();
-		//search for the query
-		Hits hits = ms.search(query);
-		long end = new Date().getTime();
-		
-		int listLength = hits.length();
-		
-		
-		//build the match list	
-		for(int i=0;i<listLength;i++)
-		{
-			matchList.add(new Match(hits.doc(i)));
-					
-			//matchList.add(new Match(hits.doc(i).get("ID"),hits.doc(i).get("TableName"),"Not Known"));
-			//System.out.println(hits.doc(i).get("Population")+"  "+hits.doc(i).get("CountryCode"));
-			
-		}
-		
-		System.out.println("\n The search took " + (end-start)/1000.0 + " seconds");
-		System.out.println("\n Found "+listLength+" matches");
-		
-		System.out.println("\nThe matches are : ");
-		for(Match match : matchList)
-		{
-			System.out.println(match);
-			System.out.println(match.getQuerystring()+"\n");
-		}
-		
-		System.out.println("\n The search took " + (end-start)/1000.0 + " seconds");
-		
-		//close all the index searchers : NOT to be called before you are done with Hits etc.
-		for (int i=0; i<numTables; i++)
-		{
-			searchers[i].close();
-			
-		}
-		
-		
-		return matchList;
-	}
 	
 	/**
 	 * fetch the actual records from the database
@@ -281,10 +178,10 @@ public class RDBMSReader
 	 */
 	public static void main(String[] args) throws Exception
 	{
-		RDBMSReader r = new RDBMSReader("E:/juber/workspace/TiTLi/titli/model/database.properties");
+		
 		
 		//do not open unless you want to index !
-		r.index();
+		
 		
 		
 		//r.fetch(r.search("Pari?"));
