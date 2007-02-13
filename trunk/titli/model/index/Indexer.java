@@ -34,8 +34,8 @@ public class Indexer
 	public Indexer(RDBMSReader dbReader) 
 	{
 		this.conn = dbReader.getIndexConnection();
-		this.database = dbReader.getDatabase(); 
-				
+		this.database = dbReader.getDatabase();
+		
 		//create the database index directory
 		File parent = new File(System.getProperty("titli.index.location"));
 		indexDir = new File(parent, database.getName()+"_index");
@@ -66,7 +66,7 @@ public class Indexer
 		long end = new Date().getTime();
 		
 		//System.out.println("Congrats ! indexing completed successfully !");
-		System.out.println("\nIndexing database "+database+" took "+(end-start)/1000.0+" seconds");
+		System.out.println("\nIndexing database "+database.getName()+" took "+(end-start)/1000.0+" seconds");
 			
 	}
 	
@@ -115,7 +115,7 @@ public class Indexer
 			}
 			
 			long end = new Date().getTime();	
-			System.out.println("\nCompleted in "+(end-start)/1000.0+" seconds");
+			System.out.println("Completed in "+(end-start)/1000.0+" seconds\n");
 			
 			indexWriter.optimize();
 			indexWriter.close();
@@ -125,11 +125,11 @@ public class Indexer
 		}
 		catch(IOException e)
 		{
-			
+			System.out.println("IOException happened");
 		}
 		catch(SQLException e)
 		{
-			
+			System.out.println("SQLException happened");
 		}
 			
 	}
@@ -163,7 +163,7 @@ public class Indexer
 			
 			String content = new String(record);
 		
-			
+			doc.add(new Field("database", database.getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
 			doc.add(new Field("table", table.getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
 			
 			List<String> uniqueKey = table.getUniqueKey();
@@ -185,7 +185,7 @@ public class Indexer
 		}
 		catch(SQLException e)
 		{
-			
+			System.out.println("SQLException happened");
 		}
 		
 		return doc;

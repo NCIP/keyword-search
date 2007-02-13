@@ -3,28 +3,18 @@
  */
 package titli.model.search;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
+import java.io.*;
 import java.util.*;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.Hits;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MultiSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.analysis.*;
+import org.apache.lucene.analysis.standard.*;
+import org.apache.lucene.queryParser.*;
+import org.apache.lucene.search.*;
+import org.apache.lucene.store.*;
 
-import titli.Titli;
+import org.apache.lucene.queryParser.ParseException;
+
 import titli.model.*;
-import titli.model.Match;
-import titli.model.MatchList;
 
 /**
  * @author juberahamad_patel
@@ -32,44 +22,48 @@ import titli.model.MatchList;
  */
 public class Searcher
 {
+	private ArrayList<IndexSearcher> searcherList;
 	private MultiSearcher ms;
-	private List<IndexSearcher> searcherList;
 	
-	public Searcher()
+	//setup a multiseracher for the given databases
+	public Searcher(List<Database> databases)
 	{
-		int numDatabases = Titli.getInstance().noOfDatabases;
-		
-		//create the multisearcher
-		
-		ArrayList<IndexSearcher> searcherList = new ArrayList<IndexSearcher> (); 
-		
-		//for each database
-		for(int i=0;i<numDatabases;i++)
+		try
 		{
-			Database db = Titli.getInstance().getDatabase(i);
+			//the current directory
+			File indexDir = new File(System.getProperty("titli.index.location"));
 			
-			//for each table
-			for(int j=0;j<db.noOfTables;j++)
+			//create the multisearcher
+			searcherList = new ArrayList<IndexSearcher> (); 
+			
+			//for each database
+			for(Database db : databases)
 			{
-				Table t = db.getTable(j);
+				File dbDir = new File(indexDir, db.getName()+"_index");
 				
-				RAMDirectory ramDir = new RAMDirectory(new File(databaseIndexDir, tableList.get(i)+"_index"));
+				//for each table
+				for(int i=0;i<db.noOfTables;i++)
+				{
+					Table table = db.getTable(i);
+					
+					File tableDir = new File(dbDir, table.getName()+"_index");
+									
+					RAMDirectory ramDir = new RAMDirectory(tableDir);
+					searcherList.add(new IndexSearcher(ramDir));
+				}
+				
 			}
 			
+			IndexSearcher[] searchers = searcherList.toArray(new IndexSearcher[0] );		
+			
+			ms = new MultiSearcher(searchers);
 		}
-		
-		IndexSearcher[] searchers = new IndexSearcher[numTables];
-		
-		for (int i=0; i<numTables; i++)
+		catch(IOException e)
 		{
-			
-			
-			searchers[i] = new IndexSearcher(ramDir);
-			
+			System.out.println("IOException happened"+ e);
 		}
 		
-		MultiSearcher ms = new MultiSearcher(searchers);
-		
+			
 		
 	}
 	
@@ -82,7 +76,7 @@ public class Searcher
 	 * @throws SQLException
 	 * @throws org.apache.lucene.queryParser.ParseException
 	 */
-	public MatchList search(String searchString) throws IOException, SQLException, org.apache.lucene.queryParser.ParseException
+	public MatchList search(String searchString) 
 	{
 		
 		MatchList matchList = new MatchList();
@@ -93,49 +87,79 @@ public class Searcher
 		
 		QueryParser qp = new QueryParser("content", analyzer);
 		
-		Query query = qp.parse(searchString);
-		
-		long start = new Date().getTime();
-		//search for the query
-		Hits hits = ms.search(query);
-		long end = new Date().getTime();
-		
-		int listLength = hits.length();
-		
-		
-		//build the match list	
-		for(int i=0;i<listLength;i++)
+		try
 		{
-			matchList.add(new Match(hits.doc(i)));
-					
-			//matchList.add(new Match(hits.doc(i).get("ID"),hits.doc(i).get("TableName"),"Not Known"));
-			//System.out.println(hits.doc(i).get("Population")+"  "+hits.doc(i).get("CountryCode"));
+			Query query = qp.parse(searchString);
+		
+			long start = new Date().getTime();
+			
+			//search for the query
+			Hits hits = ms.search(query);
+			
+			long end = new Date().getTime();
+			
+			int listLength = hits.length();
+			
+			
+			//build the match list	
+			for(int i=0;i<listLength;i++)
+			{
+				matchList.add(new Match(hits.doc(i)));
+						
+				//matchList.add(new Match(hits.doc(i).get("ID"),hits.doc(i).get("TableName"),"Not Known"));
+				//System.out.println(hits.doc(i).get("Population")+"  "+hits.doc(i).get("CountryCode"));
+				
+			}
+			
+			System.out.println("\n The search took " + (end-start)/1000.0 + " seconds");
+			System.out.println("\n Found "+listLength+" matches");
+			
+			System.out.println("\nThe matches are : ");
+			for(Match match : matchList)
+			{
+				System.out.println(match);
+				System.out.println(match.getQuerystring()+"\n");
+			}
+			
+			System.out.println("\n The search took " + (end-start)/1000.0 + " seconds");
 			
 		}
-		
-		System.out.println("\n The search took " + (end-start)/1000.0 + " seconds");
-		System.out.println("\n Found "+listLength+" matches");
-		
-		System.out.println("\nThe matches are : ");
-		for(Match match : matchList)
+		catch(ParseException e)
 		{
-			System.out.println(match);
-			System.out.println(match.getQuerystring()+"\n");
+			System.out.println("ParseException happened"+e);
 		}
-		
-		System.out.println("\n The search took " + (end-start)/1000.0 + " seconds");
-		
-		//close all the index searchers : NOT to be called before you are done with Hits etc.
-		for (int i=0; i<numTables; i++)
+		catch(IOException e)
 		{
-			searchers[i].close();
-			
+			System.out.println("IOException happened"+e);
 		}
-		
 		
 		return matchList;
+		
 	}
 	
+	
+	/**
+	 * close all the searchers
+	 *
+	 */
+	public void close()
+	{
+		try
+		{
+			//close all the index searchers : NOT to be called before you are done with Hits etc.
+			for (IndexSearcher searcher : searcherList)
+			{
+				searcher.close();
+				
+			}
+		}
+		catch(IOException e)
+		{
+			System.out.println("IOException happened"+e);
+		}
+		
+			
+	}
 	
 	
 	/**

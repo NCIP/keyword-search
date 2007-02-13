@@ -20,7 +20,7 @@ public class Database
 	{
 		this.name = name;
 		this.tables = new ArrayList<Table>(tables);
-		noOfTables = tables.size();
+		noOfTables = this.tables.size();
 	}
 
 	

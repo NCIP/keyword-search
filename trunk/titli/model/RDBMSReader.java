@@ -6,6 +6,7 @@ package titli.model;
 
 
 import java.util.*;
+import java.util.logging.*;
 import java.io.*;
 import java.sql.*;
 import java.util.Date;
@@ -47,8 +48,8 @@ public class RDBMSReader
 	private File databaseIndexDir;
 	private int MAX_STATEMENTS; 
 	
-	private ArrayList<String> invisiblePrefixes;
-	private ArrayList<String> invisibleTables;
+	private List<String> invisiblePrefixes;
+	private List<String> invisibleTables;
 	
 	
 	/**
@@ -67,8 +68,13 @@ public class RDBMSReader
 		username = props.getProperty("jdbc."+dbName+".username");
 		password = props.getProperty("jdbc."+dbName+".password");
 		
+		invisiblePrefixes = new ArrayList<String>();
+		invisibleTables = new ArrayList<String>();
+		
 		//populate lists of tables NOT to be indexed
 		Scanner s = new Scanner(props.getProperty("titli."+dbName+".noindex.prefix"));
+		
+		System.out.println("titli."+dbName+".noindex.prefix ::" +props.getProperty("titli."+dbName+".noindex.prefix"));
 		s.useDelimiter("\\s*,\\s*");
 		while(s.hasNext())
 		{
@@ -83,7 +89,7 @@ public class RDBMSReader
 		}
 		
 		
-		System.out.println("Database Properties file read successfully...");
+		System.out.println("Reader created for "+dbName+"...");
 	
 		try
 		{
@@ -91,13 +97,13 @@ public class RDBMSReader
 			indexConnection = DriverManager.getConnection(url+"?user="+username+"&password="+password);
 			searchConnection = DriverManager.getConnection(url+"?user="+username+"&password="+password);
 			//conn = DriverManager.getConnection(url, username, password);
-			System.out.println("Connection to the database successful...");
+			//System.out.println("Connection to the database successful...");
 			
 			
 		}
 		catch(SQLException e)
 		{
-			
+			System.out.println("SQLException happened");
 		}
 	
 	}
@@ -112,6 +118,8 @@ public class RDBMSReader
 		//build the database metadata
 		if(database==null)
 		{
+			System.out.println("Meta Data is null");
+			List<Table> tables = new ArrayList<Table> ();
 			try
 			{
 				DatabaseMetaData dbmd = indexConnection.getMetaData();
@@ -120,7 +128,7 @@ public class RDBMSReader
 				//get table names
 				ResultSet rs = dbmd.getTables(null, null, null, new String[] {"TABLE"});
 				
-				List<Table> tables = new ArrayList<Table> ();
+				
 				//for each table
 				while(rs.next())
 				{
@@ -146,8 +154,16 @@ public class RDBMSReader
 					
 					keys.close();
 					
+					if(uniqueKey.size()==0)
+					{
+						System.out.println("table  "+tableName+" does not have unique key ! Skipping...");
+						continue;
+					}
+					
 					//fire a dummy query to get table metadata
-					ResultSet useless = stmt.executeQuery("select * from "+tableName+"where "+uniqueKey.get(0)+"='null';");
+					String query = "select * from "+tableName+" where "+uniqueKey.get(0)+" = null;";
+					System.out.println(query);
+					ResultSet useless = stmt.executeQuery("select * from "+tableName+" where "+uniqueKey.get(0)+" = null; ");
 					ResultSetMetaData tablemd = useless.getMetaData();
 					
 					int numcols = tablemd.getColumnCount();
@@ -170,13 +186,18 @@ public class RDBMSReader
 				
 				rs.close();
 				stmt.close();
-				
+			
 				database = new Database(dbName, tables);
+				
+				System.out.println("Meta Data created  No of Tables : "+database.noOfTables);
+				
 			}
 			catch(SQLException e)
 			{
-				
+				System.out.println("SQL Error happened"+e);
 			}
+			
+			
 		}
 		
 		return database;
@@ -188,7 +209,7 @@ public class RDBMSReader
 		return indexConnection;
 	}
 	
-	public Connection getSearchConnection()
+	public Connection getFetchConnection()
 	{
 		return searchConnection;
 	}

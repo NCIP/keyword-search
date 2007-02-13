@@ -1,9 +1,10 @@
 /**
  * 
  */
-package titli.model;
+package titli.model.search;
 
 import java.util.*;
+
 
 
 
