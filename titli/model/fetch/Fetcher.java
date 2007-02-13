@@ -5,9 +5,13 @@ package titli.model.fetch;
 
 import java.sql.*;
 
+import java.util.*;
 import java.util.Date;
 
+import titli.*;
 import titli.model.*;
+import titli.model.search.Match;
+import titli.model.search.MatchList;
 
 
 /**
@@ -28,38 +32,54 @@ public class Fetcher
 	 * @param matchList the list of matches for which to fetch the records
 	 * @throws SQLException
 	 */
-	public void fetch(MatchList matchList, Connection conn) throws SQLException
+	public static void fetch(MatchList matchList, Map<String, RDBMSReader> readers) 
 	{
-		Statement searchstmt = conn.createStatement();
-		
+			
 		long start = new Date().getTime();
-		
-		for(Match match : matchList)
+	
+		try
 		{
-			ResultSet rs = searchstmt.executeQuery(match.getQuerystring());
-			ResultSetMetaData rsmd = rs.getMetaData();
-			
-			rs.next();
-			
-			int columns = rsmd.getColumnCount();
-			
-			System.out.println("Table : " +match.getTable());
-			
-			
-			for(int i=1; i<=columns; i++)
+			//for each match
+			for(Match match : matchList)
 			{
-				System.out.print(rsmd.getColumnName(i)+" : "+rs.getString(i)+"  ");
-			}
+				Connection conn = readers.get(match.getDatabase()).getFetchConnection();
+				Statement searchstmt = conn.createStatement();
 			
-			System.out.println();
-			rs.close();
+				ResultSet rs = searchstmt.executeQuery(match.getQuerystring());
+				ResultSetMetaData rsmd = rs.getMetaData();
+				
+				rs.next();
+				
+				int columns = rsmd.getColumnCount();
+				
+				System.out.println("Database : "+match.getDatabase()+"  Table : " +match.getTable());
+				
+				
+				for(int i=1; i<=columns; i++)
+				{
+					System.out.print(rsmd.getColumnName(i)+" : "+rs.getString(i)+"  ");
+				}
+				
+				System.out.println();
+				rs.close();
+			
+				searchstmt.close();
+			}
+		}
+		catch(SQLException e)
+		{
+			System.out.println("SQLException happened "+e);
+			//System.out.println("String : "+matc);
 		}
 		
+
 		long end = new Date().getTime();
 		
 		System.out.print("\nFetch took "+(end-start)/1000.0+" seconds");
-		searchstmt.close();
-	}
+	
+
+	}	
+			
 	
 
 	/**

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package titli.model;
+package titli.model.search;
 
 import org.apache.lucene.document.*;
 import java.util.*;
@@ -22,8 +22,9 @@ public class Match
 	private String queryString;
 	
 	
-	
+	private String database;
 	private String table;
+	
 	//private String column;
 	
 	/**
@@ -36,6 +37,7 @@ public class Match
 		uniqueKeys = new StringBuilder();
 				
 		this.table = doc.get("table");
+		this.database = doc.get("database");
 		
 		Enumeration e = doc.fields();
 		
@@ -77,7 +79,7 @@ public class Match
 			
 			
 			//don't include the table name
-			if(key.equals("table"))
+			if(key.equals("table") || key.equals("database"))
 			{
 				scanner.next();
 				continue;
@@ -92,6 +94,13 @@ public class Match
 		
 		
 	}
+	
+	
+	public String getDatabase()
+	{
+		return database;
+	}
+	
 	
 	public String getTable()
 	{

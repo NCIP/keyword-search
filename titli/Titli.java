@@ -4,10 +4,14 @@
 package titli;
 
 import java.util.*;
+import java.util.logging.*;
+
 import java.io.*;
 
 import titli.model.*;
-import titli.model.index.Indexer;
+import titli.model.index.*;
+import titli.model.search.*;
+import titli.model.fetch.*;
 
 
 /**
@@ -94,12 +98,23 @@ public class Titli
 		//index all databases
 		for(String dbName : dbReaders.keySet())
 		{
+			System.out.println("Creating indexer for "+dbName);
 			Indexer indexer = new Indexer(dbReaders.get(dbName));
 			indexer.index();
 		}
 		
 	}
 	
+	public MatchList search(String query)
+	{
+			Searcher searcher = new Searcher(databases);
+			
+			MatchList matches =searcher.search(query);
+			searcher.close();
+			
+			return matches;
+	}
+		
 	
 	private RDBMSReader getRDBMSReader(String dbName, Properties props)
 	{
@@ -142,9 +157,10 @@ public class Titli
 	 */
 	public static void main(String[] args) throws IOException, FileNotFoundException
 	{
-		Titli titli = new Titli("E:/juber/workspace/TiTLi/titli/model");
+		Titli titli = new Titli("E:/juber/workspace/TiTLi/titli/model/database.properties");
 		
-		titli.index();
+		//titli.index();
+		Fetcher.fetch(titli.search("york"),titli.dbReaders);
 
 	}
 
