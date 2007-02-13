@@ -29,28 +29,8 @@ public class RDBMSRecordParser implements Parser
 	 */
 	public RDBMSRecordParser(ResultSet rs) throws SQLException
 	{
-		//convert the record to a String
 		
-		record= new StringBuilder("");
-		
-		ResultSetMetaData rsmd = rs.getMetaData();
-		
-		int columns = rsmd.getColumnCount();
-		
-		for(int i=1; i<=columns; i++)
-		{
-			if(rsmd.getColumnType(i)==Types.DATE)
-			{
-				record.append(" ");
-				record.append(rs.getDate(i));
-			}
-			else
-			{
-				record.append(" ");
-				record.append(rs.getString(i));
-			}
-		}
-	
+				
 	}
 	
 	

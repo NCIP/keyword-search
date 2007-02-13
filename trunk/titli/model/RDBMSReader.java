@@ -20,6 +20,8 @@ import org.apache.lucene.store.*;
 
 import org.apache.nutch.protocol.*;
 
+import titli.model.*;
+
 
 
 /**
@@ -31,21 +33,23 @@ import org.apache.nutch.protocol.*;
 public class RDBMSReader 
 {
 	private String url;
-	private String database;
+	private String dbName;
 	private String username; 
 	private String password;
 	private Connection indexConnection;
 	private Connection searchConnection;
-	private DatabaseMetaData dbMetaData;
+	private Database database;
+	
 	private PreparedStatement indexstmt;
 	private Statement searchstmt;
 	private ResultSet rs1;
-	private String indexLocation;
+	
 	private File databaseIndexDir;
 	private int MAX_STATEMENTS; 
 	
-	private ArrayList<String> noIndexPrefix;
-	private ArrayList<String> noIndexTable;
+	private ArrayList<String> invisiblePrefixes;
+	private ArrayList<String> invisibleTables;
+	
 	
 	/**
 	 * 
@@ -54,111 +58,145 @@ public class RDBMSReader
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public RDBMSReader(Properties props)  throws  SQLException
+	public RDBMSReader(Properties props) 
 	{
 		
-		url = props.getProperty("jdbc.url");
-		database = props.getProperty("jdbc.database");
-		username = props.getProperty("jdbc.username");
-		password = props.getProperty("jdbc.password");
+		dbName = props.getProperty("jdbc.database");
+		
+		url = props.getProperty("jdbc."+dbName+".url");
+		username = props.getProperty("jdbc."+dbName+".username");
+		password = props.getProperty("jdbc."+dbName+".password");
+		
+		//populate lists of tables NOT to be indexed
+		Scanner s = new Scanner(props.getProperty("titli."+dbName+".noindex.prefix"));
+		s.useDelimiter("\\s*,\\s*");
+		while(s.hasNext())
+		{
+			invisiblePrefixes.add(s.next());
+		}
+		
+		s = new Scanner(props.getProperty("titli."+dbName+".noindex.table"));
+		s.useDelimiter("\\s*,\\s*");
+		while(s.hasNext())
+		{
+			invisibleTables.add(s.next());
+		}
+		
 		
 		System.out.println("Database Properties file read successfully...");
-		
-		//both of the calls work well
-		indexConnection = DriverManager.getConnection(url+"?user="+username+"&password="+password);
-		searchConnection = DriverManager.getConnection(url+"?user="+username+"&password="+password);
-		//conn = DriverManager.getConnection(url, username, password);
-		System.out.println("Connection to the database successful...");
-		
-		dbMetaData = indexConnection.getMetaData();
-		MAX_STATEMENTS = dbMetaData.getMaxStatements();
-		
-		//number not known 
-		if(MAX_STATEMENTS==0)
-		{
-			MAX_STATEMENTS=10;
-			System.out.println("Maximum Concurrent statements : Number not known, setting to 10");
-		}
-		else
-		{
-			System.out.println("Maximum Concurrent statements : "+MAX_STATEMENTS );
-		}
-		
-		
-		
-	}
 	
-	/*
-	private void closeConnection() throws SQLException
-	{
-		conn.close();
-		
-	}*/
-
-	/*some test code
-	public boolean test(String country) throws SQLException
-	{
-		stmt.setString(1,country);
-		
-		ResultSet rs = stmt.executeQuery();
-		
-		while(rs.next())
+		try
 		{
-			System.out.println(rs.getString("Name")+"     "+rs.getLong("Population"));
-		}
+			//both of the calls work well
+			indexConnection = DriverManager.getConnection(url+"?user="+username+"&password="+password);
+			searchConnection = DriverManager.getConnection(url+"?user="+username+"&password="+password);
+			//conn = DriverManager.getConnection(url, username, password);
+			System.out.println("Connection to the database successful...");
 			
-		
-		return true;
-	}*/
+			
+		}
+		catch(SQLException e)
+		{
+			
+		}
 	
-	
+	}
 	
 	
 	/**
-	 * fetch the actual records from the database
-	 * @param matchList the list of matches for which to fetch the records
-	 * @throws SQLException
+	 * 
+	 * @return the database for the reader
 	 */
-	public void fetch(MatchList matchList) throws SQLException
+	public Database getDatabase()
 	{
-		searchstmt = searchConnection.createStatement();
-		
-		long start = new Date().getTime();
-		
-		for(Match match : matchList)
+		//build the database metadata
+		if(database==null)
 		{
-			ResultSet rs = searchstmt.executeQuery(match.getQuerystring());
-			ResultSetMetaData rsmd = rs.getMetaData();
-			
-			rs.next();
-			
-			int columns = rsmd.getColumnCount();
-			
-			System.out.println("Table : " +match.getTable());
-			
-			
-			for(int i=1; i<=columns; i++)
+			try
 			{
-				System.out.print(rsmd.getColumnName(i)+" : "+rs.getString(i)+"  ");
+				DatabaseMetaData dbmd = indexConnection.getMetaData();
+				Statement stmt = indexConnection.createStatement();
+				
+				//get table names
+				ResultSet rs = dbmd.getTables(null, null, null, new String[] {"TABLE"});
+				
+				List<Table> tables = new ArrayList<Table> ();
+				//for each table
+				while(rs.next())
+				{
+					String tableName = rs.getString("TABLE_NAME");
+					
+					//ignore invisible tables
+					if(!isVisible(tableName))
+					{
+						continue;
+					}
+					
+					List<String> uniqueKey = new ArrayList<String>();
+					List<Column> columns = new ArrayList<Column>();
+					//get unique keys
+					ResultSet keys = dbmd.getBestRowIdentifier(null, null, tableName,DatabaseMetaData.bestRowSession, true);
+					
+					//add unique keys
+					while(keys.next())
+					{
+						uniqueKey.add(keys.getString("COLUMN_NAME"));
+						
+					}
+					
+					keys.close();
+					
+					//fire a dummy query to get table metadata
+					ResultSet useless = stmt.executeQuery("select * from "+tableName+"where "+uniqueKey.get(0)+"='null';");
+					ResultSetMetaData tablemd = useless.getMetaData();
+					
+					int numcols = tablemd.getColumnCount();
+					//for each column
+					for(int i=1;i<=numcols;i++)
+					{
+						String columnName = tablemd.getColumnName(i);
+						String columnType = tablemd.getColumnTypeName(i);
+						
+						columns.add(new Column(columnName, columnType));
+						
+					}
+					
+					useless.close();
+					
+					//add the table to the list
+					tables.add(new Table(tableName, uniqueKey, columns));
+					
+				}
+				
+				rs.close();
+				stmt.close();
+				
+				database = new Database(dbName, tables);
 			}
-			
-			System.out.println();
-			rs.close();
+			catch(SQLException e)
+			{
+				
+			}
 		}
 		
-		long end = new Date().getTime();
-		
-		System.out.print("\nFetch took "+(end-start)/1000.0+" seconds");
-		searchstmt.close();
+		return database;
+	}
+	
+	
+	public Connection getIndexConnection()
+	{
+		return indexConnection;
+	}
+	
+	public Connection getSearchConnection()
+	{
+		return searchConnection;
 	}
 	
 	
 	
 	
-	
-	
-
-	
+		
 	
 	/**
 	 * close the database connections
@@ -170,7 +208,28 @@ public class RDBMSReader
 		
 	}
 	
-	
+	/**
+	 * whether the given table is visible to TiTLi
+	 * @param tableName the table
+	 * @return true if this table is to be indexed and searched otherwise false
+	 */
+	private boolean isVisible(String tableName)
+	{
+		if(invisibleTables.contains(tableName))
+		{
+			return false;
+		}
+		
+		for(String prefix : invisiblePrefixes)
+		{
+			if(tableName.startsWith(prefix))
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
 	
 	
 	/**
