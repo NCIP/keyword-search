@@ -14,12 +14,14 @@ import java.util.*;
 public class Table
 {
 	private String name;
+	private ArrayList<String> uniqueKey;
 	private ArrayList<Column> columns;
 	public final int noOfColumns;
 	
-	public Table(String name, List<Column> columns)
+	public Table(String name, List<String> uniqueKey,   List<Column> columns)
 	{
-		this.name = new String(name);
+		this.name = name;
+		this.uniqueKey = new ArrayList<String> (uniqueKey);
 		this.columns =  new ArrayList<Column> (columns);
 		noOfColumns = columns.size();
 		
@@ -35,6 +37,13 @@ public class Table
 		return name;
 		
 	}
+	
+	
+	public List<String> getUniqueKey()
+	{
+		return new ArrayList<String>(uniqueKey); 
+	}
+	
 	
 	public Column getColumn(int i)
 	{

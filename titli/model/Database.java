@@ -18,11 +18,18 @@ public class Database
 	
 	public Database(String name, List<Table> tables)
 	{
-		this.name = new String(name);
+		this.name = name;
 		this.tables = new ArrayList<Table>(tables);
 		noOfTables = tables.size();
 	}
 
+	
+	public String getName()
+	{
+		return name;
+	}
+	
+	
 	public Table getTable(int i)
 	{
 		return tables.get(i);

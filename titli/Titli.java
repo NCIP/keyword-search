@@ -7,6 +7,7 @@ import java.util.*;
 import java.io.*;
 
 import titli.model.*;
+import titli.model.index.Indexer;
 
 
 /**
@@ -47,10 +48,11 @@ public class Titli
 			//make db readers
 			RDBMSReader reader = getRDBMSReader(dbName, props);
 			
-			//add Database
-			databases.add(reader.getDatabase());
 			//add the reader to the map
 			dbReaders.put(dbName, reader);
+			
+			//add Database to the list
+			databases.add(reader.getDatabase());
 			
 		}
 		
@@ -71,15 +73,6 @@ public class Titli
 		return instance;
 	}
 	
-	/**
-	 * 
-	 * @return the populated list of metadata of available databases;
-	 */
-	private ArrayList<Database> getDatabases()
-	{
-		//TO DO write the code
-		return null;
-	}
 	
 	/**
 	 * 
@@ -92,11 +85,66 @@ public class Titli
 	}
 
 	/**
+	 * start the indexing threads
+	 * one thread per database
+	 *
+	 */
+	public void index()
+	{
+		//index all databases
+		for(String dbName : dbReaders.keySet())
+		{
+			Indexer indexer = new Indexer(dbReaders.get(dbName));
+			indexer.index();
+		}
+		
+	}
+	
+	
+	private RDBMSReader getRDBMSReader(String dbName, Properties props)
+	{
+		Properties dbProps = new Properties();
+		
+		String propName = "jdbc.database";
+		dbProps.setProperty(propName, dbName);
+				
+		propName = "jdbc."+dbName+".url";
+		dbProps.setProperty(propName, props.getProperty(propName));
+		
+		propName = "jdbc."+dbName+".username";
+		dbProps.setProperty(propName, props.getProperty(propName));
+		
+		propName = "jdbc."+dbName+".password";
+		dbProps.setProperty(propName, props.getProperty(propName));
+		
+		propName = "titli."+dbName+".noindex.prefix";
+		dbProps.setProperty(propName, props.getProperty(propName));
+		
+		propName = "titli."+dbName+".noindex.table";
+		dbProps.setProperty(propName, props.getProperty(propName));
+		
+		return new RDBMSReader(dbProps);
+		
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
 	 * @param args
 	 */
-	public static void main(String[] args) 
+	public static void main(String[] args) throws IOException, FileNotFoundException
 	{
-		// TODO Auto-generated method stub
+		Titli titli = new Titli("E:/juber/workspace/TiTLi/titli/model");
+		
+		titli.index();
 
 	}
 
