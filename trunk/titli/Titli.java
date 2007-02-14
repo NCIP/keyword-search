@@ -69,7 +69,7 @@ public class Titli
 	public static Titli getInstance()
 	{
 		/*
-		if(instance==null)
+		(instance==null)
 		{
 			instance = new Titli();
 		}*/
@@ -157,10 +157,13 @@ public class Titli
 	 */
 	public static void main(String[] args) throws IOException, FileNotFoundException
 	{
-		Titli titli = new Titli("E:/juber/workspace/TiTLi/titli/model/database.properties");
+		Titli titli = new Titli("E:/juber/workspace/TiTLi/titli/model/titli.properties");
 		
 		//titli.index();
-		Fetcher.fetch(titli.search("york"),titli.dbReaders);
+		
+		//Fetcher.fetch(titli.search("new +bombay"),titli.dbReaders);
+		Fetcher.fetch(titli.search("Temple"),titli.dbReaders);
+		//Fetcher.fetch(titli.search("ajay"),titli.dbReaders);
 
 	}
 

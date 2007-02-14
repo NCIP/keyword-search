@@ -17,7 +17,7 @@ public class MatchComparator implements java.util.Comparator<Match>
 	public int compare(Match a, Match b)
 	{
 		
-		int tableCompare = a.getTable().compareTo(b.getTable());
+		int tableCompare = a.getTableName().compareTo(b.getTableName());
 		
 		return tableCompare;
 	

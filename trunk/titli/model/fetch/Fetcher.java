@@ -15,7 +15,9 @@ import titli.model.search.MatchList;
 
 
 /**
- * @author juberahamad_patel
+ * the class that will fetch the actual matching records from the databases
+ * the future of Fetcher depends on what kind of outputs are expected
+ * @author Juber Patel
  *
  */
 public class Fetcher
@@ -42,7 +44,7 @@ public class Fetcher
 			//for each match
 			for(Match match : matchList)
 			{
-				Connection conn = readers.get(match.getDatabase()).getFetchConnection();
+				Connection conn = readers.get(match.getDatabaseName()).getFetchConnection();
 				Statement searchstmt = conn.createStatement();
 			
 				ResultSet rs = searchstmt.executeQuery(match.getQuerystring());
@@ -52,7 +54,7 @@ public class Fetcher
 				
 				int columns = rsmd.getColumnCount();
 				
-				System.out.println("Database : "+match.getDatabase()+"  Table : " +match.getTable());
+				System.out.println("Database : "+match.getDatabaseName()+"  Table : " +match.getTableName());
 				
 				
 				for(int i=1; i<=columns; i++)
@@ -60,7 +62,7 @@ public class Fetcher
 					System.out.print(rsmd.getColumnName(i)+" : "+rs.getString(i)+"  ");
 				}
 				
-				System.out.println();
+				System.out.println("\n");
 				rs.close();
 			
 				searchstmt.close();

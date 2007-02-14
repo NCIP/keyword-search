@@ -22,11 +22,10 @@ public class Match
 	private String queryString;
 	
 	
-	private String database;
-	private String table;
+	private String dbName;
+	private String tableName;
 	
-	//private String column;
-	
+		
 	/**
 	 * @param doc the document that matched the search query
 	 */
@@ -36,8 +35,8 @@ public class Match
 		//get the fields and values
 		uniqueKeys = new StringBuilder();
 				
-		this.table = doc.get("table");
-		this.database = doc.get("database");
+		this.tableName = doc.get("table");
+		this.dbName = doc.get("database");
 		
 		Enumeration e = doc.fields();
 		
@@ -51,7 +50,7 @@ public class Match
 		
 		
 		//build string representation
-		StringBuilder string = new StringBuilder("Table : "+table);
+		StringBuilder string = new StringBuilder("Database : "+dbName+"    Table : "+tableName);
 		
 		string.append("\nUnique Key Set : ");
 		
@@ -69,7 +68,7 @@ public class Match
 		//buld the corresponding SQL query
 		StringBuilder query = new StringBuilder("SELECT * FROM ");
 		
-		query.append(table+" WHERE ");
+		query.append(tableName+" WHERE ");
 		
 		scanner = new Scanner(new String(uniqueKeys));
 		
@@ -78,7 +77,7 @@ public class Match
 			String key = scanner.next();
 			
 			
-			//don't include the table name
+			//don't include the tableName name
 			if(key.equals("table") || key.equals("database"))
 			{
 				scanner.next();
@@ -96,15 +95,15 @@ public class Match
 	}
 	
 	
-	public String getDatabase()
+	public String getDatabaseName()
 	{
-		return database;
+		return dbName;
 	}
 	
 	
-	public String getTable()
+	public String getTableName()
 	{
-		return table;
+		return tableName;
 	}
 	
 	public String getQuerystring()
