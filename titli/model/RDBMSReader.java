@@ -54,7 +54,7 @@ public class RDBMSReader
 	
 	/**
 	 * 
-	 * @param propertiesUrl path to the properties file containing information for connection to database
+	 * @param props the properties file containing information for connection to database
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 * @throws SQLException

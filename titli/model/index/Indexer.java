@@ -81,7 +81,7 @@ public class Indexer
 		
 	/**
 	 * index the given table
-	 * @param tableName the table to be indexed
+	 * @param table the table to be indexed
 	 * 
 	 */
 	private void indexTable(Table table) 
@@ -137,10 +137,10 @@ public class Indexer
 	
 	/**
 	 * make document to be indexed
-	 * @param content the content to be indexed 
+	 * 
 	 * @param rs the corresponding resultset
-	 * @param tableName the name of the table
-	 * @return a Document that can be added to the index
+	 * @param table the table of the corresponding record
+	 * @return a Document for the record that can be added to the index
 	 * @throws SQLException
 	 */
 	private Document makeDocument(ResultSet rs, Table table)

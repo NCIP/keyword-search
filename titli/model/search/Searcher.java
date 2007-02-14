@@ -121,7 +121,7 @@ public class Searcher
 				System.out.println(match.getQuerystring()+"\n");
 			}
 			
-			System.out.println("\n The search took " + (end-start)/1000.0 + " seconds");
+			System.out.println("\n The search took " + (end-start)/1000.0 + " seconds\n");
 			
 		}
 		catch(ParseException e)
