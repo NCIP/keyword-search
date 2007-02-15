@@ -25,23 +25,41 @@ import titli.model.*;
  */
 public class Indexer
 {
-	private Connection conn;
-	private Database database;
+	private RDBMSReader reader;
 	private File indexDir;
+	private Statement indexstmt;
 	 
 	 
 	 
 	public Indexer(RDBMSReader dbReader) 
 	{
-		this.conn = dbReader.getIndexConnection();
-		this.database = dbReader.getDatabase();
+		reader = dbReader;
 		
 		//create the database index directory
 		File parent = new File(System.getProperty("titli.index.location"));
-		indexDir = new File(parent, database.getName()+"_index");
+		indexDir = new File(parent, reader.getDatabase().getName()+"_index");
+		
+		try
+		{
+			indexstmt = reader.getIndexConnection().createStatement();
+		}
+		catch(SQLException e)
+		{
+			
+			System.out.println("SQL Exception happend"+e);
+			e.printStackTrace();
+		}
 		
 	}
 	
+	/**
+	 *  
+	 * @return the corresponding database
+	 */
+	public Database getDatabase()
+	{
+		return reader.getDatabase();
+	}
 	
 	/**
 	 * index from the scratch
@@ -50,6 +68,8 @@ public class Indexer
 	public void index()
 	{
 		indexDir.mkdirs();
+		
+		Database database = reader.getDatabase();
 		
 		long start = new Date().getTime();
 		
@@ -100,11 +120,16 @@ public class Indexer
 			//	specify the index directory
 			IndexWriter indexWriter = new IndexWriter(indexDir, new StandardAnalyzer(), true);
 			
-			PreparedStatement indexstmt = conn.prepareStatement("SELECT * FROM  "+table.getName()+";");
+			System.out.println("executing :   "+"SELECT * FROM  "+table.getName()+";");
 			
-			System.out.println("executing :   "+indexstmt);
-			ResultSet rs = indexstmt.executeQuery();
+			ResultSet rs = indexstmt.executeQuery("SELECT * FROM  "+table.getName()+";");
 			
+			/*
+			if(rs.isClosed())
+			{
+				System.out.println("rs is closed !!");
+				System.exit(0);
+			}*/
 			while(rs.next())
 			{
 				//RDBMSRecordParser parser = new RDBMSRecordParser(rs);
@@ -120,16 +145,18 @@ public class Indexer
 			indexWriter.optimize();
 			indexWriter.close();
 			indexDir.close();
-			indexstmt.close();
+			
 			
 		}
 		catch(IOException e)
 		{
-			System.out.println("IOException happened");
+			System.out.println("IOException happened"+e);
+			e.printStackTrace();
 		}
 		catch(SQLException e)
 		{
 			System.out.println("SQLException happened");
+			e.printStackTrace();
 		}
 			
 	}
@@ -163,7 +190,7 @@ public class Indexer
 			
 			String content = new String(record);
 		
-			doc.add(new Field("database", database.getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+			doc.add(new Field("database", reader.getDatabase().getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
 			doc.add(new Field("table", table.getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
 			
 			List<String> uniqueKey = table.getUniqueKey();
@@ -186,6 +213,7 @@ public class Indexer
 		catch(SQLException e)
 		{
 			System.out.println("SQLException happened");
+			e.printStackTrace();
 		}
 		
 		return doc;

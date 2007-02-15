@@ -1,11 +1,9 @@
 /**
- * 
+ *this package is the top level package 
  */
 package titli;
 
 import java.util.*;
-import java.util.logging.*;
-
 import java.io.*;
 
 import titli.model.*;
@@ -23,11 +21,13 @@ public class Titli
 {
 	private static Titli instance=null;
 	
-	public final ArrayList<Database> databases;
+	public final List<Database> databases;
 	public  final int noOfDatabases; 
-	private Map<String,RDBMSReader> dbReaders;
+	private Map<String ,Indexer> indexers;
+	private Map<String, Fetcher> fetchers;
 	
-	private Titli(String propertiesUrl) throws FileNotFoundException, IOException
+	
+	public Titli(String propertiesUrl) throws FileNotFoundException, IOException
 	{
 		Properties props = new Properties();
 		
@@ -39,8 +39,9 @@ public class Titli
 		System.setProperty("titli.index.location", props.getProperty("titli.index.location"));
 		
 		//initialize the class fields 
-		dbReaders = new HashMap<String, RDBMSReader>();
 		databases = new ArrayList<Database>();
+		indexers = new HashMap<String, Indexer> ();
+		fetchers = new HashMap<String, Fetcher> ();
 		
 		//read database names
 		Scanner s =new Scanner(props.getProperty("jdbc.databases"));
@@ -49,11 +50,14 @@ public class Titli
 		{
 			String dbName =s.next();
 			
-			//make db readers
-			RDBMSReader reader = getRDBMSReader(dbName, props);
+			//make db reader
+			RDBMSReader reader = createRDBMSReader(dbName, props);
 			
-			//add the reader to the map
-			dbReaders.put(dbName, reader);
+			//create Indexer for the reader
+			indexers.put(dbName, new Indexer(reader));
+			
+			//create Fetcher for the reader
+			fetchers.put(dbName, new Fetcher(reader));
 			
 			//add Database to the list
 			databases.add(reader.getDatabase());
@@ -96,10 +100,12 @@ public class Titli
 	public void index()
 	{
 		//index all databases
-		for(String dbName : dbReaders.keySet())
+		for(Database db : databases)
 		{
+			String dbName = db.getName();
+			
 			System.out.println("Creating indexer for "+dbName);
-			Indexer indexer = new Indexer(dbReaders.get(dbName));
+			Indexer indexer = indexers.get(dbName);
 			indexer.index();
 		}
 		
@@ -114,9 +120,25 @@ public class Titli
 			
 			return matches;
 	}
+	
+	
+	public void fetch(MatchList matchList)
+	{
+		long start = new Date().getTime();
+		
+		for(Match match : matchList)
+		{
+			Fetcher fetcher = fetchers.get(match.getDatabaseName());
+			
+			fetcher.fetch(match);
+		}
+		
+		long end = new Date().getTime();
+		System.out.print("\nFetch took "+(end-start)/1000.0+" seconds");
+	}
 		
 	
-	private RDBMSReader getRDBMSReader(String dbName, Properties props)
+	private RDBMSReader createRDBMSReader(String dbName, Properties props)
 	{
 		Properties dbProps = new Properties();
 		
@@ -161,10 +183,15 @@ public class Titli
 		
 		//titli.index();
 		
-		//Fetcher.fetch(titli.search("new +bombay"),titli.dbReaders);
-		Fetcher.fetch(titli.search("Temple"),titli.dbReaders);
+		//MatchList matchList =titli.search("new +bombay");
+		//titli.fetch(matchList);
+		
+		//Fetcher.fetch(titli.search("Temple"),titli.dbReaders);
 		//Fetcher.fetch(titli.search("ajay"),titli.dbReaders);
-
+		//Fetcher.fetch(titli.search("pari~"),titli.dbReaders);
+		
+		MatchList matchList = titli.search("ajay");
+		titli.fetch(matchList);
 	}
 
 }

@@ -103,7 +103,8 @@ public class RDBMSReader
 		}
 		catch(SQLException e)
 		{
-			System.out.println("SQLException happened");
+			System.out.println("SQLException happened"+e);
+			e.printStackTrace();
 		}
 	
 	}
@@ -195,6 +196,7 @@ public class RDBMSReader
 			catch(SQLException e)
 			{
 				System.out.println("SQL Error happened"+e);
+				e.printStackTrace();
 			}
 			
 			

@@ -22,64 +22,76 @@ import titli.model.search.MatchList;
  */
 public class Fetcher
 {
-	public Fetcher()
+	private RDBMSReader reader;
+	private Statement fetchstmt;
+	
+	
+	public Fetcher(RDBMSReader dbReader)
 	{
+		reader = dbReader;
+		try
+		{
+			fetchstmt = reader.getFetchConnection().createStatement();
+		}
+		catch(SQLException e)
+		{
+			
+			System.out.println("SQL Exception happend"+e);
+			e.printStackTrace();
+		}
+		
 		
 		
 	}
 
 	
 	/**
+	 *  
+	 * @return the corresponding database
+	 */
+	public Database getDatabase()
+	{
+		return reader.getDatabase();
+	}
+	
+	
+	/**
 	 * fetch the actual records from the database
-	 * @param matchList the list of matches for which to fetch the records
+	 * @param match the match for which to fetch the records
 	 * @throws SQLException
 	 */
-	public static void fetch(MatchList matchList, Map<String, RDBMSReader> readers) 
+	public void fetch(Match match) 
 	{
 			
-		long start = new Date().getTime();
-	
 		try
 		{
-			//for each match
-			for(Match match : matchList)
+				
+			ResultSet rs = fetchstmt.executeQuery(match.getQuerystring());
+			ResultSetMetaData rsmd = rs.getMetaData();
+			
+			rs.next();
+			
+			int columns = rsmd.getColumnCount();
+			
+			System.out.println("Database : "+match.getDatabaseName()+"  Table : " +match.getTableName());
+			
+			
+			for(int i=1; i<=columns; i++)
 			{
-				Connection conn = readers.get(match.getDatabaseName()).getFetchConnection();
-				Statement searchstmt = conn.createStatement();
-			
-				ResultSet rs = searchstmt.executeQuery(match.getQuerystring());
-				ResultSetMetaData rsmd = rs.getMetaData();
-				
-				rs.next();
-				
-				int columns = rsmd.getColumnCount();
-				
-				System.out.println("Database : "+match.getDatabaseName()+"  Table : " +match.getTableName());
-				
-				
-				for(int i=1; i<=columns; i++)
-				{
-					System.out.print(rsmd.getColumnName(i)+" : "+rs.getString(i)+"  ");
-				}
-				
-				System.out.println("\n");
-				rs.close();
-			
-				searchstmt.close();
+				System.out.print(rsmd.getColumnName(i)+" : "+rs.getString(i)+"  ");
 			}
+			
+			System.out.println("\n");
+			rs.close();
+		
 		}
 		catch(SQLException e)
 		{
 			System.out.println("SQLException happened "+e);
+			e.printStackTrace();
 			//System.out.println("String : "+matc);
 		}
 		
-
-		long end = new Date().getTime();
-		
-		System.out.print("\nFetch took "+(end-start)/1000.0+" seconds");
-	
-
 	}	
 			
 	
