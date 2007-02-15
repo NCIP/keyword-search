@@ -17,7 +17,7 @@ import java.util.*;
 public class Match
 {
 	//stores columns and and values alternately
-	private StringBuilder uniqueKeys ;
+	private Map<String, String> uniqueKeys ;
 	private String self;
 	private String queryString;
 	
@@ -33,7 +33,7 @@ public class Match
 	Match(Document doc)
 	{
 		//get the fields and values
-		uniqueKeys = new StringBuilder();
+		uniqueKeys = new HashMap<String, String> ();
 				
 		this.tableName = doc.get("table");
 		this.dbName = doc.get("database");
@@ -44,53 +44,19 @@ public class Match
 		{
 			String name = ((Field)(e.nextElement())).name();
 			
-			uniqueKeys.append(name+" ");
-			uniqueKeys.append(doc.get(name)+" ");
-		}
-		
-		
-		//build string representation
-		StringBuilder string = new StringBuilder("Database : "+dbName+"    Table : "+tableName);
-		
-		string.append("\nUnique Key Set : ");
-		
-		Scanner scanner = new Scanner(new String(uniqueKeys));
-		
-		while(scanner.hasNext())
-		{
-			string.append(scanner.next()+" : "+scanner.next()+"   ");
-			
-		}
-		
-		self = new String(string+"\n\n");
-		scanner.close();
-		
-		//buld the corresponding SQL query
-		StringBuilder query = new StringBuilder("SELECT * FROM ");
-		
-		query.append(tableName+" WHERE ");
-		
-		scanner = new Scanner(new String(uniqueKeys));
-		
-		while(scanner.hasNext())
-		{
-			String key = scanner.next();
-			
-			
-			//don't include the tableName name
-			if(key.equals("table") || key.equals("database"))
+			//don't include the table  name and database name
+			if(name.equals("table") || name.equals("database"))
 			{
-				scanner.next();
 				continue;
-				
 			}
-			
-			query.append(key+" = '"+scanner.next()+"'  and ");
-						
+					
+			uniqueKeys.put(name, doc.get(name));
 		}
 		
-		queryString  = query.substring(0, query.lastIndexOf("and")) + ";";
 		
+		
+		
+			
 		
 	}
 	
@@ -106,14 +72,50 @@ public class Match
 		return tableName;
 	}
 	
+	
 	public String getQuerystring()
 	{
+		if(queryString==null)
+		{
+			//buld the corresponding SQL query
+			StringBuilder query = new StringBuilder("SELECT * FROM ");
+			
+			query.append(tableName+" WHERE ");
+			
+			//add each column and value pair 
+			for(String colName : uniqueKeys.keySet())
+			{
+				query.append(colName+" = '"+uniqueKeys.get(colName)+"'  and ");
+							
+			}
+			
+			//remove the last 'and'
+			queryString  = query.substring(0, query.lastIndexOf("and")) + ";";
+		
+		}
+		
 		return queryString;
 	}
 	
 	
 	public String toString()
 	{
+		if(self==null)
+		{
+			//build string representation
+			StringBuilder string = new StringBuilder("Database : "+dbName+"    Table : "+tableName);
+			
+			string.append("\nUnique Key Set : ");
+			
+			for(String colName : uniqueKeys.keySet())
+			{
+				string.append("   "+colName+" : "+uniqueKeys.get(colName));
+			}
+			
+			self = new String(string);
+			
+		}
+		
 		return self;
 	}
 	

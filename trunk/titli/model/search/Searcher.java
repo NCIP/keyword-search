@@ -61,6 +61,7 @@ public class Searcher
 		catch(IOException e)
 		{
 			System.out.println("IOException happened"+ e);
+			e.printStackTrace();
 		}
 		
 			
@@ -127,10 +128,12 @@ public class Searcher
 		catch(ParseException e)
 		{
 			System.out.println("ParseException happened"+e);
+			e.printStackTrace();
 		}
 		catch(IOException e)
 		{
 			System.out.println("IOException happened"+e);
+			e.printStackTrace();
 		}
 		
 		return matchList;
@@ -156,6 +159,7 @@ public class Searcher
 		catch(IOException e)
 		{
 			System.out.println("IOException happened"+e);
+			e.printStackTrace();
 		}
 		
 			
