@@ -1,9 +1,12 @@
 /**
- * 
+ * TiTLi business model
  */
 package titli.model;
 
-import java.util.*;
+
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -18,6 +21,12 @@ public class Table
 	private ArrayList<Column> columns;
 	public final int noOfColumns;
 	
+	/**
+	 * 
+	 * @param name name of the table
+	 * @param uniqueKey unique key set for the table
+	 * @param columns the list of columns that are to be part of this table
+	 */
 	public Table(String name, List<String> uniqueKey,   List<Column> columns)
 	{
 		this.name = name;
@@ -38,29 +47,28 @@ public class Table
 		
 	}
 	
-	
+	/**
+	 * 
+	 * @return the unique key set for the table
+	 */
 	public List<String> getUniqueKey()
 	{
 		return new ArrayList<String>(uniqueKey); 
 	}
 	
-	
+	/**
+	 * 
+	 * @param i the number of the column
+	 * @return the corresponding column
+	 */
 	public Column getColumn(int i)
 	{
 		return columns.get(i);
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
 	/**
-	 * @param args
+	 * @param args to main
 	 */
 	public static void main(String[] args)
 	{

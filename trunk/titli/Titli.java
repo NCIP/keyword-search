@@ -3,13 +3,26 @@
  */
 package titli;
 
-import java.util.*;
-import java.io.*;
 
-import titli.model.*;
-import titli.model.index.*;
-import titli.model.search.*;
-import titli.model.fetch.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Scanner;
+
+import titli.model.Database;
+import titli.model.RDBMSReader;
+import titli.model.fetch.Fetcher;
+import titli.model.index.Indexer;
+import titli.model.search.Match;
+import titli.model.search.MatchList;
+import titli.model.search.Searcher;
+
+
 
 
 /**
@@ -21,13 +34,17 @@ public class Titli
 {
 	private static Titli instance=null;
 	
-	public final List<Database> databases;
+	private List<Database> databases;
 	public  final int noOfDatabases; 
 	private Map<String ,Indexer> indexers;
 	private Map<String, Fetcher> fetchers;
 	
-	
-	public Titli(String propertiesUrl) throws FileNotFoundException, IOException
+	/**
+	 * 
+	 * @param propertiesUrl filename with the path where the properties file is stored
+	 * @throws IOException for e
+	 */
+	public Titli(String propertiesUrl) throws IOException
 	{
 		Properties props = new Properties();
 		
@@ -70,6 +87,10 @@ public class Titli
 		
 	}
 	
+	/**
+	 * 
+	 * @return return the only instance of Titli
+	 */
 	public static Titli getInstance()
 	{
 		/*
@@ -111,6 +132,11 @@ public class Titli
 		
 	}
 	
+	/**
+	 * 
+	 * @param query the search string for which the search is to be performed
+	 * @return the list of matches found
+	 */
 	public MatchList search(String query)
 	{
 			Searcher searcher = new Searcher(databases);
@@ -121,7 +147,10 @@ public class Titli
 			return matches;
 	}
 	
-	
+	/**
+	 * 
+	 * @param matchList the list of matches for which records are to be fetched
+	 */
 	public void fetch(MatchList matchList)
 	{
 		long start = new Date().getTime();
@@ -137,7 +166,12 @@ public class Titli
 		System.out.print("\nFetch took "+(end-start)/1000.0+" seconds");
 	}
 		
-	
+	/**
+	 * create an RDBMSReader for given name and properties
+	 * @param dbName name of the database
+	 * @param props the properties related to the reader
+	 * @return the newly created RDBMSReader
+	 */
 	private RDBMSReader createRDBMSReader(String dbName, Properties props)
 	{
 		Properties dbProps = new Properties();
@@ -173,11 +207,12 @@ public class Titli
 	
 	
 	
-	
 	/**
-	 * @param args
+	 * 
+	 * @param args args for main
+	 * @throws IOException for e
 	 */
-	public static void main(String[] args) throws IOException, FileNotFoundException
+	public static void main(String[] args) throws IOException
 	{
 		Titli titli = new Titli("E:/juber/workspace/TiTLi/titli/model/titli.properties");
 		
