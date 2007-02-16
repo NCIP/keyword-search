@@ -53,8 +53,6 @@ public class TitliTest
 	@Test
 	public void constructorTest()
 	{
-		assertEquals("Databases should be 2 !!", titli.noOfDatabases,2);
-		
 		assertNotSame("No databases read !!", titli.noOfDatabases,0);
 		
 		assertNotNull("JDBC Drivers String Empty !!", System.getProperty("jdbc.drivers"));
@@ -71,7 +69,8 @@ public class TitliTest
 	@Test
 	public void indexTest()
 	{
-		
+		titli.index();
+				
 	}
 	
 	
