@@ -3,11 +3,13 @@
  */
 package titli.model.index;
 
-
-import java.sql.*;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -15,9 +17,13 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.nutch.protocol.Content;
 
-import titli.model.*;
+import titli.model.Database;
+import titli.model.RDBMSReader;
+import titli.model.Table;
+
+
+
 
 /**
  * @author Juber Patel

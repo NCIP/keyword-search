@@ -3,18 +3,25 @@
  */
 package titli.model.search;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import org.apache.lucene.analysis.*;
-import org.apache.lucene.analysis.standard.*;
-import org.apache.lucene.queryParser.*;
-import org.apache.lucene.search.*;
-import org.apache.lucene.store.*;
-
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.Hits;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MultiSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.store.RAMDirectory;
 
-import titli.model.*;
+import titli.model.Database;
+import titli.model.Table;
+
 
 /**
  * @author juberahamad_patel
@@ -25,7 +32,11 @@ public class Searcher
 	private ArrayList<IndexSearcher> searcherList;
 	private MultiSearcher ms;
 	
-	//setup a multiseracher for the given databases
+	
+	/**
+	 * setup a multiseracher for the given databases
+	 * @param databases the list of databases to be searched 
+	 */
 	public Searcher(List<Database> databases)
 	{
 		try
@@ -54,7 +65,7 @@ public class Searcher
 				
 			}
 			
-			IndexSearcher[] searchers = searcherList.toArray(new IndexSearcher[0] );		
+			IndexSearcher[] searchers = searcherList.toArray(new IndexSearcher[0]);		
 			
 			ms = new MultiSearcher(searchers);
 		}
@@ -63,9 +74,7 @@ public class Searcher
 			System.out.println("IOException happened"+ e);
 			e.printStackTrace();
 		}
-		
 			
-		
 	}
 	
 	
@@ -165,9 +174,9 @@ public class Searcher
 			
 	}
 	
-	
 	/**
-	 * @param args
+	 * 
+	 * @param args arguments to main
 	 */
 	public static void main(String[] args) 
 	{

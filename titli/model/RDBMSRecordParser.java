@@ -3,18 +3,23 @@
  */
 package titli.model;
 
+
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.Parser;
+import org.apache.nutch.protocol.Content;
+
 /**
  * pareses the resultset to get relevant information
  * @author juberahamad_patel
  *
  */
 
-import java.sql.*;
 
-import org.apache.nutch.parse.*;
-import org.apache.nutch.protocol.*;
-
-import org.apache.hadoop.conf.*;
 
 public class RDBMSRecordParser implements Parser
 {
@@ -24,8 +29,8 @@ public class RDBMSRecordParser implements Parser
 	
 	/**
 	 * 
-	 * @param rs the resultset to be parsed
-	 * @throws SQLException
+	 * @param rs the resultset
+	 * @throws SQLException if problem with database connection
 	 */
 	public RDBMSRecordParser(ResultSet rs) throws SQLException
 	{
@@ -35,15 +40,24 @@ public class RDBMSRecordParser implements Parser
 	
 	
 	//ignore Content for the time being
-	/**
-	 * @param content ignore for the time being
-	 */
-	public Parse getParse(Content content)
+	
+	 
+	 
+	 
+	 /**
+	  * @param content the content to be parsed
+	  * @return the result of parsing
+	  */
+	 public Parse getParse(Content content)
 	{
 		
 		return new RDBMSRecordParse(new String(record));
 	}
 	
+	/**
+	 * ignore for the time being
+	 * @return nothing right now
+	 */ 
 	public Configuration getConf()
 	{
 		
@@ -51,6 +65,10 @@ public class RDBMSRecordParser implements Parser
 		return null;
 	}
 	
+	/**
+	 * ignore for the time being
+	 * @param conf nothing
+	 */
 	public void setConf(Configuration conf)
 	{
 		
@@ -60,9 +78,10 @@ public class RDBMSRecordParser implements Parser
 	
 
 	/**
-	 * @param args
+	 * @param args argumnets to main
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
 		// TODO Auto-generated method stub
 
 	}

@@ -3,15 +3,15 @@
  */
 package titli.model.fetch;
 
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-import java.util.*;
-import java.util.Date;
-
-import titli.*;
-import titli.model.*;
+import titli.model.Database;
+import titli.model.RDBMSReader;
 import titli.model.search.Match;
-import titli.model.search.MatchList;
+
 
 
 /**
@@ -25,7 +25,10 @@ public class Fetcher
 	private RDBMSReader reader;
 	private Statement fetchstmt;
 	
-	
+	/**
+	 * 
+	 * @param dbReader the reader for which the fetcher should be built
+	 */
 	public Fetcher(RDBMSReader dbReader)
 	{
 		reader = dbReader;
@@ -97,7 +100,7 @@ public class Fetcher
 	
 
 	/**
-	 * @param args
+	 * @param args arguments to main
 	 */
 	public static void main(String[] args)
 	{

@@ -3,16 +3,17 @@
  */
 package test.model;
 
-import java.io.*;
 
-import static org.junit.Assert.*;
+
+import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import titli.Titli;
+import static org.junit.Assert.*;
 
+import titli.Titli;
 
 /**
  * @author Juber Patel
@@ -24,7 +25,7 @@ public class TitliTest
 	private Titli titli;
 	
 	/**
-	 * @throws java.lang.Exception
+	 * @throws java.lang.Exception dddd
 	 */
 	@Before
 	public void setUp() throws Exception
@@ -34,7 +35,7 @@ public class TitliTest
 	}
 	
 	/**
-	 * @throws java.lang.Exception
+	 * @throws java.lang.Exception dddd
 	 */
 	@After
 	public void tearDown() throws Exception 
@@ -63,7 +64,10 @@ public class TitliTest
 		assertNotNull("instance is still null !!", Titli.getInstance());
 	}
 	
-	
+	/**
+	 * test the indexing functionality
+	 *
+	 */
 	@Test
 	public void indexTest()
 	{
@@ -72,12 +76,13 @@ public class TitliTest
 	
 	
 	
-	
 	/**
 	 * Test method for {@link titli.Titli#main(java.lang.String[])}.
+	 * @throws IOException for io
+	 * 
 	 */
 	//@Test(timeout=5000)
-	public void testMain() throws IOException,FileNotFoundException
+	public void testMain() throws IOException
 	{
 		
 		Titli.main(new String[0]);

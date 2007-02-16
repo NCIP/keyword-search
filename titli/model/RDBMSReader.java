@@ -3,25 +3,17 @@
  */
 package titli.model;
 
-
-
-import java.util.*;
-import java.util.logging.*;
-import java.io.*;
-import java.sql.*;
-import java.util.Date;
-
-import org.apache.lucene.analysis.*;
-import org.apache.lucene.analysis.standard.*;
-import org.apache.lucene.index.*;
-import org.apache.lucene.document.*;
-import org.apache.lucene.search.*;
-import org.apache.lucene.queryParser.*;
-import org.apache.lucene.store.*;
-
-import org.apache.nutch.protocol.*;
-
-import titli.model.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Scanner;
 
 
 
@@ -40,13 +32,6 @@ public class RDBMSReader
 	private Connection indexConnection;
 	private Connection searchConnection;
 	private Database database;
-	
-	private PreparedStatement indexstmt;
-	private Statement searchstmt;
-	private ResultSet rs1;
-	
-	private File databaseIndexDir;
-	private int MAX_STATEMENTS; 
 	
 	private List<String> invisiblePrefixes;
 	private List<String> invisibleTables;
@@ -205,12 +190,20 @@ public class RDBMSReader
 		return database;
 	}
 	
-	
+	/**
+	 * return the connection to be used by an indexer
+	 * @return the connection
+	 */
 	public Connection getIndexConnection()
 	{
 		return indexConnection;
 	}
 	
+	/**
+	 * return the connection to be used by a fetcher
+	 * @return the connection
+	 * 
+	 */
 	public Connection getFetchConnection()
 	{
 		return searchConnection;
@@ -223,12 +216,21 @@ public class RDBMSReader
 	
 	/**
 	 * close the database connections
+	 * 
 	 */
-	protected void finalize() throws SQLException
+	protected void finalize() 
 	{
-		indexConnection.close();
-		searchConnection.close();
-		
+		try
+		{
+			indexConnection.close();
+			searchConnection.close();
+		}
+		catch(SQLException e)
+		{
+			System.out.println("SQL Exception happened"+e);
+			e.printStackTrace();
+		}
+			
 	}
 	
 	/**
@@ -256,9 +258,9 @@ public class RDBMSReader
 	
 	
 	/**
-	 * @param args
+	 * @param args args to main
 	 */
-	public static void main(String[] args) throws Exception
+	public static void main(String[] args)
 	{
 		
 		

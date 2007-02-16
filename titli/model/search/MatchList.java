@@ -3,17 +3,13 @@
  */
 package titli.model.search;
 
-import java.util.*;
-
-
-
+import java.util.ArrayList;
 
 /**
- * @author juberahamad_patel
+ * @author Juber Patel
  *
  */
-public class MatchList extends ArrayList<Match>
-{
+public class MatchList extends ArrayList<Match> {
 
 	/**
 	 * 
@@ -26,43 +22,35 @@ public class MatchList extends ArrayList<Match>
 
 	/**
 	 * @param arg0
-	public MatchList(MatchComparator comparator)
-	{
-		super(comparator);
-		// TODO Auto-generated constructor stub
-	}*/
+	 public MatchList(MatchComparator comparator)
+	 {
+	 super(comparator);
+	 // TODO Auto-generated constructor stub
+	 }*/
 
 	//these methods are not needed for the time being
 	/**
 	 * @param arg0
-	
-	public MatchList(Collection arg0) 
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
+	 
+	 public MatchList(Collection arg0) 
+	 {
+	 super(arg0);
+	 // TODO Auto-generated constructor stub
+	 }
 
-	/**
+	 /**
 	 * @param arg0
-	 	public MatchList(SortedSet arg0) 
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}*/
-	
-	
-	
+	 public MatchList(SortedSet arg0) 
+	 {
+	 super(arg0);
+	 // TODO Auto-generated constructor stub
+	 }*/
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
 	}
-
 }
-
-
-
