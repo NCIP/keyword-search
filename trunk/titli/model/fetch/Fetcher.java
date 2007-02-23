@@ -10,7 +10,7 @@ import java.sql.Statement;
 
 import titli.model.Database;
 import titli.model.RDBMSReader;
-import titli.model.search.Match;
+import titli.model.search.RecordMatch;
 
 
 
@@ -63,7 +63,7 @@ public class Fetcher
 	 * @param match the match for which to fetch the records
 	 * @throws SQLException
 	 */
-	public void fetch(Match match) 
+	public void fetch(RecordMatch match) 
 	{
 			
 		try

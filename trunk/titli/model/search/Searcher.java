@@ -24,7 +24,7 @@ import titli.model.Table;
 
 
 /**
- * @author juberahamad_patel
+ * @author Juber Patel
  *
  */
 public class Searcher
@@ -86,10 +86,10 @@ public class Searcher
 	 * @throws SQLException
 	 * @throws org.apache.lucene.queryParser.ParseException
 	 */
-	public MatchList search(String searchString) 
+	public RecordMatchList search(String searchString) 
 	{
 		
-		MatchList matchList = new MatchList();
+		RecordMatchList matchList = new RecordMatchList();
 		
 		System.out.println("Searching for " +searchString+"...");
 		Analyzer analyzer = new StandardAnalyzer();
@@ -114,9 +114,9 @@ public class Searcher
 			//build the match list	
 			for(int i=0;i<listLength;i++)
 			{
-				matchList.add(new Match(hits.doc(i)));
+				matchList.add(new RecordMatch(hits.doc(i)));
 						
-				//matchList.add(new Match(hits.doc(i).get("ID"),hits.doc(i).get("TableName"),"Not Known"));
+				//matchList.add(new RecordMatch(hits.doc(i).get("ID"),hits.doc(i).get("TableName"),"Not Known"));
 				//System.out.println(hits.doc(i).get("Population")+"  "+hits.doc(i).get("CountryCode"));
 				
 			}
@@ -125,7 +125,7 @@ public class Searcher
 			System.out.println("\n Found "+listLength+" matches");
 			
 			System.out.println("\nThe matches are : ");
-			for(Match match : matchList)
+			for(RecordMatch match : matchList)
 			{
 				System.out.println(match);
 				System.out.println(match.getQuerystring()+"\n");
@@ -174,14 +174,4 @@ public class Searcher
 			
 	}
 	
-	/**
-	 * 
-	 * @param args arguments to main
-	 */
-	public static void main(String[] args) 
-	{
-		// TODO Auto-generated method stub
-
-	}
-
 }

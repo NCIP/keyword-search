@@ -20,7 +20,7 @@ public class Column
 	 * @param name name of the column
 	 * @param type SQL datatype of the column
 	 */
-	public Column(String name, String type)
+	Column(String name, String type)
 	{
 		this.name = new String(name);
 		this.type = new String(type);
