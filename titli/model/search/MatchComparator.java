@@ -3,18 +3,19 @@
  */
 package titli.model.search;
 
-import java.util.*;
-
-
-
-
 /**
  * @author Juber Patel
  *
  */
-public class MatchComparator implements java.util.Comparator<Match>
+public class MatchComparator implements java.util.Comparator<RecordMatch>
 {
-	public int compare(Match a, Match b)
+	/**
+	 * compares the table names lexicographically
+	 * @param a the first match
+	 * @param b the second match
+	 * @return negative value if a is less than b, positive value if a is greater than b, 0 if they are equal
+	 */
+	public int compare(RecordMatch a, RecordMatch b)
 	{
 		
 		int tableCompare = a.getTableName().compareTo(b.getTableName());

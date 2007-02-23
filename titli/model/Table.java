@@ -17,6 +17,7 @@ import java.util.List;
 public class Table
 {
 	private String name;
+	private String databaseName;
 	private ArrayList<String> uniqueKey;
 	private ArrayList<Column> columns;
 	public final int noOfColumns;
@@ -24,12 +25,14 @@ public class Table
 	/**
 	 * 
 	 * @param name name of the table
+	 * @param databaseName the name of the database which the table belongs to
 	 * @param uniqueKey unique key set for the table
 	 * @param columns the list of columns that are to be part of this table
 	 */
-	public Table(String name, List<String> uniqueKey,   List<Column> columns)
+	Table(String name, String databaseName, List<String> uniqueKey,   List<Column> columns)
 	{
 		this.name = name;
+		this.databaseName = databaseName;
 		this.uniqueKey = new ArrayList<String> (uniqueKey);
 		this.columns =  new ArrayList<Column> (columns);
 		noOfColumns = columns.size();
@@ -46,6 +49,18 @@ public class Table
 		return name;
 		
 	}
+	
+	
+	/**
+	 * returns the name of the table
+	 * @return the name of the table
+	 */
+	public String getDatabaseName()
+	{
+		return databaseName;
+		
+	}
+	
 	
 	/**
 	 * 

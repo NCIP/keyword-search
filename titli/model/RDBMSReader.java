@@ -59,7 +59,6 @@ public class RDBMSReader
 		//populate lists of tables NOT to be indexed
 		Scanner s = new Scanner(props.getProperty("titli."+dbName+".noindex.prefix"));
 		
-		System.out.println("titli."+dbName+".noindex.prefix ::" +props.getProperty("titli."+dbName+".noindex.prefix"));
 		s.useDelimiter("\\s*,\\s*");
 		while(s.hasNext())
 		{
@@ -104,7 +103,6 @@ public class RDBMSReader
 		//build the database metadata
 		if(database==null)
 		{
-			System.out.println("Meta Data is null");
 			List<Table> tables = new ArrayList<Table> ();
 			try
 			{
@@ -166,7 +164,7 @@ public class RDBMSReader
 					useless.close();
 					
 					//add the table to the list
-					tables.add(new Table(tableName, uniqueKey, columns));
+					tables.add(new Table(tableName, dbName, uniqueKey, columns));
 					
 				}
 				

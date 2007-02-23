@@ -18,8 +18,8 @@ import titli.model.Database;
 import titli.model.RDBMSReader;
 import titli.model.fetch.Fetcher;
 import titli.model.index.Indexer;
-import titli.model.search.Match;
-import titli.model.search.MatchList;
+import titli.model.search.RecordMatch;
+import titli.model.search.RecordMatchList;
 import titli.model.search.Searcher;
 
 
@@ -66,6 +66,8 @@ public class Titli
 		while(s.hasNext())
 		{
 			String dbName =s.next();
+			
+			System.out.println("Creating reader for "+dbName);
 			
 			//make db reader
 			RDBMSReader reader = createRDBMSReader(dbName, props);
@@ -137,11 +139,11 @@ public class Titli
 	 * @param query the search string for which the search is to be performed
 	 * @return the list of matches found
 	 */
-	public MatchList search(String query)
+	public RecordMatchList search(String query)
 	{
 			Searcher searcher = new Searcher(databases);
 			
-			MatchList matches =searcher.search(query);
+			RecordMatchList matches =searcher.search(query);
 			searcher.close();
 			
 			return matches;
@@ -151,11 +153,11 @@ public class Titli
 	 * 
 	 * @param matchList the list of matches for which records are to be fetched
 	 */
-	public void fetch(MatchList matchList)
+	public void fetch(RecordMatchList matchList)
 	{
 		long start = new Date().getTime();
 		
-		for(Match match : matchList)
+		for(RecordMatch match : matchList)
 		{
 			Fetcher fetcher = fetchers.get(match.getDatabaseName());
 			
@@ -200,13 +202,6 @@ public class Titli
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
 	/**
 	 * 
 	 * @param args args for main
@@ -218,15 +213,24 @@ public class Titli
 		
 		//titli.index();
 		
-		//MatchList matchList =titli.search("new +bombay");
-		//titli.fetch(matchList);
+		RecordMatchList matchList =titli.search("new +bombay");
+		titli.fetch(matchList);
 		
 		//Fetcher.fetch(titli.search("Temple"),titli.dbReaders);
 		//Fetcher.fetch(titli.search("ajay"),titli.dbReaders);
 		//Fetcher.fetch(titli.search("pari~"),titli.dbReaders);
 		
-		MatchList matchList = titli.search("ajay");
-		titli.fetch(matchList);
+		//RecordMatchList matchList = titli.search("ajay");
+		//titli.fetch(matchList);
+		
+		//querying a remote databse : cab2b on Vishvesh's machine
+		//RecordMatchList matchList = titli.search("1298_1150_1372");
+		//titli.fetch(matchList);
+		
+		//RecordMatchList matchList = titli.search("tilburg");
+		//titli.fetch(matchList);
+		
 	}
+	
 
 }

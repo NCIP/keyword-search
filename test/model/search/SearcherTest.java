@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import titli.model.Column;
-import titli.model.Table;
 import titli.model.search.Searcher;
 
 
@@ -35,16 +34,13 @@ public class SearcherTest
 		
 		List<Column> list = new ArrayList<Column>();
 		
-		list.add(new Column("id","integer"));
-		list.add(new Column("name", "string"));
-		list.add(new Column("age","real"));
 		
 		
 		List<String> list1 = new ArrayList<String>();
 		list1.add("id");
 		list1.add("name");
 		
-		Table t1 = new Table("t1", list1, list);
+		
 	}
 
 	/**

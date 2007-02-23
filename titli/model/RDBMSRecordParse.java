@@ -9,7 +9,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 
 /**
- * @author juberahamad_patel
+ * @author Juber Patel
  *
  */
 public class RDBMSRecordParse implements Parse

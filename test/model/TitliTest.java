@@ -5,13 +5,15 @@ package test.model;
 
 
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+
 import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 import titli.Titli;
 
@@ -50,6 +52,7 @@ public class TitliTest
 	/**
 	 * test the set parameters, variables and properties
 	 */
+	@Ignore("not ready yet")
 	@Test
 	public void constructorTest()
 	{
@@ -66,6 +69,7 @@ public class TitliTest
 	 * test the indexing functionality
 	 *
 	 */
+	@Ignore("not ready yet")
 	@Test
 	public void indexTest()
 	{
@@ -80,7 +84,8 @@ public class TitliTest
 	 * @throws IOException for io
 	 * 
 	 */
-	//@Test(timeout=5000)
+	@Ignore("not ready yet")
+	@Test(timeout=5000)
 	public void testMain() throws IOException
 	{
 		

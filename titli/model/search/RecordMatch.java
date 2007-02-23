@@ -3,8 +3,12 @@
  */
 package titli.model.search;
 
-import org.apache.lucene.document.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 
 
 /**
@@ -14,7 +18,7 @@ import java.util.*;
  */
 
 
-public class Match
+public class RecordMatch implements  titli.controller.interfaces.Match
 {
 	//stores columns and and values alternately
 	private Map<String, String> uniqueKeys ;
@@ -29,8 +33,7 @@ public class Match
 	/**
 	 * @param doc the document that matched the search query
 	 */
-	//for package use only
-	Match(Document doc)
+	RecordMatch(Document doc)
 	{
 		//get the fields and values
 		uniqueKeys = new HashMap<String, String> ();
@@ -52,27 +55,33 @@ public class Match
 					
 			uniqueKeys.put(name, doc.get(name));
 		}
-		
-		
-		
-		
-			
-		
+				
 	}
 	
 	
+	
+	/**
+	 * the database name
+	 * @return the name of the database
+	 */
 	public String getDatabaseName()
 	{
 		return dbName;
 	}
 	
-	
+	/**
+	 * the table name
+	 * @return the name of the table
+	 */
 	public String getTableName()
 	{
 		return tableName;
 	}
 	
-	
+	/**
+	 * The SQL query that must be fired to fetch the record corresponding to the match
+	 * @return the relevant SQL query
+	 */
 	public String getQuerystring()
 	{
 		if(queryString==null)
@@ -97,7 +106,10 @@ public class Match
 		return queryString;
 	}
 	
-	
+	/**
+	 * String representation of the RecordMatch
+	 * @return the string representation
+	 */
 	public String toString()
 	{
 		if(self==null)
@@ -120,14 +132,4 @@ public class Match
 	}
 	
 	
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) 
-	{
-		// TODO Auto-generated method stub
-
-	}
-
 }
