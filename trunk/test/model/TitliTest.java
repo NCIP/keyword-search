@@ -18,7 +18,6 @@ import titli.controller.interfaces.record.RecordInterface;
 import titli.model.Titli;
 
 
-
 /**
  * The class to test the Titli Model functionality
  * @author Juber Patel

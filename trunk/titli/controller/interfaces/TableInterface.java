@@ -41,12 +41,5 @@ public interface TableInterface
 	 */
 	int getNumberOfColumns();
 	
-	
-	/**
-	 * 
-	 * @param i the number of the column
-	 * @return the corresponding column
-	 */
-	ColumnInterface getColumn(int i);
-	
+		
 }

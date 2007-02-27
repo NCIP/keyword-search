@@ -5,12 +5,9 @@ package titli.controller.interfaces;
 
 import java.util.List;
 
-import titli.model.Database;
-
-
 
 /**
- * The main interface. This interface is used to initialize Titli, fire searches and fetch the results
+ * The main interface. This interface is used to initialize Titli, index databases and fire searches 
  * @author Juber Patel
  *
  */
@@ -28,7 +25,7 @@ public interface TitliInterface
 	 * 
 	 * @return the list of databases
 	 */
-	List<Database> getDatabases();
+	List<DatabaseInterface> getDatabases();
 	
 	
 	

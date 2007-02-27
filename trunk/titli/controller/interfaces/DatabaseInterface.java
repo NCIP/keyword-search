@@ -27,13 +27,6 @@ public interface DatabaseInterface
 	
 	
 	/**
-	 * return the table specified by a number 
-	 * @param i the number of the table
-	 * @return the table
-	 */
-	TableInterface getTable(int i);
-	
-	/**
 	 * return the table specified by the name 
 	 * @param name the name of the table
 	 * @return the table
