@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="private" additionalparam=" -noqualifier all" author="true" classpath="E:\juber\lib\postgresql-8.1-405.jdbc3.jar;E:\juber\lib\nutch-0.8.jar;E:\juber\lib\mysql-connector-java-5.0.4-bin.jar;E:\juber\junit4.1\junit-4.1.jar;E:\juber\lib\hadoop-0.9.2.jar;E:\juber\lib\lucene-core-2.0.0.jar" destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="titli.model.fetch,titli.controller.interfaces.record,titli.model.search,test.model,titli.controller.interfaces.entry,titli.controller.interfaces,titli.model,titli.model.index" source="1.6" sourcepath="." splitindex="true" use="true" version="true"/>
+    </target>
+</project>

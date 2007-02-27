@@ -3,13 +3,15 @@
  */
 package titli.controller.interfaces;
 
+import titli.controller.interfaces.record.RecordInterface;
+
 /**
  * A Document in the index that matched the given search string
- * A Match only deals with the index and not with the databases  
+ * A MatchInterface only deals with the index and not with the databases  
  * @author juber Patel
  *
  */
-public interface Match
+public interface MatchInterface
 {
 	/**
 	 * Get the table in which the matched record belongs
@@ -23,6 +25,13 @@ public interface Match
 	 */	
 	String getDatabaseName();
 	
+	
+	/**
+	 * Fetch the record corresponding to the match
+	 * @return the record corresponding to the match
+	 */
+	RecordInterface fetch();
+
 	
 	
 }

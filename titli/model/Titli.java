@@ -1,25 +1,25 @@
 /**
  *this package is the top level package 
  */
-package titli;
+package titli.model;
 
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 
-import titli.model.Database;
-import titli.model.RDBMSReader;
+import titli.controller.interfaces.MatchInterface;
+import titli.controller.interfaces.MatchListInterface;
+import titli.controller.interfaces.TitliInterface;
+import titli.controller.interfaces.record.RecordInterface;
 import titli.model.fetch.Fetcher;
 import titli.model.index.Indexer;
-import titli.model.search.RecordMatch;
-import titli.model.search.RecordMatchList;
+import titli.model.search.MatchList;
 import titli.model.search.Searcher;
 
 
@@ -30,27 +30,35 @@ import titli.model.search.Searcher;
  * @author Juber Patel
  *
  */
-public class Titli 
+public final class Titli implements TitliInterface
 {
-	private static Titli instance=null;
+	private static Titli instance;
 	
 	private List<Database> databases;
-	public  final int noOfDatabases; 
 	private Map<String ,Indexer> indexers;
 	private Map<String, Fetcher> fetchers;
 	
 	/**
+	 * private constructor for singleton behavaiour
 	 * 
-	 * @param propertiesUrl filename with the path where the properties file is stored
-	 * @throws IOException for e
 	 */
-	public Titli(String propertiesUrl) throws IOException
+	private Titli() 
 	{
+		String propertiesUrl = System.getProperty("titli.properties.location");
+		
 		Properties props = new Properties();
 		
-		FileInputStream in = new FileInputStream(propertiesUrl);
-		props.load(in);
-		
+		try
+		{
+			FileInputStream in = new FileInputStream(propertiesUrl);
+			props.load(in);
+		}
+		catch(IOException e)
+		{
+			System.out.println("IOException in Titli constructor");
+			e.printStackTrace();
+		}
+			
 		//set system properties
 		System.setProperty("jdbc.drivers", props.getProperty("jdbc.drivers"));
 		System.setProperty("titli.index.location", props.getProperty("titli.index.location"));
@@ -67,8 +75,6 @@ public class Titli
 		{
 			String dbName =s.next();
 			
-			System.out.println("Creating reader for "+dbName);
-			
 			//make db reader
 			RDBMSReader reader = createRDBMSReader(dbName, props);
 			
@@ -78,14 +84,12 @@ public class Titli
 			//create Fetcher for the reader
 			fetchers.put(dbName, new Fetcher(reader));
 			
-			//add Database to the list
+			//add DatabaseInterface to the list
 			databases.add(reader.getDatabase());
 			
 		}
 		
-		//set remaining class fields
-		noOfDatabases = databases.size();
-		instance = this;
+		
 		
 	}
 	
@@ -95,24 +99,33 @@ public class Titli
 	 */
 	public static Titli getInstance()
 	{
-		/*
-		(instance==null)
+		
+		if(instance==null)
 		{
 			instance = new Titli();
-		}*/
+		}
 		
 		return instance;
 	}
 	
 	
 	/**
+	 * Get the number of databases 
+	 * @return the number of databases
+	 */
+	public int getNumberOfDatabases()
+	{
+		return databases.size();
+	}
+	
+	
+	/**
 	 * 
-	 * @param i the number of the database
 	 * @return the corresponding database
 	 */
-	public Database getDatabase(int i)
+	public List<Database> getDatabases()
 	{
-		return databases.get(i);
+		return new ArrayList<Database>(databases);
 	}
 
 	/**
@@ -127,7 +140,7 @@ public class Titli
 		{
 			String dbName = db.getName();
 			
-			System.out.println("Creating indexer for "+dbName);
+			//System.out.println("Creating indexer for "+dbName);
 			Indexer indexer = indexers.get(dbName);
 			indexer.index();
 		}
@@ -139,34 +152,16 @@ public class Titli
 	 * @param query the search string for which the search is to be performed
 	 * @return the list of matches found
 	 */
-	public RecordMatchList search(String query)
+	public MatchList search(String query)
 	{
-			Searcher searcher = new Searcher(databases);
+			Searcher searcher = new Searcher(databases, fetchers);
 			
-			RecordMatchList matches =searcher.search(query);
+			MatchList matches =searcher.search(query);
 			searcher.close();
 			
 			return matches;
 	}
 	
-	/**
-	 * 
-	 * @param matchList the list of matches for which records are to be fetched
-	 */
-	public void fetch(RecordMatchList matchList)
-	{
-		long start = new Date().getTime();
-		
-		for(RecordMatch match : matchList)
-		{
-			Fetcher fetcher = fetchers.get(match.getDatabaseName());
-			
-			fetcher.fetch(match);
-		}
-		
-		long end = new Date().getTime();
-		System.out.print("\nFetch took "+(end-start)/1000.0+" seconds");
-	}
 		
 	/**
 	 * create an RDBMSReader for given name and properties
@@ -205,29 +200,39 @@ public class Titli
 	/**
 	 * 
 	 * @param args args for main
-	 * @throws IOException for e
+	 * 
 	 */
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args)
 	{
-		Titli titli = new Titli("E:/juber/workspace/TiTLi/titli/model/titli.properties");
+		//set the system property that will be read by the Tilti constructor 
+		System.setProperty("titli.properties.location", "E:/juber/workspace/TiTLi/titli/model/titli.properties");
+		
+		Titli titli = Titli.getInstance();
 		
 		//titli.index();
 		
-		RecordMatchList matchList =titli.search("new +bombay");
-		titli.fetch(matchList);
+		MatchListInterface  matchList =titli.search("new +bombay");
+		
+		for(MatchInterface match : matchList)
+		{
+			RecordInterface record = match.fetch();
+			
+			System.out.println(record);
+		}
+		
 		
 		//Fetcher.fetch(titli.search("Temple"),titli.dbReaders);
 		//Fetcher.fetch(titli.search("ajay"),titli.dbReaders);
 		//Fetcher.fetch(titli.search("pari~"),titli.dbReaders);
 		
-		//RecordMatchList matchList = titli.search("ajay");
+		//MatchList matchList = titli.search("ajay");
 		//titli.fetch(matchList);
 		
 		//querying a remote databse : cab2b on Vishvesh's machine
-		//RecordMatchList matchList = titli.search("1298_1150_1372");
+		//MatchList matchList = titli.search("1298_1150_1372");
 		//titli.fetch(matchList);
 		
-		//RecordMatchList matchList = titli.search("tilburg");
+		//MatchList matchList = titli.search("tilburg");
 		//titli.fetch(matchList);
 		
 	}

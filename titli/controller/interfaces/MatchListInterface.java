@@ -3,6 +3,8 @@
  */
 package titli.controller.interfaces;
 
+import java.util.List;
+
 
 
 /**
@@ -10,7 +12,7 @@ package titli.controller.interfaces;
  * @author Juber Patel
  *
  */
-public interface MatchList 
+public interface MatchListInterface extends List<MatchInterface> 
 {
 	/**
 	 * Get the number of matches in the matchlist

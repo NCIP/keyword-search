@@ -12,14 +12,14 @@ package titli.controller.interfaces.entry;
  * @author Juber Patel
  *
  */
-public interface Entry
+public interface EntryInterface
 {
 	/**
-	 * Get the root SubEntry which is the root of the entry.
-	 * This SubEntry has refrences to other SubEntries
-	 * @return the root SubEntry
+	 * Get the root SubEntryInterface which is the root of the entry.
+	 * This SubEntryInterface has refrences to other SubEntries
+	 * @return the root SubEntryInterface
 	 */
-	SubEntry getRootSubEntry();
+	SubEntryInterface getRootSubEntry();
 	
 	
 	

@@ -5,8 +5,7 @@ package titli.model;
 
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 
 
@@ -19,8 +18,8 @@ import java.util.List;
 public class Database 
 {
 	private String name;
-	private ArrayList<Table> tables;
-	public final int noOfTables;
+	private Map<String, Table> tables;
+	
 	
 	
 	/**
@@ -28,11 +27,11 @@ public class Database
 	 * @param name name of the database
 	 * @param tables the list of tables which are part of the databases
 	 */
-	public Database(String name, List<Table> tables)
+	public Database(String name, Map<String, Table> tables)
 	{
 		this.name = name;
-		this.tables = new ArrayList<Table>(tables);
-		noOfTables = this.tables.size();
+		this.tables = tables;
+		
 	}
 
 	/**
@@ -44,15 +43,36 @@ public class Database
 		return name;
 	}
 	
+	
 	/**
-	 * return the table specified by a number 
-	 * @param i the number of the table
+	 * Get the number of tables in the database
+	 * @return the number of tables in the database
+	 */
+	public int getNumberOfTables()
+	{
+		return tables.size();
+	}
+	
+	
+	/**
+	 * return the table specified by name  
+	 * @param name the name of the table
 	 * @return the table
 	 */
-	public Table getTable(int i)
+	public Table getTable(String name)
 	{
-		return tables.get(i);
+		return tables.get(name);
 	}
+	
+	/**
+	 * Get a map of all the tables in the database
+	 * @return a map of all the table names and tables in the database
+	 */
+	public Map<String, Table> getTables()
+	{
+		return tables;
+	}
+	
 	
 	/**
 	 * @param args args to main

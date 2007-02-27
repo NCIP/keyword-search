@@ -8,7 +8,7 @@ package titli.controller.interfaces;
  * @author Juber Patel
  *
  */
-public interface Column 
+public interface ColumnInterface 
 {
 
 	/**
