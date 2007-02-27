@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 
+import titli.controller.interfaces.DatabaseInterface;
 import titli.controller.interfaces.MatchInterface;
 import titli.controller.interfaces.MatchListInterface;
 import titli.controller.interfaces.TitliInterface;
@@ -123,9 +124,9 @@ public final class Titli implements TitliInterface
 	 * 
 	 * @return the corresponding database
 	 */
-	public List<Database> getDatabases()
+	public List<DatabaseInterface> getDatabases()
 	{
-		return new ArrayList<Database>(databases);
+		return new ArrayList<DatabaseInterface>(databases);
 	}
 
 	/**

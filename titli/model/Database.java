@@ -7,7 +7,7 @@ package titli.model;
 
 import java.util.Map;
 
-
+import titli.controller.interfaces.DatabaseInterface;
 
 
 /**
@@ -15,19 +15,17 @@ import java.util.Map;
  * @author Juber Patel
  *
  */
-public class Database 
+public class Database implements DatabaseInterface 
 {
 	private String name;
 	private Map<String, Table> tables;
-	
-	
 	
 	/**
 	 * 
 	 * @param name name of the database
 	 * @param tables the list of tables which are part of the databases
 	 */
-	public Database(String name, Map<String, Table> tables)
+	public Database(String name, Map<String, Table> tables) 
 	{
 		this.name = name;
 		this.tables = tables;

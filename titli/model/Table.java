@@ -9,13 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import titli.controller.interfaces.TableInterface;
+
 
 /**
  * Represents table metadata like table name, columns etc.
  * @author Juber Patel 
  *
  */
-public class Table
+public class Table implements TableInterface
 {
 	private String name;
 	private String databaseName;
