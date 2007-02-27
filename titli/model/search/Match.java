@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
+import titli.controller.interfaces.MatchInterface;
 import titli.controller.interfaces.record.RecordInterface;
 import titli.model.fetch.Fetcher;
 import titli.model.fetch.Record;
@@ -23,7 +24,7 @@ import titli.model.fetch.Record;
  */
 
 
-public class Match implements  titli.controller.interfaces.MatchInterface
+public class Match implements MatchInterface
 {
 	//stores columns and and values alternately
 	private Map<String, String> uniqueKeys ;
