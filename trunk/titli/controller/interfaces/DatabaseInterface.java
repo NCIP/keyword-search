@@ -8,7 +8,7 @@ package titli.controller.interfaces;
  * @author Juber Patel
  *
  */
-public interface Database
+public interface DatabaseInterface
 {
 
 	/**
@@ -17,19 +17,28 @@ public interface Database
 	 */
 	String getName();
 	
+	
+	/**
+	 * Get the number of tables in the database
+	 * @return the number of tables in the database
+	 */
+	int getNumberOfTables();
+	
+	
+	
 	/**
 	 * return the table specified by a number 
 	 * @param i the number of the table
 	 * @return the table
 	 */
-	Table getTable(int i);
+	TableInterface getTable(int i);
 	
 	/**
 	 * return the table specified by the name 
 	 * @param name the name of the table
 	 * @return the table
 	 */
-	Table getTable(String name);
+	TableInterface getTable(String name);
 	
 	
 }

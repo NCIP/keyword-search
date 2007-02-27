@@ -3,12 +3,17 @@
  */
 package titli.model.search;
 
+
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+
+import titli.controller.interfaces.record.RecordInterface;
+import titli.model.fetch.Fetcher;
+import titli.model.fetch.Record;
 
 
 /**
@@ -18,23 +23,28 @@ import org.apache.lucene.document.Field;
  */
 
 
-public class RecordMatch implements  titli.controller.interfaces.Match
+public class Match implements  titli.controller.interfaces.MatchInterface
 {
 	//stores columns and and values alternately
 	private Map<String, String> uniqueKeys ;
 	private String self;
 	private String queryString;
 	
-	
 	private String dbName;
 	private String tableName;
+	
+	private Fetcher fetcher;
 	
 		
 	/**
 	 * @param doc the document that matched the search query
+	 * @param fetcher the Fetcher to be used to fetch the corresponding record 
+	 * 
 	 */
-	RecordMatch(Document doc)
+	Match(Document doc, Fetcher fetcher)
 	{
+		this.fetcher = fetcher;
+		
 		//get the fields and values
 		uniqueKeys = new HashMap<String, String> ();
 				
@@ -107,7 +117,7 @@ public class RecordMatch implements  titli.controller.interfaces.Match
 	}
 	
 	/**
-	 * String representation of the RecordMatch
+	 * String representation of the Match
 	 * @return the string representation
 	 */
 	public String toString()
@@ -129,6 +139,21 @@ public class RecordMatch implements  titli.controller.interfaces.Match
 		}
 		
 		return self;
+	}
+
+
+
+
+	
+	/**
+	 * 
+	 * @return the record corresponding to the match
+	 */
+	public RecordInterface fetch()
+	{
+		Record record = fetcher.fetch(this);
+		
+		return record;
 	}
 	
 	

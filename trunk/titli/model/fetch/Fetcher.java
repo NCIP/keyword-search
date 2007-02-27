@@ -7,10 +7,15 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import titli.model.Column;
 import titli.model.Database;
 import titli.model.RDBMSReader;
-import titli.model.search.RecordMatch;
+import titli.model.Table;
+import titli.model.search.Match;
 
 
 
@@ -61,14 +66,20 @@ public class Fetcher
 	/**
 	 * fetch the actual records from the database
 	 * @param match the match for which to fetch the records
-	 * @throws SQLException
+	 * @return the record corresponding to the specified match
 	 */
-	public void fetch(RecordMatch match) 
+	public Record fetch(Match match) 
 	{
+		
+		Record record = null;
 			
 		try
 		{
-				
+			long start = new Date().getTime();
+			
+			Map<Column, String> columnMap = new HashMap<Column, String>();
+			Table table = getDatabase().getTable(match.getTableName());
+			
 			ResultSet rs = fetchstmt.executeQuery(match.getQuerystring());
 			ResultSetMetaData rsmd = rs.getMetaData();
 			
@@ -76,17 +87,29 @@ public class Fetcher
 			
 			int columns = rsmd.getColumnCount();
 			
-			System.out.println("Database : "+match.getDatabaseName()+"  Table : " +match.getTableName());
+			//System.out.println("Database : "+match.getDatabaseName()+"  Table : " +match.getTableName());
 			
-			
+			//populate the column map
 			for(int i=1; i<=columns; i++)
 			{
-				System.out.print(rsmd.getColumnName(i)+" : "+rs.getString(i)+"  ");
+				//System.out.print(rsmd.getColumnName(i)+" : "+rs.getString(i)+"  ");
+				
+				String columnName = rsmd.getColumnName(i);
+								
+				Column column = table.getColumn(columnName);
+				
+				columnMap.put(column, rs.getString(i));
 			}
 			
-			System.out.println("\n");
+			long end = new Date().getTime();
+			double time = (end-start)/1000.0;
+			
+			//create the record
+			record = new Record(table, columnMap, time); 
+			
+			//System.out.println("\n");
 			rs.close();
-		
+			
 		}
 		catch(SQLException e)
 		{
@@ -94,6 +117,8 @@ public class Fetcher
 			e.printStackTrace();
 			//System.out.println("String : "+matc);
 		}
+		
+		return record;
 		
 	}	
 			

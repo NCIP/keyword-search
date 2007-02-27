@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -36,7 +36,10 @@ public class Indexer
 	private Statement indexstmt;
 	 
 	 
-	 
+	/**
+	 * 
+	 * @param dbReader The RDBMSReader on which to build the Indexer
+	 */ 
 	public Indexer(RDBMSReader dbReader) 
 	{
 		reader = dbReader;
@@ -77,22 +80,26 @@ public class Indexer
 		
 		Database database = reader.getDatabase();
 		
-		long start = new Date().getTime();
+		//long start = new Date().getTime();
 		
-		for(int i=0; i<database.noOfTables;i++)
+		//get the map of tables
+		Map<String, Table> tables = database.getTables();
+		
+		//iterate on the map 
+		for(String tableName : tables.keySet())
 		{
-			Table table = database.getTable(i);
+			Table table = database.getTable(tableName);
 			
-			System.out.println("Indexing "+table.getName()+"...");
+			//System.out.println("Indexing "+table.getName()+"...");
 			
 			indexTable(table);
 			
 		}
 				
-		long end = new Date().getTime();
+		//long end = new Date().getTime();
 		
 		//System.out.println("Congrats ! indexing completed successfully !");
-		System.out.println("\nIndexing database "+database.getName()+" took "+(end-start)/1000.0+" seconds");
+		//System.out.println("\nIndexing database "+database.getName()+" took "+(end-start)/1000.0+" seconds");
 			
 	}
 	
@@ -113,7 +120,7 @@ public class Indexer
 	private void indexTable(Table table) 
 	{
 			
-		long start = new Date().getTime();
+		//long start = new Date().getTime();
 		
 		File tableIndexDir = new File(indexDir,table.getName()+"_index");
 		
@@ -121,12 +128,12 @@ public class Indexer
 		{
 			//RAMDirectory does not have a method to flush to the hard disk ! this is  bad !
 			//RAMDirectory indexDir = new RAMDirectory(tableIndexDir);
-			Directory indexDir = FSDirectory.getDirectory(tableIndexDir,true);
+			Directory dir = FSDirectory.getDirectory(tableIndexDir,true);
 			
 			//	specify the index directory
-			IndexWriter indexWriter = new IndexWriter(indexDir, new StandardAnalyzer(), true);
+			IndexWriter indexWriter = new IndexWriter(dir, new StandardAnalyzer(), true);
 			
-			System.out.println("executing :   "+"SELECT * FROM  "+table.getName()+";");
+			//System.out.println("executing :   "+"SELECT * FROM  "+table.getName()+";");
 			
 			ResultSet rs = indexstmt.executeQuery("SELECT * FROM  "+table.getName()+";");
 			
@@ -145,12 +152,12 @@ public class Indexer
 				
 			}
 			
-			long end = new Date().getTime();	
-			System.out.println("Completed in "+(end-start)/1000.0+" seconds\n");
+			//long end = new Date().getTime();	
+			//System.out.println("Completed in "+(end-start)/1000.0+" seconds\n");
 			
 			indexWriter.optimize();
 			indexWriter.close();
-			indexDir.close();
+			dir.close();
 			
 			
 		}
@@ -174,7 +181,7 @@ public class Indexer
 	 * @param rs the corresponding resultset
 	 * @param table the table of the corresponding record
 	 * @return a Document for the record that can be added to the index
-	 * @throws SQLException
+	 * 
 	 */
 	private Document makeDocument(ResultSet rs, Table table)
 	{
@@ -186,7 +193,7 @@ public class Indexer
 			
 			StringBuilder record= new StringBuilder("");
 			
-			for(int i=1; i<=table.noOfColumns; i++)
+			for(int i=1; i<=table.getNumberOfColumns(); i++)
 			{
 				
 				record.append(" ");
@@ -209,7 +216,7 @@ public class Indexer
 				
 				String value = rs.getString(key);
 			
-				doc.add(new Field(key, value, Field.Store.YES, Field.Index.NO ));
+				doc.add(new Field(key, value, Field.Store.YES, Field.Index.NO));
 			
 			}
 			
@@ -229,7 +236,7 @@ public class Indexer
 	
 		
 	/**
-	 * @param args
+	 * @param args args for main
 	 */
 	public static void main(String[] args) 
 	{

@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Hits;
@@ -21,6 +23,7 @@ import org.apache.lucene.store.RAMDirectory;
 
 import titli.model.Database;
 import titli.model.Table;
+import titli.model.fetch.Fetcher;
 
 
 /**
@@ -31,14 +34,18 @@ public class Searcher
 {
 	private ArrayList<IndexSearcher> searcherList;
 	private MultiSearcher ms;
+	private Map<String, Fetcher> fetchers;
 	
 	
 	/**
 	 * setup a multiseracher for the given databases
 	 * @param databases the list of databases to be searched 
+	 * @param fetchers a map of fetchers so that appropriate Fetcher is attached to each match
 	 */
-	public Searcher(List<Database> databases)
+	public Searcher(List<Database> databases, Map<String, Fetcher> fetchers)
 	{
+		this.fetchers = fetchers;
+		
 		try
 		{
 			//the current directory
@@ -52,10 +59,12 @@ public class Searcher
 			{
 				File dbDir = new File(indexDir, db.getName()+"_index");
 				
+				Map<String, Table> tables = db.getTables();
+				
 				//for each table
-				for(int i=0;i<db.noOfTables;i++)
+				for(String tableName :  tables.keySet())
 				{
-					Table table = db.getTable(i);
+					Table table = db.getTable(tableName);
 					
 					File tableDir = new File(dbDir, table.getName()+"_index");
 									
@@ -82,72 +91,96 @@ public class Searcher
 	 * search for the given query using the index
 	 * @param searchString the user query to be searched 
 	 * @return a list of matches
-	 * @throws IOException
-	 * @throws SQLException
-	 * @throws org.apache.lucene.queryParser.ParseException
+	 * 
 	 */
-	public RecordMatchList search(String searchString) 
+	public MatchList search(String searchString) 
 	{
 		
-		RecordMatchList matchList = new RecordMatchList();
-		
-		System.out.println("Searching for " +searchString+"...");
+		//System.out.println("Searching for " +searchString+"...");
 		Analyzer analyzer = new StandardAnalyzer();
-		
-		
+				
 		QueryParser qp = new QueryParser("content", analyzer);
+		Query query=null;
 		
 		try
 		{
-			Query query = qp.parse(searchString);
-		
-			long start = new Date().getTime();
-			
-			//search for the query
-			Hits hits = ms.search(query);
-			
-			long end = new Date().getTime();
-			
-			int listLength = hits.length();
-			
-			
-			//build the match list	
-			for(int i=0;i<listLength;i++)
-			{
-				matchList.add(new RecordMatch(hits.doc(i)));
-						
-				//matchList.add(new RecordMatch(hits.doc(i).get("ID"),hits.doc(i).get("TableName"),"Not Known"));
-				//System.out.println(hits.doc(i).get("Population")+"  "+hits.doc(i).get("CountryCode"));
-				
-			}
-			
-			System.out.println("\n The search took " + (end-start)/1000.0 + " seconds");
-			System.out.println("\n Found "+listLength+" matches");
-			
-			System.out.println("\nThe matches are : ");
-			for(RecordMatch match : matchList)
-			{
-				System.out.println(match);
-				System.out.println(match.getQuerystring()+"\n");
-			}
-			
-			System.out.println("\n The search took " + (end-start)/1000.0 + " seconds\n");
-			
+			query = qp.parse(searchString);
 		}
 		catch(ParseException e)
 		{
 			System.out.println("ParseException happened"+e);
 			e.printStackTrace();
 		}
+		
+		
+		long start = new Date().getTime();
+		
+		Hits hits = null;
+		
+		try
+		{
+			//search for the query
+			hits = ms.search(query);
+		}
 		catch(IOException e)
 		{
 			System.out.println("IOException happened"+e);
 			e.printStackTrace();
+			
 		}
+			
+		long end = new Date().getTime();
+		
+		double time = (end-start)/1000.0;
+		
+		MatchList matchList = new MatchList(time);
+		
+		int listLength = hits.length();
+		
+		Fetcher fetcher=null;
+		
+		//build the match list	
+		for(int i=0;i<listLength;i++)
+		{
+			Document document = null;
+			try
+			{
+				document = hits.doc(i);
+			}
+			catch(IOException e)
+			{
+				System.out.println("IOException happened"+e);
+				e.printStackTrace();
+				
+			}
+			
+			fetcher = fetchers.get(document.get("database"));
+			
+			matchList.add(new Match(document, fetcher));
+					
+			//matchList.add(new Match(hits.doc(i).get("ID"),hits.doc(i).get("TableName"),"Not Known"));
+			//System.out.println(hits.doc(i).get("Population")+"  "+hits.doc(i).get("CountryCode"));
+			
+		}
+		
+		//System.out.println("\n The search took " + (end-start)/1000.0 + " seconds");
+		//System.out.println("\n Found "+listLength+" matches");
+		
+		//System.out.println("\nThe matches are : ");
+		
+		/*
+		for(MatchInterface match : matchList)
+		{
+			System.out.println(match);
+			System.out.println(match.getQuerystring()+"\n");
+		}*/
+		
+		//System.out.println("\n The search took " + (end-start)/1000.0 + " seconds\n");
 		
 		return matchList;
 		
 	}
+
 	
 	
 	/**

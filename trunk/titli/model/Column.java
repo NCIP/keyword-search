@@ -3,6 +3,8 @@
  */
 package titli.model;
 
+import titli.controller.interfaces.ColumnInterface;
+
 
 
 /**
@@ -10,7 +12,7 @@ package titli.model;
  * @author Juber Patel
  *
  */
-public class Column
+public class Column implements ColumnInterface
 {
 	private String name;
 	private String type;

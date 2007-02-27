@@ -11,7 +11,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -40,9 +42,8 @@ public class RDBMSReader
 	/**
 	 * 
 	 * @param props the properties file containing information for connection to database
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @throws SQLException
+	 *
+	 *
 	 */
 	public RDBMSReader(Properties props) 
 	{
@@ -73,7 +74,7 @@ public class RDBMSReader
 		}
 		
 		
-		System.out.println("Reader created for "+dbName+"...");
+		//System.out.println("Reader created for "+dbName+"...");
 	
 		try
 		{
@@ -103,7 +104,8 @@ public class RDBMSReader
 		//build the database metadata
 		if(database==null)
 		{
-			List<Table> tables = new ArrayList<Table> ();
+			Map<String, Table> tables = new HashMap<String, Table> ();
+			
 			try
 			{
 				DatabaseMetaData dbmd = indexConnection.getMetaData();
@@ -125,7 +127,8 @@ public class RDBMSReader
 					}
 					
 					List<String> uniqueKey = new ArrayList<String>();
-					List<Column> columns = new ArrayList<Column>();
+					Map<String, Column> columns = new HashMap<String, Column>();
+					
 					//get unique keys
 					ResultSet keys = dbmd.getBestRowIdentifier(null, null, tableName,DatabaseMetaData.bestRowSession, true);
 					
@@ -145,8 +148,8 @@ public class RDBMSReader
 					}
 					
 					//fire a dummy query to get table metadata
-					String query = "select * from "+tableName+" where "+uniqueKey.get(0)+" = null;";
-					System.out.println(query);
+					//String query = "select * from "+tableName+" where "+uniqueKey.get(0)+" = null;";
+					//System.out.println(query);
 					ResultSet useless = stmt.executeQuery("select * from "+tableName+" where "+uniqueKey.get(0)+" = null; ");
 					ResultSetMetaData tablemd = useless.getMetaData();
 					
@@ -157,14 +160,14 @@ public class RDBMSReader
 						String columnName = tablemd.getColumnName(i);
 						String columnType = tablemd.getColumnTypeName(i);
 						
-						columns.add(new Column(columnName, columnType));
+						columns.put(columnName, new Column(columnName, columnType));
 						
 					}
 					
 					useless.close();
 					
 					//add the table to the list
-					tables.add(new Table(tableName, dbName, uniqueKey, columns));
+					tables.put(tableName, new Table(tableName, dbName, uniqueKey, columns));
 					
 				}
 				
@@ -173,7 +176,7 @@ public class RDBMSReader
 			
 				database = new Database(dbName, tables);
 				
-				System.out.println("Meta Data created  No of Tables : "+database.noOfTables);
+				//System.out.println("Meta Data created  No of Tables : "+database.getNumberOfTables());
 				
 			}
 			catch(SQLException e)

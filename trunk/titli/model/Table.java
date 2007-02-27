@@ -7,6 +7,7 @@ package titli.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -19,8 +20,8 @@ public class Table
 	private String name;
 	private String databaseName;
 	private ArrayList<String> uniqueKey;
-	private ArrayList<Column> columns;
-	public final int noOfColumns;
+	private Map<String, Column> columns;
+	
 	
 	/**
 	 * 
@@ -29,13 +30,13 @@ public class Table
 	 * @param uniqueKey unique key set for the table
 	 * @param columns the list of columns that are to be part of this table
 	 */
-	Table(String name, String databaseName, List<String> uniqueKey,   List<Column> columns)
+	Table(String name, String databaseName, List<String> uniqueKey,   Map<String, Column> columns)
 	{
 		this.name = name;
 		this.databaseName = databaseName;
 		this.uniqueKey = new ArrayList<String> (uniqueKey);
-		this.columns =  new ArrayList<Column> (columns);
-		noOfColumns = columns.size();
+		this.columns =  columns;
+		
 		
 	}
 	
@@ -72,14 +73,28 @@ public class Table
 	}
 	
 	/**
-	 * 
-	 * @param i the number of the column
+	 * Get the number of columns in the table
+	 * @return the number of columns in the table
+	 */
+	public int getNumberOfColumns()
+	{
+		return columns.size();
+	}
+	
+	
+	
+	
+	/**
+	 * Get the column specified name 
+	 * @param name the name of the column
 	 * @return the corresponding column
 	 */
-	public Column getColumn(int i)
+	public Column getColumn(String name)
 	{
-		return columns.get(i);
+		return columns.get(name);
 	}
+	
+	
 	
 	
 	/**
