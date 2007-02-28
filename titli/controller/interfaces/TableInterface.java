@@ -4,7 +4,7 @@
 package titli.controller.interfaces;
 
 import java.util.List;
-
+import java.util.Map;
 
 
 /**
@@ -22,14 +22,14 @@ public interface TableInterface
 	
 	
 	/**
-	 * returns the name of the table
+	 * Get the name of the database in which the table belongs
 	 * @return the name of the table
 	 */
 	String getDatabaseName();
 	
 	
 	/**
-	 * 
+	 * Get the unique key set for the table
 	 * @return the unique key set for the table
 	 */
 	List<String> getUniqueKey();
@@ -40,6 +40,22 @@ public interface TableInterface
 	 * @return the number of columns in the table
 	 */
 	int getNumberOfColumns();
+	
+	
+	/**
+	 * Get the column specified by name 
+	 * @param name the name of the column
+	 * @return the corresponding column
+	 */
+	ColumnInterface getColumn(String name);
+	
+	
+	/**
+	 * Get a map of  "column name" => "column"
+	 * @return a map of  "column name => "column"
+	 */
+	Map<String, ColumnInterface> getColumns();
+	
 	
 		
 }

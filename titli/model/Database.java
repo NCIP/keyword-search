@@ -5,9 +5,12 @@ package titli.model;
 
 
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import titli.controller.interfaces.DatabaseInterface;
+import titli.controller.interfaces.TableInterface;
 
 
 /**
@@ -62,14 +65,26 @@ public class Database implements DatabaseInterface
 		return tables.get(name);
 	}
 	
+	
 	/**
 	 * Get a map of all the tables in the database
 	 * @return a map of all the table names and tables in the database
 	 */
-	public Map<String, Table> getTables()
+	public Map<String, TableInterface> getTables()
 	{
-		return tables;
+		return Collections.unmodifiableMap(new HashMap<String, TableInterface>(tables));
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	/**

@@ -6,9 +6,12 @@ package titli.model;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import titli.controller.interfaces.ColumnInterface;
 import titli.controller.interfaces.TableInterface;
 
 
@@ -71,7 +74,7 @@ public class Table implements TableInterface
 	 */
 	public List<String> getUniqueKey()
 	{
-		return new ArrayList<String>(uniqueKey); 
+		return Collections.unmodifiableList(uniqueKey); 
 	}
 	
 	/**
@@ -94,6 +97,17 @@ public class Table implements TableInterface
 	public Column getColumn(String name)
 	{
 		return columns.get(name);
+	}
+	
+	
+	/**
+	 * Get a map of  "column name" => "column"
+	 * @return a map of  "column name => "column"
+	 */
+	public Map<String, ColumnInterface> getColumns()
+	{
+		return Collections.unmodifiableMap(new HashMap<String, ColumnInterface>(columns));
+		
 	}
 	
 	

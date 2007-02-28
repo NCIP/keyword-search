@@ -7,6 +7,7 @@ package titli.model;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,7 @@ public final class Titli implements TitliInterface
 	 */
 	public List<DatabaseInterface> getDatabases()
 	{
-		return new ArrayList<DatabaseInterface>(databases);
+		return Collections.unmodifiableList(new ArrayList<DatabaseInterface>(databases));
 	}
 
 	/**

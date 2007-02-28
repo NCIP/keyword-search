@@ -21,6 +21,7 @@ import org.apache.lucene.search.MultiSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.RAMDirectory;
 
+import titli.controller.interfaces.TableInterface;
 import titli.model.Database;
 import titli.model.Table;
 import titli.model.fetch.Fetcher;
@@ -59,7 +60,7 @@ public class Searcher
 			{
 				File dbDir = new File(indexDir, db.getName()+"_index");
 				
-				Map<String, Table> tables = db.getTables();
+				Map<String, TableInterface> tables = db.getTables();
 				
 				//for each table
 				for(String tableName :  tables.keySet())

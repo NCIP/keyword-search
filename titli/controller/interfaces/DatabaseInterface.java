@@ -3,6 +3,9 @@
  */
 package titli.controller.interfaces;
 
+import java.util.Map;
+
+
 /**
  * Represents database metadata
  * @author Juber Patel
@@ -32,6 +35,14 @@ public interface DatabaseInterface
 	 * @return the table
 	 */
 	TableInterface getTable(String name);
+	
+	
+	/**
+	 * Get a map of all the tables in the database
+	 * @return a map of all the table names and tables in the database
+	 */
+	Map<String, TableInterface> getTables();
+	
 	
 	
 }
