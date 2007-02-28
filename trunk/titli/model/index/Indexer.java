@@ -18,6 +18,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+import titli.controller.interfaces.TableInterface;
 import titli.model.Database;
 import titli.model.RDBMSReader;
 import titli.model.Table;
@@ -83,7 +84,7 @@ public class Indexer
 		//long start = new Date().getTime();
 		
 		//get the map of tables
-		Map<String, Table> tables = database.getTables();
+		Map<String, TableInterface> tables = database.getTables();
 		
 		//iterate on the map 
 		for(String tableName : tables.keySet())

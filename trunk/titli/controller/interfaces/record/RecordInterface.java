@@ -31,7 +31,7 @@ public interface RecordInterface
 	Map<ColumnInterface, String> getColumnMap();
 	
 	/**
-	 * 
+	 * Get the time taken in seconds to fetch this record
 	 * @return the time taken in seconds to fetch this record
 	 */
 	double getTimeTaken();

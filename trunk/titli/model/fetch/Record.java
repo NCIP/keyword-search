@@ -4,6 +4,7 @@
 package titli.model.fetch;
 
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +49,7 @@ public class Record implements RecordInterface
 	 */
 	public Map<ColumnInterface, String> getColumnMap()
 	{
-		return new HashMap<ColumnInterface, String>(columnMap);
+		return Collections.unmodifiableMap(new HashMap<ColumnInterface, String>(columnMap));
 	}
 
 	
