@@ -4,12 +4,12 @@
 package titli.model;
 
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
@@ -36,7 +36,7 @@ public final class Titli implements TitliInterface
 {
 	private static Titli instance;
 	
-	private List<Database> databases;
+	private Map<String, Database> databases;
 	private Map<String ,Indexer> indexers;
 	private Map<String, Fetcher> fetchers;
 	
@@ -66,7 +66,7 @@ public final class Titli implements TitliInterface
 		System.setProperty("titli.index.location", props.getProperty("titli.index.location"));
 		
 		//initialize the class fields 
-		databases = new ArrayList<Database>();
+		databases = new HashMap<String, Database>();
 		indexers = new HashMap<String, Indexer> ();
 		fetchers = new HashMap<String, Fetcher> ();
 		
@@ -87,11 +87,13 @@ public final class Titli implements TitliInterface
 			fetchers.put(dbName, new Fetcher(reader));
 			
 			//add DatabaseInterface to the list
-			databases.add(reader.getDatabase());
+			databases.put(dbName, reader.getDatabase());
 			
 		}
 		
 		
+		//set the column references
+		setReferences("E:/juber/workspace/TiTLi/titli/model/joins");
 		
 	}
 	
@@ -125,11 +127,24 @@ public final class Titli implements TitliInterface
 	 * 
 	 * @return the corresponding database
 	 */
-	public List<DatabaseInterface> getDatabases()
+	public Map<String, DatabaseInterface> getDatabases()
 	{
-		return Collections.unmodifiableList(new ArrayList<DatabaseInterface>(databases));
+		return Collections.unmodifiableMap(new HashMap<String, DatabaseInterface>(databases));
 	}
 
+	
+	/**
+	 * Get the database specified byname 
+	 * @param dbName the name of the database
+	 * @return the database
+	 */
+	public Database getDatabase(String dbName)
+	{
+		return databases.get(dbName);
+	}
+	
+	
+	
 	/**
 	 * start the indexing threads
 	 * one thread per database
@@ -138,9 +153,9 @@ public final class Titli implements TitliInterface
 	public void index()
 	{
 		//index all databases
-		for(Database db : databases)
+		for(String dbName : databases.keySet())
 		{
-			String dbName = db.getName();
+			Database db = databases.get(dbName);
 			
 			//System.out.println("Creating indexer for "+dbName);
 			Indexer indexer = indexers.get(dbName);
@@ -201,6 +216,56 @@ public final class Titli implements TitliInterface
 	
 	/**
 	 * 
+	 * @param location the location of joins file
+	 *
+	 */
+	private void setReferences(String location) 
+	{
+		Database db = getDatabase("world");
+		
+		Scanner scanner=null;
+		
+		try
+		{
+			scanner = new Scanner(new File(location));
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		
+		while(scanner.hasNext())
+		{
+			String first = scanner.next();
+			String second = scanner.next();
+			
+			int dot = first.indexOf(".");
+			
+			String firstTable = first.substring(0,dot);
+			String firstColumn = first.substring(dot+1);
+			
+			
+			dot = second.indexOf(".");
+			
+			String secondTable = second.substring(0,dot);
+			String secondColumn = second.substring(dot+1);
+			
+			Column c1 = db.getTable(firstTable).getColumn(firstColumn);
+			
+			c1.setReferredColumn(db.getTable(secondTable).getColumn(secondColumn));
+			
+			
+					
+		}
+		
+	}
+	
+	
+	
+	
+	
+	/**
+	 * 
 	 * @param args args for main
 	 * 
 	 */
@@ -213,7 +278,9 @@ public final class Titli implements TitliInterface
 		
 		//titli.index();
 		
-		MatchListInterface  matchList =titli.search("new +bombay");
+		//MatchListInterface  matchList =titli.search("(+united +states)");  //AND (table:(+countrylanguage))");
+		
+		MatchListInterface  matchList =titli.search("bush");
 		
 		for(MatchInterface match : matchList)
 		{
