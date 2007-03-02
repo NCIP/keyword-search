@@ -25,6 +25,11 @@ public interface MatchInterface
 	 */	
 	String getDatabaseName();
 	
+	/**
+	 * 
+	 * @return the string representaion of the match
+	 */
+	String toString();
 	
 	/**
 	 * Fetch the record corresponding to the match

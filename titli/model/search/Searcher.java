@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -43,7 +42,7 @@ public class Searcher
 	 * @param databases the list of databases to be searched 
 	 * @param fetchers a map of fetchers so that appropriate Fetcher is attached to each match
 	 */
-	public Searcher(List<Database> databases, Map<String, Fetcher> fetchers)
+	public Searcher(Map<String, Database> databases, Map<String, Fetcher> fetchers)
 	{
 		this.fetchers = fetchers;
 		
@@ -56,8 +55,10 @@ public class Searcher
 			searcherList = new ArrayList<IndexSearcher> (); 
 			
 			//for each database
-			for(Database db : databases)
+			for(String dbName : databases.keySet())
 			{
+				Database db = databases.get(dbName);
+				
 				File dbDir = new File(indexDir, db.getName()+"_index");
 				
 				Map<String, TableInterface> tables = db.getTables();

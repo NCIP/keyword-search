@@ -160,7 +160,7 @@ public class RDBMSReader
 						String columnName = tablemd.getColumnName(i);
 						String columnType = tablemd.getColumnTypeName(i);
 						
-						columns.put(columnName, new Column(columnName, columnType));
+						columns.put(columnName, new Column(columnName, columnType, tableName));
 						
 					}
 					

@@ -3,7 +3,7 @@
  */
 package titli.controller.interfaces;
 
-import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -20,12 +20,18 @@ public interface TitliInterface
 	 */
 	int getNumberOfDatabases();
 	
+	/**
+	 * Get the database specified byname 
+	 * @param dbName the name of the database
+	 * @return the database
+	 */
+	DatabaseInterface getDatabase(String dbName);
 	
 	/**
 	 * 
 	 * @return the list of databases
 	 */
-	List<DatabaseInterface> getDatabases();
+	Map<String, DatabaseInterface> getDatabases();
 	
 	
 	

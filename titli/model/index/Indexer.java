@@ -18,7 +18,9 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+import titli.controller.interfaces.ColumnInterface;
 import titli.controller.interfaces.TableInterface;
+import titli.model.Column;
 import titli.model.Database;
 import titli.model.RDBMSReader;
 import titli.model.Table;
@@ -136,16 +138,13 @@ public class Indexer
 			
 			//System.out.println("executing :   "+"SELECT * FROM  "+table.getName()+";");
 			
-			ResultSet rs = indexstmt.executeQuery("SELECT * FROM  "+table.getName()+";");
+			String query = getExtendedQuery(table);
 			
-			/*
-			if(rs.isClosed())
-			{
-				System.out.println("rs is closed !!");
-				System.exit(0);
-			}*/
+			ResultSet rs = indexstmt.executeQuery(query);
+			
 			while(rs.next())
 			{
+				//this is for compatibility with Nutch Parsers
 				//RDBMSRecordParser parser = new RDBMSRecordParser(rs);
 				//String content = parser.getParse(new Content()).getText();
 				
@@ -176,6 +175,7 @@ public class Indexer
 	}
 	
 	
+				
 	/**
 	 * make document to be indexed
 	 * 
@@ -194,7 +194,9 @@ public class Indexer
 			
 			StringBuilder record= new StringBuilder("");
 			
-			for(int i=1; i<=table.getNumberOfColumns(); i++)
+			int numberOfColumns = rs.getMetaData().getColumnCount();
+			
+			for(int i=1; i<=numberOfColumns; i++)
 			{
 				
 				record.append(" ");
@@ -203,6 +205,8 @@ public class Indexer
 			}
 			
 			String content = new String(record);
+			
+			//System.out.println("Indexing : "+content);
 		
 			doc.add(new Field("database", reader.getDatabase().getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
 			doc.add(new Field("table", table.getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
@@ -235,7 +239,79 @@ public class Indexer
 	}
 	
 	
+	
+	
+	/**
+	 * Get the query that will return a resultset consisting of all the fields of the table as well as of the tables refrenced through joins with this table
+	 * @param table the table for which to produce the extended query
+	 * @return the query that will return a resultset consisting of all the fields of the table as well as of the tables refrenced through joins with this table 
+	 */
+	private String getExtendedQuery(Table table)
+	{
+		StringBuilder fromClause = new StringBuilder(" FROM "+table.getName()+", ");
+		StringBuilder whereClause = new StringBuilder(" WHERE ");
 		
+		int whereLength = whereClause.length();
+		
+		Map<String, ColumnInterface> columns = table.getColumns();
+		
+		for(String columnName : columns.keySet())
+		{
+			Column column = table.getColumn(columnName);
+			
+			Column column2 = column.getReferredColumn();
+			
+			//column refers to another column
+			if(column2!=null)
+			{
+				String anotherTable = column2.getTableName();
+				String anotherColumn = column2.getName();
+	
+				fromClause.append(anotherTable+", ");
+				whereClause.append(table.getName()+"."+column.getName()+"="+anotherTable+"."+anotherColumn+" AND ");
+			}
+		}
+		
+		//remove the last ","
+		fromClause.delete(fromClause.lastIndexOf(","), fromClause.lastIndexOf(",")+1);
+		
+		//remove the last "AND"
+		int i= whereClause.lastIndexOf("AND");
+		if(i!=-1)
+		{
+			whereClause.delete(i, i+3);
+		}
+		
+		String query;
+		
+		//Don't add whereClause  if nothing is appended to it
+		if(whereClause.length()==whereLength)
+		{
+			query = "SELECT * "+fromClause;
+		}
+		else
+		{	
+			query = "SELECT * "+fromClause+whereClause;
+		}
+		
+		
+		System.out.println("Extended Query : "+query);
+		
+		return query;
+		
+	}
+
+
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * @param args args for main
 	 */

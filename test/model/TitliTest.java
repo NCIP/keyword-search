@@ -76,7 +76,7 @@ public class TitliTest
 	 * test the indexing functionality
 	 *
 	 */
-	@Ignore("don't do it everytime !")
+	@Ignore("Don't do it everytime !")
 	@Test
 	public void indexTest()
 	{

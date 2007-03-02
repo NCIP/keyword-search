@@ -35,6 +35,7 @@ public class Match implements MatchInterface
 	private String tableName;
 	
 	private Fetcher fetcher;
+	private Record record;
 	
 		
 	/**
@@ -150,9 +151,13 @@ public class Match implements MatchInterface
 	 * 
 	 * @return the record corresponding to the match
 	 */
+	//the record is fetched only once
 	public RecordInterface fetch()
 	{
-		Record record = fetcher.fetch(this);
+		if(record==null)
+		{
+			record = fetcher.fetch(this);
+		}
 		
 		return record;
 	}
