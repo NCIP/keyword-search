@@ -17,6 +17,8 @@ import titli.model.fetch.Fetcher;
 import titli.model.fetch.Record;
 
 
+
+
 /**
  *A class that represents a match in for a given search query
  * @author Juber Patel
