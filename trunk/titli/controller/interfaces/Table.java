@@ -5,6 +5,8 @@ package titli.controller.interfaces;
 
 import java.util.List;
 
+import titli.model.Column;
+
 
 
 /**
