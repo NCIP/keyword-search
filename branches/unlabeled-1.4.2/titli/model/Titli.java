@@ -93,13 +93,14 @@ public final class Titli implements TitliInterface
 		
 		
 		//set the column references
-		setReferences("E:/juber/workspace/TiTLi/titli/model/joins");
+		setReferences("world", "E:/juber/workspace/TiTLi/titli/model/world_joins");
+		//setReferences("sakila", "E:/juber/workspace/TiTLi/titli/model/sakila_joins");
 		
 	}
 	
 	/**
 	 * 
-	 * @return return the only instance of Titli
+	 * @return the only instance of Titli
 	 */
 	public static Titli getInstance()
 	{
@@ -216,12 +217,13 @@ public final class Titli implements TitliInterface
 	
 	/**
 	 * 
+	 * @param dbName the name of the database
 	 * @param location the location of joins file
 	 *
 	 */
-	private void setReferences(String location) 
+	private void setReferences(String dbName, String location) 
 	{
-		Database db = getDatabase("world");
+		Database db = getDatabase(dbName);
 		
 		Scanner scanner=null;
 		
@@ -274,13 +276,15 @@ public final class Titli implements TitliInterface
 		//set the system property that will be read by the Tilti constructor 
 		System.setProperty("titli.properties.location", "E:/juber/workspace/TiTLi/titli/model/titli.properties");
 		
-		Titli titli = Titli.getInstance();
+		TitliInterface titli = Titli.getInstance();
 		
 		//titli.index();
 		
 		//MatchListInterface  matchList =titli.search("(+united +states)");  //AND (table:(+countrylanguage))");
 		
-		MatchListInterface  matchList =titli.search("bush");
+		//MatchListInterface  matchList =titli.search("kalmykia");
+		
+		MatchListInterface  matchList =titli.search("+united +states");
 		
 		for(MatchInterface match : matchList)
 		{
