@@ -26,5 +26,11 @@ public interface MatchListInterface extends List<MatchInterface>
 	  * @return time taken in seconds
 	  */
 	 double getTimeTaken();
+	 
+	 /**
+	  * get the sorted result map for the given table name
+	  * @return the sorted result map for the given table name
+	  */
+	 SortedResultMapInterface getSortedResultMap();
 
 }
