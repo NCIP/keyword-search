@@ -16,6 +16,8 @@ import titli.controller.interfaces.MatchListInterface;
 import titli.controller.interfaces.TitliInterface;
 import titli.controller.interfaces.record.RecordInterface;
 import titli.model.Titli;
+import titli.model.TitliConstants;
+import titli.model.TitliException;
 
 
 /**
@@ -35,10 +37,15 @@ public class TitliTest
 	public static void setUp() 
 	{
 		
-		//set the system property that will be read by the Tilti constructor 
-		System.setProperty("titli.properties.location", "E:/juber/workspace/TiTLi/titli/model/titli.properties");
-		
-		titli = Titli.getInstance();
+		try 
+		{
+			titli = Titli.getInstance();
+		}
+		catch (TitliException e) 
+		{
+			System.out.println(e+"\n"+e.getCause());
+			System.exit(0);
+		}
 		
 	}
 	
@@ -64,11 +71,11 @@ public class TitliTest
 	{
 		assertNotSame("No databases read !!", titli.getNumberOfDatabases(),0);
 		
-		assertNotNull("JDBC Drivers String Empty !!", System.getProperty("jdbc.drivers"));
+		assertNotNull("JDBC Drivers String Empty !!", System.getProperty(TitliConstants.JDBC_DRIVERS));
 		
-		assertNotNull("Index Location String Empty !!", System.getProperty("titli.index.location"));
+		assertNotNull("Index Location String Empty !!", System.getProperty(TitliConstants.TITLI_INDEX_LOCATION));
 		
-		assertNotNull("instance is still null !!", Titli.getInstance());
+		
 	}
 	
 	
@@ -80,7 +87,16 @@ public class TitliTest
 	@Test
 	public void indexTest()
 	{
-		titli.index();
+		try
+		{
+			titli.index();
+		}
+		catch (TitliException e) 
+		{
+			System.out.println(e+"\n"+e.getCause());
+			System.exit(0);
+		}
+		
 				
 	}
 	
@@ -101,15 +117,26 @@ public class TitliTest
 		//Fetcher.fetch(titli.search("ajay"),titli.dbReaders);
 		//Fetcher.fetch(titli.search("pari~"),titli.dbReaders);
 		
-		MatchListInterface  matchList = titli.search("new +bombay");
-		
-		for(MatchInterface match : matchList)
+		MatchListInterface matchList;
+		try
 		{
-			RecordInterface record = match.fetch();
-			
-			System.out.println(record);
+			matchList = titli.search("new +bombay");
+		
+			for(MatchInterface match : matchList)
+			{
+				RecordInterface record = match.fetch();
+				
+				System.out.println(record);
+			}
+		}
+		catch (TitliException e) 
+		{
+			System.out.println(e+"\n"+e.getCause());
+			System.exit(0);
 		}
 		
+		
+			
 		
 		//querying a remote databse : cab2b on Vishvesh's machine
 		//MatchList matchList = titli.search("1298_1150_1372");
