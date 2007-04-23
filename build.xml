@@ -1,19 +1,23 @@
 <?xml version ="1.0"?>
 
 <!--Ant Script for create Build for Common package-->
-<project name="TiTLi" default="pmd">
+<project name="TiTLi" default="export_jar">
 	
-	<!--define require dir and Properties -->	
+	<!--general properties -->	
 	<property name="base.dir" value="."/>
     <property name="src.dir" value="${base.dir}/src"/>
     <property name="test.dir" value="${base.dir}/test"/>
     <property name="target.dir" value="${base.dir}/classes"/>
     <property name="lib.dir" value="${base.dir}/lib"/>
     <property name="build.dir" value="${base.dir}/build"/>
-    <property name="applet.dir" value="${base.dir}/Applet"/>
-	<property name="hbm.dir" value="${src.dir}/edu/wustl/common/hbm"/>
-	<property name="extra_lib.dir" value="${base.dir}/extra_lib"/>
-	<property name="generateforce" value="true"/>
+	
+	<!-- properties used by export_jar" -->
+	<property name="common.1.1.lib" value="${base.dir}/../CommonPackage_Core_1.1/lib" />
+	<property name="core.1.1.lib" value="${base.dir}/../core_1.1/WEB-INF/lib" />
+	<property name="common.lib" value="${base.dir}/../CommonPackage/lib" />	
+	<property name="core.lib" value="${base.dir}/../catissuecore/WEB-INF/lib" />	
+		
+	<!-- properties for junit -->
     <property name="junit.dir" value="${base.dir}/junit"/>
     <property name="junit.report.dir" value="${junit.dir}/reports"/>
     <property name="junit.classes.dir" value="${junit.dir}/classes"/>
@@ -25,7 +29,7 @@
 	<property name="checkstyle.report.formatter" value="${checkstyle.dir}/report_formatter/checkstyle-simple.xsl"/>
 	<property name="checkstyle.report.dir" value="${checkstyle.dir}/checkstyle_reports"/>
 	<property name="checkstyle.unformatted.report" value="${checkstyle.report.dir}/checkstyle_report.xml"/>
-	<property name="checkstyle.formatted.report" value="${checkstyle.report.dir}/CommonPackage_checkstyle_report.html"/>
+	<property name="checkstyle.formatted.report" value="${checkstyle.report.dir}/TiTLi_checkstyle_report.html"/>
 	
 	<!--Properties set for checkstyle "PMD scans Java source code and looks for potential code problems"-->
 	<!--Read for more details http://pmd.sourceforge.net/cpd.html -->
@@ -69,28 +73,18 @@
     	<!-- Create the time stamp -->
 	    <tstamp/>
     	<!-- Create the build directory structure used by compile -->
-		<!--
-	    <delete dir="${target.dir}"/>
-	    <mkdir dir="${target.dir}"/>
-	    <mkdir dir="${build.dir}"/>
-		<mkdir dir="${applet.dir}"/>
-		<delete dir="${junit.dir}"/>
+		<mkdir dir="${target.dir}"/>
+		<mkdir dir="${build.dir}"/>
 		<mkdir dir="${junit.dir}"/>
-		-->
-		<!-- Create the checkstyle report directory-->
-		<!--
-		<delete dir="${checkstyle.report.dir}"/>
-		<mkdir dir="${checkstyle.report.dir}"/>
-		-->
-		<!-- Create the PMD report directory-->
-		<delete dir="${pmd.report.dir}"/>
-		<mkdir dir="${pmd.report.dir}"/>
-  	</target>
+	</target>
 	
 	<!-- Compile all files, generated and hand-written -->
     <target name="compile" depends="init">
-    	
-        <javac destdir="${target.dir}" includes="**/*.*" includeAntRuntime="false">
+    	<delete >
+			<fileset dir="${target.dir}" includes="**/*" />
+		</delete>
+
+    	<javac destdir="${target.dir}" includes="**/*.*" includeAntRuntime="false">
             <src path="${src.dir}"/>
         	<src path="${test.dir}"/>
             <classpath>
@@ -99,20 +93,17 @@
               </fileset>
             </classpath>       
         </javac>
+    	<!--
     	<copy todir="${target.dir}">
     		<fileset dir="${src.dir}">
     			<include name="**/*.properties"/>
     			<include name="**/*.xml"/>
-    			<include name="**/*.hbm.xml"/>
-    			<include name="**/*.ser"/>
-	    	</fileset>
-			<fileset dir="${test.dir}">
+    		</fileset>
+    		<fileset dir="${test.dir}">
     			<include name="**/*.properties"/>
     			<include name="**/*.xml"/>
-    			<include name="**/*.hbm.xml"/>
-    			<include name="**/*.ser"/>
-	    	</fileset>
-    	</copy>
+    		</fileset>
+    	</copy> -->
     </target>
 
     <target name="compileTest" depends="compile">
@@ -127,142 +118,9 @@
             </classpath>       
         </javac>
     </target>
-	<!-- Create the Applet JAR Begins-->
-  <!--target name="AppletJAR" depends="compile" >
-    	<delete>
-            <fileset dir="${applet.dir}">
-	            <exclude name="**/CVS*"/>
-	            <exclude name="**/java.policy.applet*"/>
-            </fileset>
-        </delete>
-        
-        <copy todir="${applet.dir}/edu/wustl/common/treeApplet">
-        	<fileset dir="${target.dir}/edu/wustl/common/treeApplet">
-            	<include name="**/*.class"/>
-        	</fileset>
-        </copy>
-        <copy todir="${applet.dir}/edu/wustl/common/tree">
-        	<fileset dir="${target.dir}/edu/wustl/common/tree">
-	    	    <include name="**/*.class"/>
-    		</fileset>
-    	</copy>
-		
-        <jar taskname="BuildJar" jarfile="${applet.dir}/TreeApplet.jar">
-            <fileset dir="${applet.dir}">
-	            <exclude name="**/CVS*"/>
-	            <exclude name="**/java.policy.applet*"/>
-            </fileset>
-        </jar>
-		
-		<delete dir="${applet.dir}/edu"/>
-    </target-->
-   	<!-- Create the Applet JAR Ends-->
 	
-	<!-- Compile all files, generated and hand-written -->
-    <target name="applet_compile" depends="init" >
-    	<delete>
-            <fileset dir="${applet.dir}">
-	            <exclude name="**/CVS*"/>
-	            <exclude name="**/java.policy.applet*"/>
-            </fileset>
-    	 </delete>
-    	
-        <javac destdir="${applet.dir}" includeAntRuntime="false" fork="yes" executable="C:/Program Files/Java/jdk1.5.0_05/bin/javac" compiler="javac1.5">
-            <src path="${src.dir}"/>
-			
-			<include name="**/edu/wustl/common/tree/*.java"/>	
-        	<include name="**/edu/wustl/common/treeApplet/*.java"/>	
-            <classpath>
-              <fileset dir="${lib.dir}">
-                  <include name="*.jar"/>
-              </fileset>
-            </classpath>       
-        </javac>
-    </target>
-
-	<!-- Create the Applet JAR Begins-->
-    <target name="AppletJAR" depends="applet_compile" >
-            
-		<delete>
-            <fileset dir="${applet.dir}">
-	            <include name="**/*.jar"/>
-            </fileset>
-        </delete>
-    	
-    	<copy todir="${applet.dir}/images">	
-    		<fileset dir="${base.dir}/images">
-	    	    <include name="**/*"/>
-    		</fileset>
-    	 </copy>
-
-		<copy todir="${applet.dir}">	
-    		<fileset dir="${lib.dir}">
-	    	    <include name="**/swingx-2006_10_08.jar"/>
-    		</fileset>
-    	 </copy> 
-
-        <jar taskname="buildJar" jarfile="${applet.dir}/TreeApplet.jar">
-		 <manifest>
-		      <attribute name="Class-Path" value="swingx-2006_10_08.jar"/>
-		   </manifest>
-            <fileset dir="${applet.dir}">
-	            <exclude name="**/CVS*"/>
-	            <exclude name="**/java.policy.applet*"/>
-            </fileset>
-        </jar>
-    </target>
-	<!-- Create the Applet JAR Ends-->
-	
-	
-	<!-- Generate the hbm files from the XDoclet -->
-    <target name="GenerateHBM" description="Generates Hibernate class descriptor files.">
-    	<!-- Define the hibernatedoclet task -->
-    	<taskdef name="hibernatedoclet" classname="xdoclet.modules.hibernate.HibernateDocletTask">
-    		<classpath refid="xdoclet.classpath"/>
-		</taskdef>
-		
-		<!-- Execute the hibernatedoclet task -->		
-		<hibernatedoclet destdir="${src.dir}" excludedtags="@version,@author,@todo"
-					     force="${generateforce}" mergedir="${src.dir}" verbose="false">
-			<fileset dir="${src.dir}">
-				<include name="**/domain/*.java"/>
-				<include name="**/cde/*.java"/>
-				<include name="**/category/*.java"/>
-			</fileset>
-    		<hibernate version="2.0"/>
-		</hibernatedoclet>	
-		
-		<!-- Upgrade grammar from Hibernate1 to Hibernate2 -->
-	    <replace dir="${src.dir}">
-	    	<include name="**/domain/*.hbm.xml"/>
-	        <include name="**/cde/*.hbm.xml"/>
-			<include name="**/category/*hbm.xml"/>
-	        <replacefilter token="readonly=" value="inverse="/>
-	        <replacefilter token="role=" value="name="/>
-	        <replacefilter token="hibernate-mapping.dtd" value="hibernate-mapping-2.0.dtd"/>
-	    </replace>
-	    
-	    <copy todir="${hbm.dir}">
-	    	<fileset dir="${src.dir}/edu/wustl/common/domain">
-	    		<include name="*.hbm.xml"/>
-    		</fileset>
-	    	<fileset dir="${src.dir}/edu/wustl/common/cde">
-	    		<include name="*.hbm.xml"/>
-	       	</fileset>
-	    	<fileset dir="${src.dir}/edu/wustl/common/querysuite/metadata/category">
-	    		<include name="*.hbm.xml"/>
-	       	</fileset>
-	    </copy>
-    	
-    	<delete>
-            <fileset dir="${src.dir}/edu/wustl/common/domain" includes="*.hbm.xml"/>
-    		<fileset dir="${src.dir}/edu/wustl/common/cde" includes="*.hbm.xml"/>
-	    	<fileset dir="${src.dir}/edu/wustl/common/querysuite/metadata/category" includes="*.hbm.xml"/>
-        </delete>
-    </target>
-	
-	<target name="build_code_zip" depends="compile" >
-		<zip destfile="${build.dir}/commonpackage-src.zip">
+	<target name="build_code_zip" >
+		<zip destfile="${build.dir}/titli-washu-1.0-src.zip">
 	    	<fileset dir="${src.dir}" includes="**/*"/>
 	    </zip>
 	</target>
@@ -272,39 +130,40 @@
             <fileset dir="${build.dir}" includes="**/*"/>
         </delete>
         
-        <jar taskname="build_jar" jarfile="${build.dir}/commonpackage.jar">
-            <fileset dir="${target.dir}">
-            	<include name="**/*"/>
-        		<exclude name="**/SqlGeneratorTestCase*"/>
-            	<exclude name="**/ExpressionTestCases*"/>
-            	<exclude name="**/JoinGraphTestCase*"/>
-            </fileset>
-			<fileset dir="${base.dir}" includes="**/ExceptionFormatter.properties"/>	
-			<fileset dir="${base.dir}" includes="**/dbutil.properties"/>	
+        <jar jarfile="${build.dir}/titli-washu-1.0.jar">
+            <fileset dir="${target.dir}" includes="**/*" />
         </jar>
 		
 		<antcall target="build_code_zip"/>
     </target>
 	
-	<target name="Generate-Schema" depends="build_jar">
-    	<java classname="edu.wustl.common.util.dbManager.GenerateSchema">
-    		<arg value="false"/>	
-            <classpath>
-	            <pathelement location="${build.dir}/catissuecore.jar"/>
-            	<fileset dir="${lib.dir}">
-                  <include name="*.jar"/>
-              	</fileset>
-            </classpath>       
-      	</java>
-    </target>
+	<target name="export_jar" depends="build_jar">
+		<copy file="${build.dir}/titli-washu-1.0.jar" todir="${common.1.1.lib}" />
+		<copy file="${build.dir}/titli-washu-1.0.jar" todir="${core.1.1.lib}" />
+		<copy file="${build.dir}/titli-washu-1.0.jar" todir="${common.lib}" />
+		<copy file="${build.dir}/titli-washu-1.0.jar" todir="${core.lib}" />
+	</target>
 	
+	<target name="export_commonpackage_to_catissucore">
+		<copy todir="${core.lib}" >
+			<fileset dir="${common.lib}/../build" />
+		</copy>
+	</target>
+	
+	<target name="export_commonpackage_to_core-1.1">
+		<copy todir="${core.1.1.lib}" >
+			<fileset dir="${common.1.1.lib}/../build" />
+		</copy>
+	</target>
+	
+
 	 <target name="runJunit" depends="compileTest">
 	 	<mkdir dir="${junit.report.dir}"/> 
 	 	<delete>
 	 		<fileset dir="${junit.report.dir}" includes="**/*"/>
 	 	</delete>
 	    <junit printsummary="yes" haltonerror="no" haltonfailure="no" fork="yes">
-		 	<test name="edu.wustl.common.querysuite.TestAll" outfile="${junit.report.dir}/Junit_report_CommonPackage"/>
+		 	<test name="titli.model.TitliTest" outfile="${junit.report.dir}/TitliTest_report"/>
       		<formatter type="plain"/>
       		<!--batchtest todir="${junit.report.dir}">
       			<fileset dir="${test.dir}">
@@ -321,17 +180,17 @@
 		</junit>
 	</target>
 
-	<target name="checkstyle" depends="build_jar" description="Generates a report of code convention violations.">
-		<taskdef resource="checkstyletask.properties" classpath="${extra_lib.dir}/checkstyle-all-4.2.jar"/>  
+	<target name="checkstyle"  description="Generates a report of code convention violations.">
+		<taskdef resource="checkstyletask.properties" classpath="${lib.dir}/checkstyle-all-4.2.jar"/>  
 
-	    <checkstyle config="${checkstyle.rules.file}" failureProperty="checkstyle.failed" failOnViolation="false" classpathref="checkstyle.classpath" >
+	    <checkstyle config="${checkstyle.rules.file}" failureProperty="checkstyle.failed" failOnViolation="false" >  <!--classpathref="checkstyle.classpath" > -->
 			<formatter type="xml" tofile="${checkstyle.unformatted.report}" />
-			<!-- Adding all querysuite packages-->
-	    	<fileset dir="${src.dir}" includes="**/querysuite/**/*.java"/>
+			<fileset dir="${src.dir}" />
 		</checkstyle>
 
 	    <style in="${checkstyle.unformatted.report}" out="${checkstyle.formatted.report}" style="${checkstyle.report.formatter}"/>
 	</target>
+	
 	
 	<!-- ,,,,,junit,logging-jakarta-commons,logging-java,migrating,,optimizations,strictexception,,,"-->
 	<target name="pmd" depends="init" description="PMD scans Java source code and looks for potential code problems.">
@@ -355,45 +214,8 @@
 			<!--ruleset>javabeans</ruleset-->
 			
 			<formatter type="html" toFile="${pmd.report.html}"/>
-			<fileset dir="${base.dir}" />
+			<fileset dir="${src.dir}"  includes="**/*.java"/>
 		</pmd>
-	</target>
-	
-	<target name="executeQueries">
-		<delete dir="${junit.classes.dir}"/>
-    	<mkdir dir="${junit.classes.dir}"/> 
-		<javac srcdir="${test.dir}" destdir="${junit.classes.dir}" >
-			<include name="edu/wustl/common/querysuite/ExecuteQueries.java"/>
-			<!--include name="**/ExecuteQueries.java"/-->
-			<classpath refid="app.classpath"/>
-		</javac>
-
-		<property file="queryDetails.properties"/>
-		<echo message="Database Settings:"/>
-		<echo message="Database Type: ${database.type}"/>
-		<echo message="Database Host: ${database.host}"/>
-		<echo message="Database Host: ${database.port}"/>
-		<echo message="Database Name: ${database.name}"/>
-		<echo message="Database User name: ${database.username}"/>
-		<echo message="Database Password: ${database.password}"/>
-		<echo message="SQL File: ${base.dir}/${sql.fileName}"/>
+	</target> 
 		
-		<java classname="edu.wustl.common.querysuite.ExecuteQueries" fork="true">
-			<arg value="${database.type}"/>
-			<arg value="${database.host}"/>
-			<arg value="${database.port}"/>
-			<arg value="${database.name}"/>
-			<arg value="${database.username}"/>
-			<arg value="${database.password}"/>
-			<arg value="${base.dir}/${sql.fileName}"/>
-			<arg value="${databse.tableNames}"/>
-			<classpath>
-				<pathelement location="${junit.classes.dir}"/>
-				 <fileset dir="${lib.dir}">
-	                  <include name="*.jar"/>
-				 </fileset>
-			</classpath>
-			<classpath refid="app.classpath"/>
-		</java>
-	</target>
 </project>
