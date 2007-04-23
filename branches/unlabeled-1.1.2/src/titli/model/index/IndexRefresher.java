@@ -24,7 +24,6 @@ import titli.model.Titli;
 import titli.model.TitliException;
 import titli.model.fetch.TitliFetchException;
 import titli.model.search.ResultGroup;
-import titli.model.search.TitliSearchException;
 import titli.model.util.IndexUtility;
 
 /**
@@ -52,9 +51,9 @@ public class IndexRefresher implements IndexRefresherInterface
 	 * insert the record identified by parameters into the index
 	 * the unique key for the table
 	 * @param identifier the record identifier
-	 * @throws TitliIndexRefresherException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	public void insert(RecordIdentifier identifier) throws TitliIndexRefresherException
+	public void insert(RecordIdentifier identifier) throws TitliException
 	{
 		//check if document already exists in the index
 		if(isIndexed(identifier))
@@ -78,9 +77,9 @@ public class IndexRefresher implements IndexRefresherInterface
 	 * update the record identified by parameters from in index
 	 * the unique key for the table
 	 * @param identifier the record identifier
-	 * @throws TitliIndexRefresherException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	public void update(RecordIdentifier identifier) throws TitliIndexRefresherException
+	public void update(RecordIdentifier identifier) throws TitliException
 	{
 		delete(identifier);
 		insert(identifier);
@@ -92,9 +91,9 @@ public class IndexRefresher implements IndexRefresherInterface
 	 * delete the record identified by parameters from the index 
 	 * the unique key for the table
 	 * @param identifier the record identifier
-	 * @throws TitliIndexRefresherException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	public void delete(RecordIdentifier identifier) throws TitliIndexRefresherException
+	public void delete(RecordIdentifier identifier) throws TitliException
 	{
 		File indexDir = IndexUtility.getIndexDirectoryForTable(identifier.getDbName(), identifier.getTableName());
 		IndexReader reader;
@@ -161,9 +160,9 @@ public class IndexRefresher implements IndexRefresherInterface
 	 * check if a record with given unique key values already in the index  
 	 * @param identifier the record identifier
 	 * @return true if this record is already indexed otherwise false
-	 * @throws TitliIndexRefresherException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	public boolean isIndexed(RecordIdentifier identifier) throws TitliIndexRefresherException
+	public boolean isIndexed(RecordIdentifier identifier) throws TitliException
 	{
 		boolean isIndexed=false;
 		File indexDir = IndexUtility.getIndexDirectoryForTable(identifier.getDbName(), identifier.getTableName());
@@ -229,9 +228,9 @@ public class IndexRefresher implements IndexRefresherInterface
 	 * insert the list of records identified the list of Record identifiers 
 	 * the unique key for the table
 	 * @param identifiers the list record identifiers
-	 * @throws TitliIndexRefresherException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	public void insert(List<RecordIdentifier> identifiers) throws TitliIndexRefresherException
+	public void insert(List<RecordIdentifier> identifiers) throws TitliException
 	{
 		//check if document already exists in the index
 		removeIndexed(identifiers);
@@ -257,15 +256,18 @@ public class IndexRefresher implements IndexRefresherInterface
 	/**
 	 * 
 	 * @param args args for main
+	 * @throws TitliException if problems occur
 	 */
-	public static void main(String[] args)
+	public static void main(String[] args) throws TitliException
 	{
 		TitliInterface titli = null;
 		IndexRefresherInterface refresher;
 		
+		
 		try
 		{
 			titli = Titli.getInstance();
+			titli.index();
 			refresher = titli.getIndexRefresher();
 			
 			LinkedHashMap<String, String> uniqueKey = new LinkedHashMap<String, String>();
@@ -275,7 +277,8 @@ public class IndexRefresher implements IndexRefresherInterface
 			
 			long start = new Date().getTime();
 			
-			refresher.delete(identifier);
+			
+			//refresher.update(identifier);
 			
 			long end = new Date().getTime();
 			
@@ -290,9 +293,9 @@ public class IndexRefresher implements IndexRefresherInterface
 		MatchListInterface matchList = null;
 		try 
 		{
-			matchList = titli.search("p*");
+			matchList = titli.search("mit");
 		}
-		catch (TitliSearchException e) 
+		catch (TitliException e)
 		{
 			System.out.println(e+"\n"+e.getCause());
 		}  

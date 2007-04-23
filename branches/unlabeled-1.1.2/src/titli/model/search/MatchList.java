@@ -109,8 +109,9 @@ public class MatchList extends ArrayList<MatchInterface> implements MatchListInt
 	/**
 	 * 
 	 *  @param args args for main
+	 * @throws TitliException if problems occur
 	 */
-	public static void main(String[] args)
+	public static void main(String[] args) throws TitliException
 	{
 		 
 		
@@ -157,8 +158,6 @@ public class MatchList extends ArrayList<MatchInterface> implements MatchListInt
 			
 			
 		}
-	
-		
 	
 	}
 	 

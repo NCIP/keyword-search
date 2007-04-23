@@ -85,10 +85,10 @@ public class Indexer
 	
 	/**
 	 * index from the scratch
-	 * @throws TitliIndexException if problems occur
+	 * @throws TitliException if problems occur
 	 *
 	 */
-	public void index() throws TitliIndexException
+	public void index() throws TitliException
 	{
 		File indexDir;
 		try
@@ -129,9 +129,9 @@ public class Indexer
 	/**
 	 * index from the sratch the specified table
 	 * @param tableName the table name
-	 * @throws TitliIndexException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	public void index(String tableName) throws TitliIndexException
+	public void index(String tableName) throws TitliException
 	{
 		Database database;
 		try
@@ -174,7 +174,6 @@ public class Indexer
 		for(String column : uniqueKey.keySet())
 		{
 			query.append(column+"='"+uniqueKey.get(column)+"' AND ");
-			
 		}
 		
 		//remove last AND
@@ -185,7 +184,13 @@ public class Indexer
 		{
 			//execute query
 			rs = indexstmt.executeQuery(query.toString());
-			rs.next();
+			
+			//if result set is empty just abort
+			if(!rs.next())
+			{
+				rs.close();
+				return;
+			}
 		}
 		catch (SQLException e) 
 		{
@@ -225,10 +230,10 @@ public class Indexer
 	/**
 	 * index the given table
 	 * @param table the table to be indexed
-	 * @throws TitliIndexException if problems occur
+	 * @throws TitliException if problems occur
 	 * 
 	 */
-	private void indexTable(Table table) throws TitliIndexException 
+	private void indexTable(Table table) throws TitliException 
 	{
 			
 		//long start = new Date().getTime();
@@ -247,7 +252,7 @@ public class Indexer
 			indexWriter.setMergeFactor(TitliConstants.INDEX_MERGE_FACTOR);
 			indexWriter.setMaxBufferedDocs(TitliConstants.INDEX_MAX_BUFFERED_DOCS);
 			
-			//System.out.println("executing :   "+"SELECT * FROM  "+table.getName()+";");
+			//System.out.println("executing :   "+"SELECT * FROM  "+table.getName());
 			
 			query = getExtendedQuery(table);
 			
@@ -332,6 +337,11 @@ public class Indexer
 				//doc.add(new Field("TableName","City",Field.Store.YES,Field.Index.TOKENIZED));
 				
 				String value = rs.getString(key);
+				
+				if(value==null)
+				{
+					value="null";
+				}
 			
 				doc.add(new Field(key, value, Field.Store.YES, Field.Index.NO));
 			

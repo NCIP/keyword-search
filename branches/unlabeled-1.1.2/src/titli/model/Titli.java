@@ -23,7 +23,6 @@ import titli.model.fetch.Fetcher;
 import titli.model.fetch.TitliFetchException;
 import titli.model.index.IndexRefresher;
 import titli.model.index.Indexer;
-import titli.model.index.TitliIndexException;
 import titli.model.search.MatchList;
 import titli.model.search.Searcher;
 import titli.model.search.TitliSearchException;
@@ -61,6 +60,8 @@ public final class Titli implements TitliInterface
 	 * the index refresher used to refresh indexes
 	 */
 	private IndexRefresherInterface indexRefresher;
+	
+	File indexLocation;
 	
 	
 	/**
@@ -140,14 +141,22 @@ public final class Titli implements TitliInterface
 		return databases.get(dbName);
 	}
 	
+	/**
+	 * get the index location as found in the property file
+	 * @return the index location as found in the property file
+	 */
+	public File getIndexLocation()
+	{
+		return indexLocation;
+	}
 	
 	
 	/**
 	 * index all the databases from the scratch
-	 * @throws TitliIndexException if problems occur
+	 * @throws TitliException if problems occur
 	 *
 	 */
-	public void index() throws TitliIndexException
+	public void index() throws TitliException
 	{
 		//index all databases
 		for(String dbName : databases.keySet())
@@ -165,9 +174,9 @@ public final class Titli implements TitliInterface
 	/**
 	 * index from the scratch the specified database
 	 * @param databaseName the database name
-	 * @throws TitliIndexException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	public void index(String databaseName) throws TitliIndexException
+	public void index(String databaseName) throws TitliException
 	{
 		Indexer indexer = indexers.get(databaseName);
 		indexer.index();
@@ -179,9 +188,9 @@ public final class Titli implements TitliInterface
 	 * index from the scratch the specified table of the specified database
 	 * @param databaseName the database name
 	 * @param tableName the table name
-	 * @throws TitliIndexException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	public void index(String databaseName, String tableName) throws TitliIndexException
+	public void index(String databaseName, String tableName) throws TitliException
 	{
 		Indexer indexer = indexers.get(databaseName);
 		indexer.index(tableName);
@@ -193,9 +202,9 @@ public final class Titli implements TitliInterface
 	 * 
 	 * @param query the search string for which the search is to be performed
 	 * @return the list of matches found
-	 * @throws TitliSearchException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	public MatchListInterface search(String query) throws TitliSearchException
+	public MatchListInterface search(String query) throws TitliException
 	{
 			Searcher searcher = new Searcher(databases, fetchers);
 			
@@ -224,8 +233,7 @@ public final class Titli implements TitliInterface
 	{
 		//set system properties
 		System.setProperty(TitliConstants.JDBC_DRIVERS, props.getProperty(TitliConstants.JDBC_DRIVERS));
-		System.setProperty(TitliConstants.TITLI_INDEX_LOCATION, props.getProperty(TitliConstants.TITLI_INDEX_LOCATION));
-		
+				
 	}
 	
 	
@@ -242,6 +250,7 @@ public final class Titli implements TitliInterface
 		indexers = new LinkedHashMap<String, Indexer> ();
 		fetchers = new LinkedHashMap<String, Fetcher> ();
 		indexRefresher = new IndexRefresher(indexers);
+		indexLocation = new File(props.getProperty(TitliConstants.TITLI_INDEX_LOCATION));
 		
 		//read database names
 		Scanner s =new Scanner(props.getProperty(TitliConstants.JDBC_DATABASES));
@@ -280,6 +289,9 @@ public final class Titli implements TitliInterface
 		String propName = "jdbc.database";
 		dbProps.setProperty(propName, dbName);
 				
+		propName = "jdbc."+dbName+".type";
+		dbProps.setProperty(propName, props.getProperty(propName));
+		
 		propName = "jdbc."+dbName+".url";
 		dbProps.setProperty(propName, props.getProperty(propName));
 		
@@ -356,9 +368,10 @@ public final class Titli implements TitliInterface
 	/**
 	 * 
 	 * @param args args for main
+	 * @throws TitliException if problems occur
 	 * 
 	 */
-	public static void main(String[] args)
+	public static void main(String[] args) throws TitliException
 	{
 		TitliInterface titli=null;
 		try

@@ -74,6 +74,12 @@ public interface TitliConstants
 	 */
 	int INDEX_MAX_BUFFERED_DOCS=100;
 	
+	String DBTYPE_ORACLE="oracle";
 	
+	String DBTYPE_MYSQL="mysql";
+	
+	String DBTYPE_POSTGRESQL="postgresql";
+	
+		
 	
 }

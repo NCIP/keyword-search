@@ -22,9 +22,8 @@ public class Table implements TableInterface
 {
 	private String name;
 	private String databaseName;
-	private ArrayList<String> uniqueKey;
+	private List<String> uniqueKey;
 	private Map<String, Column> columns;
-	
 	
 	/**
 	 * 
