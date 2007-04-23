@@ -111,7 +111,7 @@ public class Match implements MatchInterface
 			}
 			
 			//remove the last 'and'
-			queryString  = query.substring(0, query.lastIndexOf("and")) + ";";
+			queryString  = query.substring(0, query.lastIndexOf("and"));
 		
 		}
 		

@@ -78,6 +78,7 @@ public class Fetcher
 	{
 		
 		Record record = null;
+		ResultSet rs=null;		
 			
 		try
 		{
@@ -86,8 +87,8 @@ public class Fetcher
 			
 			Table table = (Table)getDatabase().getTable(match.getTableName());
 			
-			ResultSet rs = fetchstmt.executeQuery(match.getQueryString());
-						
+			//System.out.println(match.getQueryString());
+			rs = fetchstmt.executeQuery(match.getQueryString());
 			rs.next();
 			
 			Map<Column, String> columnMap = getColumnMap(rs, table);
@@ -98,9 +99,6 @@ public class Fetcher
 			//create the record
 			record = new Record(table, columnMap, time); 
 			
-			//System.out.println("\n");
-			rs.close();
-			
 		}
 		catch(SQLException e)
 		{
@@ -110,7 +108,17 @@ public class Fetcher
 		{
 			throw new TitliFetchException("TITLI_S_015", "Problem in getting Database object", e);
 		}
-		
+		finally
+		{
+			try 
+			{
+				rs.close();
+			}
+			catch (SQLException e) 
+			{
+				throw new TitliFetchException("00", "problem closing result set", e);
+			}
+		}
 		return record;
 		
 	}	
@@ -130,12 +138,14 @@ public class Fetcher
 		
 		long start = new Date().getTime();
 		
+		ResultSet rs = null;
 		try
 		{
 			
 			Table table = (Table)getDatabase().getTable(group.getTableName());
 			
-			ResultSet rs = fetchstmt.executeQuery(group.getQueryString());
+			//System.out.println(group.getQueryString());
+			rs = fetchstmt.executeQuery(group.getQueryString());
 						
 			while(rs.next())
 			{
@@ -163,6 +173,17 @@ public class Fetcher
 		catch(TitliException e)
 		{
 			throw new TitliFetchException("TITLI_S_017", "Problem in getting Database object", e);
+		}
+		finally
+		{
+			try 
+			{
+				rs.close();
+			}
+			catch (SQLException e) 
+			{
+				throw new TitliFetchException("00", "problem closing result set", e);
+			}
 		}
 		
 		

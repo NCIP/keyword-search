@@ -21,9 +21,12 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.store.FSDirectory;
 
 import titli.controller.interfaces.TableInterface;
+import titli.controller.interfaces.TitliInterface;
 import titli.model.Database;
 import titli.model.Table;
+import titli.model.Titli;
 import titli.model.TitliConstants;
+import titli.model.TitliException;
 import titli.model.fetch.Fetcher;
 
 
@@ -42,9 +45,9 @@ public class Searcher
 	 * setup a multiseracher for the given databases
 	 * @param databases the list of databases to be searched 
 	 * @param fetchers a map of fetchers so that appropriate Fetcher is attached to each match
-	 * @throws TitliSearchException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	public Searcher(Map<String, Database> databases, Map<String, Fetcher> fetchers) throws TitliSearchException
+	public Searcher(Map<String, Database> databases, Map<String, Fetcher> fetchers) throws TitliException
 	{
 		this.fetchers = fetchers;
 		
@@ -169,16 +172,17 @@ public class Searcher
 	/**
 	 * initialize the multisearcher from the map of databases
 	 * @param databases the mzp of available databases
-	 * @throws TitliSearchException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	private void initMultiSearcher(Map<String, Database> databases) throws TitliSearchException 
+	private void initMultiSearcher(Map<String, Database> databases) throws TitliException 
 	{
 		ArrayList<IndexSearcher> searcherList;
 		
 		try
 		{
+			TitliInterface titli = Titli.getInstance();
 			//the current directory
-			File indexDir = new File(System.getProperty(TitliConstants.TITLI_INDEX_LOCATION));
+			File indexDir = titli.getIndexLocation();
 			
 			//create the multisearcher
 			searcherList = new ArrayList<IndexSearcher> (); 

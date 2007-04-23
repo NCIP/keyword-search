@@ -10,13 +10,14 @@ import titli.controller.interfaces.record.RecordInterface;
 import titli.controller.interfaces.record.RecordListInterface;
 
 /**
- * @author juberahamad_patel
+ * this class is a list of Record objects with additional useful methods
+ * @author Juber Patel
  *
  */
 public class RecordList extends ArrayList<RecordInterface> implements RecordListInterface
 {
-	String tableName;
-	double timeTaken;
+	private String tableName;
+	private double timeTaken;
 	
 	/**
 	 * 

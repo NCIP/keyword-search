@@ -29,8 +29,8 @@ public class Column implements ColumnInterface
 	 */
 	Column(String name, String type, String tableName)
 	{
-		this.name = new String(name);
-		this.type = new String(type);
+		this.name = name;
+		this.type = type;
 		this.tableName = tableName;
 	}
 	

@@ -3,10 +3,10 @@
  */
 package titli.controller.interfaces;
 
+import java.io.File;
 import java.util.Map;
 
-import titli.model.index.TitliIndexException;
-import titli.model.search.TitliSearchException;
+import titli.model.TitliException;
 
 
 /**
@@ -36,6 +36,13 @@ public interface TitliInterface
 	 */
 	Map<String, DatabaseInterface> getDatabases();
 	
+	/**
+	 * get the index location as found in the property file
+	 * @return the index location as found in the property file
+	 */
+	File getIndexLocation();
+	
+	
 	
 	
 	
@@ -43,26 +50,26 @@ public interface TitliInterface
 	
 	/**
 	 * index all the databases from the scratch
-	 * @throws TitliIndexException if problems occur
+	 * @throws TitliException if problems occur 
 	 *
 	 */
-	void index() throws TitliIndexException;
+	void index() throws TitliException;
 	
 	/**
 	 * index from the scratch the specified database
 	 * @param databaseName the database name
-	 * @throws TitliIndexException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	void index(String databaseName) throws TitliIndexException;
+	void index(String databaseName) throws TitliException;
 	
 	
 	/**
 	 * index from the scratch the specified table of the specified database
 	 * @param databaseName the database name
 	 * @param tableName the table name
-	 * @throws TitliIndexException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	void index(String databaseName, String tableName) throws TitliIndexException;
+	void index(String databaseName, String tableName) throws TitliException;
 	
 	
 	
@@ -75,6 +82,7 @@ public interface TitliInterface
 	
 	
 	
+	
 	/****************            search methods     *********************/
 	
 	
@@ -82,9 +90,9 @@ public interface TitliInterface
 	 *serach the specified query 
 	 * @param query the search string for which the search is to be performed
 	 * @return the list of matches found
-	 * @throws TitliSearchException if problems occur
+	 * @throws TitliException if problems occur
 	 */
-	MatchListInterface search(String query) throws TitliSearchException;
+	MatchListInterface search(String query) throws TitliException;
 	
 	
 }

@@ -33,6 +33,11 @@ public class RDBMSReader
 	private String url;
 	
 	/**
+	 * the type of the database like oracle, mysql etc
+	 */
+	private String dbType;
+	
+	/**
 	 * the database name
 	 */
 	private String dbName;
@@ -43,7 +48,7 @@ public class RDBMSReader
 	private String username;
 	
 	/**
-	 * the pasword
+	 * the password
 	 */
 	private String password;
 	
@@ -104,27 +109,16 @@ public class RDBMSReader
 			{
 				DatabaseMetaData dbmd = indexConnection.getMetaData();
 				Statement stmt = indexConnection.createStatement();
-				
-				//get table names
-				ResultSet rs = dbmd.getTables(null, null, null, new String[] {"TABLE"});
-				
-				
+				List<String> tableList = getTables(indexConnection);
+							
 				//for each table
-				while(rs.next())
+				for(String tableName : tableList)
 				{
-					String tableName = rs.getString("TABLE_NAME");
-					
-					//ignore invisible tables
-					if(!isVisible(tableName))
-					{
-						continue;
-					}
-					
 					List<String> uniqueKey = new ArrayList<String>();
 					Map<String, Column> columns = new LinkedHashMap<String, Column>();
 					
 					//get unique keys
-					ResultSet keys = dbmd.getBestRowIdentifier(null, null, tableName,DatabaseMetaData.bestRowSession, true);
+					ResultSet keys = dbmd.getPrimaryKeys(null, null, tableName);
 					
 					//add unique keys
 					while(keys.next())
@@ -142,30 +136,39 @@ public class RDBMSReader
 					}
 					
 					//fire a dummy query to get table metadata
-					//String query = "select * from "+tableName+" where "+uniqueKey.get(0)+" = null;";
+					//String query = "select * from "+tableName+" where "+uniqueKey.get(0)+" = null";
 					//System.out.println(query);
-					ResultSet useless = stmt.executeQuery("select * from "+tableName+" where "+uniqueKey.get(0)+" = null; ");
-					ResultSetMetaData tablemd = useless.getMetaData();
-					
-					int numcols = tablemd.getColumnCount();
-					//for each column
-					for(int i=1;i<=numcols;i++)
+					try
 					{
-						String columnName = tablemd.getColumnName(i);
-						String columnType = tablemd.getColumnTypeName(i);
+						String query = "select * from "+tableName+" where "+uniqueKey.get(0)+" =null";
+						System.out.println(query);
+						ResultSet useless = stmt.executeQuery(query);
 						
-						columns.put(columnName, new Column(columnName, columnType, tableName));
+						ResultSetMetaData tablemd = useless.getMetaData();
 						
+						int numcols = tablemd.getColumnCount();
+						//for each column
+						for(int i=1;i<=numcols;i++)
+						{
+							String columnName = tablemd.getColumnName(i);
+							String columnType = tablemd.getColumnTypeName(i);
+							
+							columns.put(columnName, new Column(columnName, columnType, tableName));
+							
+						}
+						
+						useless.close();
+						
+						//add the table to the list
+						tables.put(tableName, new Table(tableName, dbName, uniqueKey, columns));
 					}
-					
-					useless.close();
-					
-					//add the table to the list
-					tables.put(tableName, new Table(tableName, dbName, uniqueKey, columns));
-					
+					catch(SQLException e)
+					{
+						System.out.println("problem with "+tableName);
+					}
+						
 				}
 				
-				rs.close();
 				stmt.close();
 			
 				database = new Database(dbName, tables);
@@ -236,9 +239,9 @@ public class RDBMSReader
 	 */
 	private void initSQL(Properties props) throws TitliException
 	{
-		
 		dbName = props.getProperty("jdbc.database");
 		
+		dbType = props.getProperty("jdbc."+dbName+".type");
 		url = props.getProperty("jdbc."+dbName+".url");
 		username = props.getProperty("jdbc."+dbName+".username");
 		password = props.getProperty("jdbc."+dbName+".password");
@@ -296,20 +299,83 @@ public class RDBMSReader
 	 */
 	private boolean isVisible(String tableName)
 	{
-		if(invisibleTables.contains(tableName))
+		if(invisibleTables.contains(tableName.toLowerCase()))
 		{
 			return false;
 		}
 		
 		for(String prefix : invisiblePrefixes)
 		{
-			if(tableName.startsWith(prefix))
+			if(tableName.toLowerCase().startsWith(prefix))
 			{
 				return false;
 			}
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * get a list of table names in the database
+	 * @param connection the connection to the database
+	 * @return a list of table names in the database
+	 * @throws TitliException if problems exist
+	 */
+	private List<String> getTables(Connection connection) throws TitliException
+	{
+		List<String> tableList = new ArrayList<String>();
+		try
+		{
+			//special case for oracle; the common code does not work
+			if(dbType.equals(TitliConstants.DBTYPE_ORACLE))
+			{
+				Statement stmt = connection.createStatement();
+				ResultSet rs = stmt.executeQuery("select TABLE_NAME from USER_TABLES");
+				while(rs.next())
+				{
+					String tableName = rs.getString("TABLE_NAME");
+					
+					//	ignore invisible tables
+					if(!isVisible(tableName))
+					{
+						continue;
+					}
+					
+					tableList.add(tableName);
+				}
+				
+				rs.close();
+				stmt.close();
+				
+			}
+			else
+			{
+				DatabaseMetaData dbmd = connection.getMetaData();
+				ResultSet rs = dbmd.getTables(null, null, null, new String[] {"TABLE"});
+				
+				while(rs.next())
+				{
+					String tableName = rs.getString("TABLE_NAME");
+					
+					//	ignore invisible tables
+					if(!isVisible(tableName))
+					{
+						continue;
+					}
+					
+					tableList.add(tableName);
+				}
+				
+				rs.close();
+			}
+			
+		}
+		catch(SQLException e)
+		{
+			throw new TitliException("TITLI_S_001", "SQL Connection problems while trying to get list of tables ", e);
+		}
+			
+		return tableList;
 	}
 	
 	

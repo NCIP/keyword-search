@@ -20,22 +20,15 @@ public class IndexUtility
 	 * @param dbName the database name
 	 * @param tableName the table name
 	 * @return the File object corresponding to the table index directory 
+	 * @throws TitliException if problems occur
 	 */
-	public static File getIndexDirectoryForTable(String dbName, String tableName)
+	public static File getIndexDirectoryForTable(String dbName, String tableName) throws TitliException
 	{
-		String path = System.getProperty(TitliConstants.TITLI_INDEX_LOCATION);
+		File indexDir = Titli.getInstance().getIndexLocation();
 		
-		path = path +"/"+dbName+TitliConstants.INDEX_DIRECTORY_SUFFIX+"/"+tableName+TitliConstants.INDEX_DIRECTORY_SUFFIX;
+		File dbDir = new File(indexDir, dbName+TitliConstants.INDEX_DIRECTORY_SUFFIX);
+		return new File(dbDir, tableName+TitliConstants.INDEX_DIRECTORY_SUFFIX);
 		
-		return new File(path);
-		
-		/*
-		File directory = new File(System.getProperty(TitliConstants.TITLI_INDEX_LOCATION));
-		
-		directory = new File(directory, dbName+TitliConstants.INDEX_DIRECTORY_SUFFIX);
-		
-		directory = new File(directory, tableName+TitliConstants.INDEX_DIRECTORY_SUFFIX);
-		*/
 	}
 	
 		
@@ -43,22 +36,22 @@ public class IndexUtility
 	 * get the directory corresponding to the index of the specified database
 	 * @param dbName the database name
 	 * @return the File object corresponding to the table index directory 
+	 * @throws TitliException if problems occur
 	 */
-	public static File getIndexDirectoryForDatabase(String dbName)
+	public static File getIndexDirectoryForDatabase(String dbName) throws TitliException
 	{
-		String path = System.getProperty(TitliConstants.TITLI_INDEX_LOCATION);
+		File indexDir = Titli.getInstance().getIndexLocation();
 		
-		path = path +"/"+dbName+TitliConstants.INDEX_DIRECTORY_SUFFIX;
-		
-		return new File(path);
+		return new File(indexDir, dbName+TitliConstants.INDEX_DIRECTORY_SUFFIX);
 		
 	}
 
 
 	/**
 	 * @param args args for main
+	 * @throws TitliException if problems occur
 	 */
-	public static void main(String[] args) 
+	public static void main(String[] args) throws TitliException 
 	{
 		try
 		{
