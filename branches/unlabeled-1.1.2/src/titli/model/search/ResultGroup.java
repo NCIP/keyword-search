@@ -6,6 +6,7 @@ package titli.model.search;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import titli.controller.Name;
 import titli.controller.interfaces.MatchInterface;
 import titli.controller.interfaces.MatchListInterface;
 import titli.controller.interfaces.ResultGroupInterface;
@@ -22,7 +23,7 @@ import titli.model.fetch.TitliFetchException;
 public class ResultGroup implements ResultGroupInterface 
 {
 	
-	private String tableName;
+	private Name tableName;
 	private MatchList matchList;
 	private Fetcher fetcher;
 	private RecordList recordList;
@@ -33,7 +34,7 @@ public class ResultGroup implements ResultGroupInterface
 	 * @param tableName the table for which to create the result group
 	 * @param fetcher the fetcher for this table
 	 */
-	public ResultGroup(String tableName, Fetcher fetcher)
+	public ResultGroup(Name tableName, Fetcher fetcher)
 	{
 		this.tableName = tableName;
 		this.fetcher = fetcher;
@@ -93,7 +94,7 @@ public class ResultGroup implements ResultGroupInterface
 	 * 
 	 * @return the table name
 	 */
-	public String getTableName() 
+	public Name getTableName() 
 	{
 		return tableName;
 	}
@@ -112,7 +113,7 @@ public class ResultGroup implements ResultGroupInterface
 			
 			match = (Match)match;
 			
-			Map<String, String> keys = match.getUniqueKeys();
+			Map<Name, String> keys = match.getUniqueKeys();
 			
 			for(Entry e : keys.entrySet())
 			{

@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 
+import titli.controller.Name;
+
 
 
 /**
@@ -40,7 +42,7 @@ public class RDBMSReader
 	/**
 	 * the database name
 	 */
-	private String dbName;
+	private Name dbName;
 	
 	/**
 	 * the user name
@@ -70,12 +72,12 @@ public class RDBMSReader
 	/**
 	 * the tables with these prefixes should not be indexed or fetched
 	 */
-	private List<String> invisiblePrefixes;
+	private List<Name> invisiblePrefixes;
 	
 	/**
 	 * the tables with these names should not be indexed or fetched
 	 */
-	private List<String> invisibleTables;
+	private List<Name> invisibleTables;
 	
 	
 	/**
@@ -103,27 +105,28 @@ public class RDBMSReader
 		//build the database metadata
 		if(database==null)
 		{
-			Map<String, Table> tables = new LinkedHashMap<String, Table> ();
+			Map<Name, Table> tables = new LinkedHashMap<Name, Table> ();
 			
 			try
 			{
 				DatabaseMetaData dbmd = indexConnection.getMetaData();
 				Statement stmt = indexConnection.createStatement();
-				List<String> tableList = getTables(indexConnection);
+				List<Name> tableList = getTables(indexConnection);
 							
 				//for each table
-				for(String tableName : tableList)
+				for(Name tableName : tableList)
 				{
-					List<String> uniqueKey = new ArrayList<String>();
-					Map<String, Column> columns = new LinkedHashMap<String, Column>();
+					List<Name> uniqueKey = new ArrayList<Name>();
+					Map<Name, Column> columns = new LinkedHashMap<Name, Column>();
 					
 					//get unique keys
-					ResultSet keys = dbmd.getPrimaryKeys(null, null, tableName);
+					ResultSet keys = dbmd.getPrimaryKeys(null, null, tableName.toString());
 					
 					//add unique keys
 					while(keys.next())
 					{
-						uniqueKey.add(keys.getString("COLUMN_NAME"));
+						String key = keys.getString("COLUMN_NAME");
+						uniqueKey.add(new Name(key));
 						
 					}
 					
@@ -150,7 +153,7 @@ public class RDBMSReader
 						//for each column
 						for(int i=1;i<=numcols;i++)
 						{
-							String columnName = tablemd.getColumnName(i);
+							Name columnName = new Name(tablemd.getColumnName(i));
 							String columnType = tablemd.getColumnTypeName(i);
 							
 							columns.put(columnName, new Column(columnName, columnType, tableName));
@@ -239,7 +242,7 @@ public class RDBMSReader
 	 */
 	private void initSQL(Properties props) throws TitliException
 	{
-		dbName = props.getProperty("jdbc.database");
+		dbName = new Name(props.getProperty("jdbc.database"));
 		
 		dbType = props.getProperty("jdbc."+dbName+".type");
 		url = props.getProperty("jdbc."+dbName+".url");
@@ -270,8 +273,8 @@ public class RDBMSReader
 	 */
 	private void initInvisibleTablesLists(Properties props)
 	{
-		invisiblePrefixes = new ArrayList<String>();
-		invisibleTables = new ArrayList<String>();
+		invisiblePrefixes = new ArrayList<Name>();
+		invisibleTables = new ArrayList<Name>();
 		
 		//populate lists of tables NOT to be indexed
 		Scanner s = new Scanner(props.getProperty("titli."+dbName+".noindex.prefix"));
@@ -279,14 +282,22 @@ public class RDBMSReader
 		s.useDelimiter(TitliConstants.PROPERTIES_FILE_DELIMITER_PATTERN);
 		while(s.hasNext())
 		{
-			invisiblePrefixes.add(s.next());
+			Name tablePrefix = new Name(s.next());
+			//add both upper case and lower case names to avoid case-insensitivity problem
+			invisiblePrefixes.add(tablePrefix);
+			//invisiblePrefixes.add(tablePrefix.toUpperCase());
+			//invisiblePrefixes.add(tablePrefix.toLowerCase());
 		}
 		
 		s = new Scanner(props.getProperty("titli."+dbName+".noindex.table"));
 		s.useDelimiter(TitliConstants.PROPERTIES_FILE_DELIMITER_PATTERN);
 		while(s.hasNext())
 		{
-			invisibleTables.add(s.next());
+			Name tableName = new Name(s.next());
+			//add both upper case and lower case names to avoid case-insensitivity problem
+			invisibleTables.add(tableName);
+			//invisibleTables.add(tableName.toUpperCase());
+			//invisibleTables.add(tableName.toLowerCase());
 		}
 		
 	}
@@ -297,16 +308,16 @@ public class RDBMSReader
 	 * @param tableName the table
 	 * @return true if this table is to be indexed and searched otherwise false
 	 */
-	private boolean isVisible(String tableName)
+	private boolean isVisible(Name tableName)
 	{
-		if(invisibleTables.contains(tableName.toLowerCase()))
+		if(invisibleTables.contains(tableName))
 		{
 			return false;
 		}
 		
-		for(String prefix : invisiblePrefixes)
+		for(Name prefix : invisiblePrefixes)
 		{
-			if(tableName.toLowerCase().startsWith(prefix))
+			if(tableName.startsWith(prefix))
 			{
 				return false;
 			}
@@ -321,9 +332,9 @@ public class RDBMSReader
 	 * @return a list of table names in the database
 	 * @throws TitliException if problems exist
 	 */
-	private List<String> getTables(Connection connection) throws TitliException
+	private List<Name> getTables(Connection connection) throws TitliException
 	{
-		List<String> tableList = new ArrayList<String>();
+		List<Name> tableList = new ArrayList<Name>();
 		try
 		{
 			//special case for oracle; the common code does not work
@@ -333,7 +344,7 @@ public class RDBMSReader
 				ResultSet rs = stmt.executeQuery("select TABLE_NAME from USER_TABLES");
 				while(rs.next())
 				{
-					String tableName = rs.getString("TABLE_NAME");
+					Name tableName = new Name(rs.getString("TABLE_NAME"));
 					
 					//	ignore invisible tables
 					if(!isVisible(tableName))
@@ -355,7 +366,7 @@ public class RDBMSReader
 				
 				while(rs.next())
 				{
-					String tableName = rs.getString("TABLE_NAME");
+					Name tableName = new Name(rs.getString("TABLE_NAME"));
 					
 					//	ignore invisible tables
 					if(!isVisible(tableName))

@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import titli.controller.Name;
 import titli.controller.interfaces.ColumnInterface;
 import titli.controller.interfaces.TableInterface;
 
@@ -20,10 +21,10 @@ import titli.controller.interfaces.TableInterface;
  */
 public class Table implements TableInterface
 {
-	private String name;
-	private String databaseName;
-	private List<String> uniqueKey;
-	private Map<String, Column> columns;
+	private Name name;
+	private Name databaseName;
+	private List<Name> uniqueKey;
+	private Map<Name, Column> columns;
 	
 	/**
 	 * 
@@ -32,11 +33,11 @@ public class Table implements TableInterface
 	 * @param uniqueKey unique key set for the table
 	 * @param columns the list of columns that are to be part of this table
 	 */
-	Table(String name, String databaseName, List<String> uniqueKey,   Map<String, Column> columns)
+	Table(Name name, Name databaseName, List<Name> uniqueKey,   Map<Name, Column> columns)
 	{
 		this.name = name;
 		this.databaseName = databaseName;
-		this.uniqueKey = new ArrayList<String> (uniqueKey);
+		this.uniqueKey = new ArrayList<Name> (uniqueKey);
 		this.columns =  columns;
 		
 		
@@ -47,7 +48,7 @@ public class Table implements TableInterface
 	 * returns the name of the table
 	 * @return the name of the table
 	 */
-	public String getName()
+	public Name getName()
 	{
 		return name;
 		
@@ -58,7 +59,7 @@ public class Table implements TableInterface
 	 * returns the name of the table
 	 * @return the name of the table
 	 */
-	public String getDatabaseName()
+	public Name getDatabaseName()
 	{
 		return databaseName;
 		
@@ -69,9 +70,9 @@ public class Table implements TableInterface
 	 * 
 	 * @return the unique key set for the table
 	 */
-	public List<String> getUniqueKey()
+	public List<Name> getUniqueKey()
 	{
-		return new ArrayList<String>(uniqueKey); 
+		return new ArrayList<Name>(uniqueKey); 
 	}
 	
 	/**
@@ -91,7 +92,7 @@ public class Table implements TableInterface
 	 * @param name the name of the column
 	 * @return the corresponding column
 	 */
-	public ColumnInterface getColumn(String name)
+	public ColumnInterface getColumn(Name name)
 	{
 		return columns.get(name);
 	}
@@ -101,9 +102,9 @@ public class Table implements TableInterface
 	 * Get a map of  "column name" => "column"
 	 * @return a map of  "column name => "column"
 	 */
-	public Map<String, ColumnInterface> getColumns()
+	public Map<Name, ColumnInterface> getColumns()
 	{
-		return new LinkedHashMap<String, ColumnInterface>(columns);
+		return new LinkedHashMap<Name, ColumnInterface>(columns);
 		
 	}
 	

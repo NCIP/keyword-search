@@ -3,7 +3,8 @@
  */
 package titli.model.index;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import titli.controller.Name;
 import titli.controller.interfaces.DatabaseInterface;
 import titli.controller.interfaces.TableInterface;
 import titli.controller.interfaces.TitliInterface;
@@ -60,16 +62,16 @@ public class IndexTest
 		
 		//check if directories have been created for all databases and tables
 		
-		Map<String, DatabaseInterface>databases = titli.getDatabases();
+		Map<Name, DatabaseInterface>databases = titli.getDatabases();
 		//for each database
-		for(String dbName : databases.keySet())
+		for(Name dbName : databases.keySet())
 		{
 			File dbDir = IndexUtility.getIndexDirectoryForDatabase(dbName);
 			assertTrue("index directory for database "+dbName+" does not exist !!", dbDir.exists());
 			
-			Map<String, TableInterface> tables = titli.getDatabase(dbName).getTables();
+			Map<Name, TableInterface> tables = titli.getDatabase(dbName).getTables();
 			//for each table
-			for(String tableName : tables.keySet())
+			for(Name tableName : tables.keySet())
 			{
 				File tableDir = IndexUtility.getIndexDirectoryForTable(dbName, tableName);
 				assertTrue("index directory for table "+tableName+" in database "+dbName+" does not exist !!", tableDir.exists());
@@ -88,14 +90,14 @@ public class IndexTest
 	@Test
 	public void indexValidDatabase() throws TitliException
 	{
-		String dbName = "catissuecore11";
+		Name dbName = new Name("catissuecore41");
 		titli.index(dbName);
 				
 		//check if directories for all indexable tables have been created
 			
-		Map<String, TableInterface> tables = titli.getDatabase(dbName).getTables();
+		Map<Name, TableInterface> tables = titli.getDatabase(dbName).getTables();
 		//for each table
-		for(String tableName : tables.keySet())
+		for(Name tableName : tables.keySet())
 		{
 			File tableDir = IndexUtility.getIndexDirectoryForTable(dbName, tableName);
 			assertTrue("index directory for table "+tableName+" in database "+dbName+" does not exist !!", tableDir.exists());
@@ -112,7 +114,7 @@ public class IndexTest
 	@Test(expected=NullPointerException.class)
 	public void indexInvalidDatabase() throws TitliException
 	{
-		String dbName = "garbage";
+		Name dbName = new Name("garbage");
 		
 		try
 		{
@@ -136,8 +138,8 @@ public class IndexTest
 	@Test
 	public void indexValidTable() throws TitliException
 	{
-		String dbName = "catissuecore11";
-		String tableName = "catissue_institution"; 
+		Name dbName = new Name("catissuecore41");
+		Name tableName = new Name("CATISSUE_INSTITUTION"); 
 		titli.index(dbName, tableName);
 		
 		File tableDir = IndexUtility.getIndexDirectoryForTable(dbName, tableName);
@@ -154,8 +156,8 @@ public class IndexTest
 	@Test(expected=NullPointerException.class)
 	public void indexInvalidTable() throws TitliException
 	{
-		String dbName = "catissuecore11";
-		String tableName = "catissue_garbage"; 
+		Name dbName = new Name("catissuecore11");
+		Name tableName = new Name("catissue_garbage"); 
 		
 		try
 		{

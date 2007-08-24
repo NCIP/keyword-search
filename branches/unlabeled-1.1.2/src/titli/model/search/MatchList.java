@@ -6,6 +6,7 @@ package titli.model.search;
 import java.util.ArrayList;
 import java.util.Map;
 
+import titli.controller.Name;
 import titli.controller.interfaces.MatchInterface;
 import titli.controller.interfaces.MatchListInterface;
 import titli.controller.interfaces.ResultGroupInterface;
@@ -25,7 +26,7 @@ public class MatchList extends ArrayList<MatchInterface> implements MatchListInt
 {
 
 	private double time;
-	private Map<String, Fetcher> fetchers;
+	private Map<Name, Fetcher> fetchers;
 	private SortedResultMap resultMap;
 	
 	/**
@@ -33,7 +34,7 @@ public class MatchList extends ArrayList<MatchInterface> implements MatchListInt
 	 * @param time time taken to perform the search and get the matchlist
 	 * @param fetchers a map of fetchers
 	 */
-	public MatchList(double time, Map<String, Fetcher> fetchers)
+	public MatchList(double time, Map<Name, Fetcher> fetchers)
 	{
 		super();
 		

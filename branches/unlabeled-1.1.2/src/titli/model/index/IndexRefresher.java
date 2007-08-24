@@ -6,7 +6,6 @@ package titli.model.index;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,16 +13,14 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.store.FSDirectory;
 
+import titli.controller.Name;
 import titli.controller.RecordIdentifier;
 import titli.controller.interfaces.IndexRefresherInterface;
+import titli.controller.interfaces.MatchInterface;
 import titli.controller.interfaces.MatchListInterface;
-import titli.controller.interfaces.ResultGroupInterface;
-import titli.controller.interfaces.SortedResultMapInterface;
 import titli.controller.interfaces.TitliInterface;
 import titli.model.Titli;
 import titli.model.TitliException;
-import titli.model.fetch.TitliFetchException;
-import titli.model.search.ResultGroup;
 import titli.model.util.IndexUtility;
 
 /**
@@ -33,7 +30,7 @@ import titli.model.util.IndexUtility;
 public class IndexRefresher implements IndexRefresherInterface 
 {
 	
-	private Map<String, Indexer> indexers;
+	private Map<Name, Indexer> indexers;
 	
 	/**
 	 * default constructor
@@ -41,7 +38,7 @@ public class IndexRefresher implements IndexRefresherInterface
 	 * @throws TitliException if problems occur
 	 *
 	 */
-	public IndexRefresher(Map<String, Indexer> indexers) throws TitliException
+	public IndexRefresher(Map<Name, Indexer> indexers) throws TitliException
 	{
 		this.indexers = indexers;
 	}
@@ -268,12 +265,12 @@ public class IndexRefresher implements IndexRefresherInterface
 		{
 			titli = Titli.getInstance();
 			titli.index();
-			refresher = titli.getIndexRefresher();
+			//refresher = titli.getIndexRefresher();
 			
-			LinkedHashMap<String, String> uniqueKey = new LinkedHashMap<String, String>();
-			uniqueKey.put("IDENTIFIER", "2");
+			//LinkedHashMap<Name, String> uniqueKey = new LinkedHashMap<Name, String>();
+			//uniqueKey.put(new Name("IDENTIFIER"), "2");
 			
-			RecordIdentifier identifier = new RecordIdentifier("catissuecore41", "catissue_cancer_research_group", uniqueKey);
+			//RecordIdentifier identifier = new RecordIdentifier(new Name("catissuecore41"), new Name("catissue_cancer_research_group"), uniqueKey);
 			
 			long start = new Date().getTime();
 			
@@ -293,32 +290,39 @@ public class IndexRefresher implements IndexRefresherInterface
 		MatchListInterface matchList = null;
 		try 
 		{
-			matchList = titli.search("mit");
+			matchList = titli.search("new york");
+			
+			for(MatchInterface match : matchList)
+			{
+				System.out.println(match.fetch());
+			}
+			
+			/*
+			SortedResultMapInterface map = matchList.getSortedResultMap();
+			System.out.println("Total matches : "+map.size());
+			
+			for(ResultGroupInterface groupInterface : map.values())
+			{
+				ResultGroup group = (ResultGroup)groupInterface;
+				
+				try 
+				{
+					System.out.println(group.fetch());
+					System.out.println(group.getNumberOfMatches());
+				}
+				catch (TitliFetchException e) 
+				{
+					System.out.println(e);
+				}
+				
+				
+			}*/
 		}
 		catch (TitliException e)
 		{
 			System.out.println(e+"\n"+e.getCause());
 		}  
 		
-		SortedResultMapInterface map = matchList.getSortedResultMap();
-		
-		for(ResultGroupInterface groupInterface : map.values())
-		{
-			ResultGroup group = (ResultGroup)groupInterface;
-			
-			try 
-			{
-				System.out.println(group.fetch());
-			}
-			catch (TitliFetchException e) 
-			{
-				System.out.println(e);
-			}
-			
-			
-		}
-
 	}
-	
-	
+
 }

@@ -8,6 +8,7 @@ package titli.model;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import titli.controller.Name;
 import titli.controller.interfaces.DatabaseInterface;
 import titli.controller.interfaces.TableInterface;
 
@@ -19,15 +20,15 @@ import titli.controller.interfaces.TableInterface;
  */
 public class Database implements DatabaseInterface 
 {
-	private String name;
-	private Map<String, Table> tables;
+	private Name name;
+	private Map<Name, Table> tables;
 	
 	/**
 	 * 
 	 * @param name name of the database
 	 * @param tables the list of tables which are part of the databases
 	 */
-	public Database(String name, Map<String, Table> tables) 
+	public Database(Name name, Map<Name, Table> tables) 
 	{
 		this.name = name;
 		this.tables = tables;
@@ -38,7 +39,7 @@ public class Database implements DatabaseInterface
 	 * get the name of the database
 	 * @return return the name of the database
 	 */
-	public String getName()
+	public Name getName()
 	{
 		return name;
 	}
@@ -59,7 +60,7 @@ public class Database implements DatabaseInterface
 	 * @param name the name of the table
 	 * @return the table
 	 */
-	public TableInterface getTable(String name)
+	public TableInterface getTable(Name name)
 	{
 		return tables.get(name);
 	}
@@ -69,9 +70,9 @@ public class Database implements DatabaseInterface
 	 * Get a map of all the tables in the database
 	 * @return a map of all the table names and tables in the database
 	 */
-	public Map<String, TableInterface> getTables()
+	public Map<Name, TableInterface> getTables()
 	{
-		return new LinkedHashMap<String, TableInterface>(tables);
+		return new LinkedHashMap<Name, TableInterface>(tables);
 	}
 	
 	

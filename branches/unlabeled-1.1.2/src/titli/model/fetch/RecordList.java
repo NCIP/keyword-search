@@ -6,6 +6,7 @@ package titli.model.fetch;
 import java.util.ArrayList;
 import java.util.List;
 
+import titli.controller.Name;
 import titli.controller.interfaces.record.RecordInterface;
 import titli.controller.interfaces.record.RecordListInterface;
 
@@ -16,7 +17,7 @@ import titli.controller.interfaces.record.RecordListInterface;
  */
 public class RecordList extends ArrayList<RecordInterface> implements RecordListInterface
 {
-	private String tableName;
+	private Name tableName;
 	private double timeTaken;
 	
 	/**
@@ -25,7 +26,7 @@ public class RecordList extends ArrayList<RecordInterface> implements RecordList
 	 * @param records the list of records
 	 * @param timeTaken time taken to fetch the records
 	 */
-	public RecordList(String tableName, List<Record> records, double timeTaken)
+	public RecordList(Name tableName, List<Record> records, double timeTaken)
 	{
 		super(records);
 		
@@ -37,7 +38,7 @@ public class RecordList extends ArrayList<RecordInterface> implements RecordList
 	/**
 	 * @return the tableName
 	 */
-	public String getTableName()
+	public Name getTableName()
 	{
 		return tableName;
 	}

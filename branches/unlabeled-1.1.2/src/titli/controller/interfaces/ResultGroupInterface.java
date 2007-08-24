@@ -3,6 +3,7 @@
  */
 package titli.controller.interfaces;
 
+import titli.controller.Name;
 import titli.controller.interfaces.record.RecordListInterface;
 import titli.model.fetch.TitliFetchException;
 
@@ -18,7 +19,7 @@ public interface ResultGroupInterface
 	 * 
 	 * @return the table name
 	 */
-	String getTableName();
+	Name getTableName();
 	
 	/**
 	 * get the number of matches in this table

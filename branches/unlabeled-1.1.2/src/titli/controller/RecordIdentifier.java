@@ -18,9 +18,9 @@ import titli.model.TitliConstants;
  */
 public class RecordIdentifier 
 {
-	private String dbName;
-	private String tableName;
-	private Map<String, String> uniqueKey;
+	private Name dbName;
+	private Name tableName;
+	private Map<Name, String> uniqueKey;
 	
 	/**
 	 * 
@@ -28,10 +28,10 @@ public class RecordIdentifier
 	 * @param tableName the table name
 	 * @param uniqueKey the map of unique key column name => column value
 	 */
-	public RecordIdentifier(String dbName, String tableName, Map<String, String>uniqueKey)
+	public RecordIdentifier(Name dbName, Name tableName, Map<Name, String>uniqueKey)
 	{
-		this.dbName = dbName.trim();
-		this.tableName = tableName.trim();
+		this.dbName = dbName;
+		this.tableName = tableName;
 		this.uniqueKey = uniqueKey;
 		
 	}
@@ -39,7 +39,7 @@ public class RecordIdentifier
 	/**
 	 * @return the dbName
 	 */
-	public String getDbName() 
+	public Name getDbName() 
 	{
 		return dbName;
 	}
@@ -47,7 +47,7 @@ public class RecordIdentifier
 	/**
 	 * @return the tableName
 	 */
-	public String getTableName() 
+	public Name getTableName() 
 	{
 		return tableName;
 	}
@@ -56,7 +56,7 @@ public class RecordIdentifier
 	/**
 	 * @return the uniqueKey
 	 */
-	public Map<String, String> getUniqueKey() 
+	public Map<Name, String> getUniqueKey() 
 	{
 		return uniqueKey;
 	}
@@ -80,14 +80,14 @@ public class RecordIdentifier
 			return false;
 		}
 		
-		for(String column : getUniqueKey().keySet())
+		for(Name column : getUniqueKey().keySet())
 		{
-			if(doc.get(column)==null)
+			if(doc.get(column.toString())==null)
 			{
 				return false;
 			}
 			
-			if(!doc.get(column).trim().equals(getUniqueKey().get(column)))
+			if(!doc.get(column.toString()).trim().equals(getUniqueKey().get(column)))
 			{
 				return false;
 			}

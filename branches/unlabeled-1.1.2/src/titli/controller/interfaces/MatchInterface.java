@@ -5,6 +5,7 @@ package titli.controller.interfaces;
 
 import java.util.Map;
 
+import titli.controller.Name;
 import titli.controller.interfaces.record.RecordInterface;
 import titli.model.fetch.TitliFetchException;
 
@@ -20,19 +21,19 @@ public interface MatchInterface
 	 * Get the table in which the matched record belongs
 	 * @return the table
 	 */	
-	String getTableName();
+	Name getTableName();
 	
 	/**
 	 * Get the database in which the matched record belongs
 	 * @return the database
 	 */	
-	String getDatabaseName();
+	Name getDatabaseName();
 	
 	/**
 	 * get the "column name" => "column value" map of the unique key set of the record
 	 * @return the "column name" => "column value" map of the unique key set of the record
 	 */
-	Map<String, String> getUniqueKeys();
+	Map<Name, String> getUniqueKeys();
 	
 	/**
 	 * 

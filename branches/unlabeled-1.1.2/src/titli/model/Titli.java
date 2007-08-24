@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 
+import titli.controller.Name;
 import titli.controller.interfaces.DatabaseInterface;
 import titli.controller.interfaces.IndexRefresherInterface;
 import titli.controller.interfaces.MatchListInterface;
@@ -43,17 +44,17 @@ public final class Titli implements TitliInterface
 	/**
 	 * a map of "database name" => "database object"
 	 */
-	private Map<String, Database> databases;
+	private Map<Name, Database> databases;
 	
 	/**
 	 * a map of "database name" => "indexer object" 
 	 */
-	private Map<String ,Indexer> indexers;
+	private Map<Name ,Indexer> indexers;
 	
 	/**
 	 * a map of "database name" => "fetcher object"
 	 */
-	private Map<String, Fetcher> fetchers;
+	private Map<Name, Fetcher> fetchers;
 	
 	
 	/**
@@ -99,7 +100,7 @@ public final class Titli implements TitliInterface
 	 * @return the only instance of Titli
 	 * @throws TitliException if problems occur
 	 */
-	public static TitliInterface getInstance() throws TitliException
+	public static synchronized TitliInterface getInstance() throws TitliException
 	{
 		
 		if(instance==null)
@@ -125,9 +126,9 @@ public final class Titli implements TitliInterface
 	 * 
 	 * @return the corresponding database
 	 */
-	public Map<String, DatabaseInterface> getDatabases()
+	public Map<Name, DatabaseInterface> getDatabases()
 	{
-		return new LinkedHashMap<String, DatabaseInterface>(databases);
+		return new LinkedHashMap<Name, DatabaseInterface>(databases);
 	}
 
 	
@@ -136,7 +137,7 @@ public final class Titli implements TitliInterface
 	 * @param dbName the name of the database
 	 * @return the database
 	 */
-	public DatabaseInterface getDatabase(String dbName)
+	public DatabaseInterface getDatabase(Name dbName)
 	{
 		return databases.get(dbName);
 	}
@@ -159,7 +160,7 @@ public final class Titli implements TitliInterface
 	public void index() throws TitliException
 	{
 		//index all databases
-		for(String dbName : databases.keySet())
+		for(Name dbName : databases.keySet())
 		{
 			//Database db = databases.get(dbName);
 			
@@ -176,7 +177,7 @@ public final class Titli implements TitliInterface
 	 * @param databaseName the database name
 	 * @throws TitliException if problems occur
 	 */
-	public void index(String databaseName) throws TitliException
+	public void index(Name databaseName) throws TitliException
 	{
 		Indexer indexer = indexers.get(databaseName);
 		indexer.index();
@@ -190,7 +191,7 @@ public final class Titli implements TitliInterface
 	 * @param tableName the table name
 	 * @throws TitliException if problems occur
 	 */
-	public void index(String databaseName, String tableName) throws TitliException
+	public void index(Name databaseName, Name tableName) throws TitliException
 	{
 		Indexer indexer = indexers.get(databaseName);
 		indexer.index(tableName);
@@ -207,7 +208,7 @@ public final class Titli implements TitliInterface
 	public MatchListInterface search(String query) throws TitliException
 	{
 			Searcher searcher = new Searcher(databases, fetchers);
-			
+				
 			MatchList matches =searcher.search(query);
 			searcher.close();
 			
@@ -246,9 +247,9 @@ public final class Titli implements TitliInterface
 	{
 
 		//initialize the class fields 
-		databases = new LinkedHashMap<String, Database>();
-		indexers = new LinkedHashMap<String, Indexer> ();
-		fetchers = new LinkedHashMap<String, Fetcher> ();
+		databases = new LinkedHashMap<Name, Database>();
+		indexers = new LinkedHashMap<Name, Indexer> ();
+		fetchers = new LinkedHashMap<Name, Fetcher> ();
 		indexRefresher = new IndexRefresher(indexers);
 		indexLocation = new File(props.getProperty(TitliConstants.TITLI_INDEX_LOCATION));
 		
@@ -257,7 +258,7 @@ public final class Titli implements TitliInterface
 		s.useDelimiter(TitliConstants.PROPERTIES_FILE_DELIMITER_PATTERN);
 		while(s.hasNext())
 		{
-			String dbName =s.next();
+			Name dbName = new Name(s.next());
 			
 			//make db reader
 			RDBMSReader reader = createRDBMSReader(dbName, props);
@@ -282,12 +283,12 @@ public final class Titli implements TitliInterface
 	 * @return the newly created RDBMSReader
 	 * @throws TitliException if problems occur
 	 */
-	private RDBMSReader createRDBMSReader(String dbName, Properties props) throws TitliException
+	private RDBMSReader createRDBMSReader(Name dbName, Properties props) throws TitliException
 	{
 		Properties dbProps = new Properties();
 		
 		String propName = "jdbc.database";
-		dbProps.setProperty(propName, dbName);
+		dbProps.setProperty(propName, dbName.toString());
 				
 		propName = "jdbc."+dbName+".type";
 		dbProps.setProperty(propName, props.getProperty(propName));
@@ -320,7 +321,7 @@ public final class Titli implements TitliInterface
 	 * @throws TitliException if problems occur
 	 *
 	 */
-	private void setReferences(String dbName, String location) throws TitliException
+	private void setReferences(Name dbName, String location) throws TitliException
 	{
 		Database db = (Database)getDatabase(dbName);
 		
@@ -342,14 +343,14 @@ public final class Titli implements TitliInterface
 			
 			int dot = first.indexOf(".");
 			
-			String firstTable = first.substring(0,dot);
-			String firstColumn = first.substring(dot+1);
+			Name firstTable = new Name(first.substring(0,dot));
+			Name firstColumn = new Name (first.substring(dot+1));
 			
 			
 			dot = second.indexOf(".");
 			
-			String secondTable = second.substring(0,dot);
-			String secondColumn = second.substring(dot+1);
+			Name secondTable = new Name(second.substring(0,dot));
+			Name secondColumn = new Name(second.substring(dot+1));
 			
 			Column c1 = (Column)db.getTable(firstTable).getColumn(firstColumn);
 			
@@ -427,7 +428,7 @@ public final class Titli implements TitliInterface
 		
 		end = new Date().getTime();
 		
-		for(Map.Entry<String, ResultGroupInterface> e : matchList.getSortedResultMap().entrySet())
+		for(Map.Entry<Name, ResultGroupInterface> e : matchList.getSortedResultMap().entrySet())
 		{
 			//if(e.getKey().equals("catissue_participant"))
 			//{	

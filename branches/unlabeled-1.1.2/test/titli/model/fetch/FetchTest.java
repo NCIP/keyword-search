@@ -52,7 +52,7 @@ public class FetchTest
 	@Test
 	public void fetchSingleRecord() throws TitliException
 	{
-		MatchListInterface matchList = titli.search("m*");
+		MatchListInterface matchList = titli.search("l*");
 		
 		for(MatchInterface match : matchList)
 		{
@@ -67,7 +67,7 @@ public class FetchTest
 	@Test
 	public void fetchGroupOfRecords() throws TitliException
 	{
-		MatchListInterface matchList = titli.search("l*");
+		MatchListInterface matchList = titli.search("a*");
 		
 		SortedResultMapInterface sortedMap = matchList.getSortedResultMap();
 		

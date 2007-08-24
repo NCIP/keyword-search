@@ -6,6 +6,7 @@ package titli.controller.interfaces;
 import java.io.File;
 import java.util.Map;
 
+import titli.controller.Name;
 import titli.model.TitliException;
 
 
@@ -28,13 +29,13 @@ public interface TitliInterface
 	 * @param dbName the name of the database
 	 * @return the database
 	 */
-	DatabaseInterface getDatabase(String dbName);
+	DatabaseInterface getDatabase(Name dbName);
 	
 	/**
 	 * 
 	 * @return the list of databases
 	 */
-	Map<String, DatabaseInterface> getDatabases();
+	Map<Name, DatabaseInterface> getDatabases();
 	
 	/**
 	 * get the index location as found in the property file
@@ -60,7 +61,7 @@ public interface TitliInterface
 	 * @param databaseName the database name
 	 * @throws TitliException if problems occur
 	 */
-	void index(String databaseName) throws TitliException;
+	void index(Name databaseName) throws TitliException;
 	
 	
 	/**
@@ -69,7 +70,7 @@ public interface TitliInterface
 	 * @param tableName the table name
 	 * @throws TitliException if problems occur
 	 */
-	void index(String databaseName, String tableName) throws TitliException;
+	void index(Name databaseName, Name tableName) throws TitliException;
 	
 	
 	

@@ -14,6 +14,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import titli.controller.Name;
 import titli.controller.interfaces.DatabaseInterface;
 import titli.controller.interfaces.MatchInterface;
 import titli.controller.interfaces.MatchListInterface;
@@ -90,16 +91,16 @@ public class TitliTest
 		
 		//check if directories have been created for all databases and tables
 		
-		Map<String, DatabaseInterface>databases = titli.getDatabases();
+		Map<Name, DatabaseInterface>databases = titli.getDatabases();
 		//for each database
-		for(String dbName : databases.keySet())
+		for(Name dbName : databases.keySet())
 		{
 			File dbDir = IndexUtility.getIndexDirectoryForDatabase(dbName);
 			assertTrue("index directory for database "+dbName+" does not exist !!", dbDir.exists());
 			
-			Map<String, TableInterface> tables = titli.getDatabase(dbName).getTables();
+			Map<Name, TableInterface> tables = titli.getDatabase(dbName).getTables();
 			//for each table
-			for(String tableName : tables.keySet())
+			for(Name tableName : tables.keySet())
 			{
 				File tableDir = IndexUtility.getIndexDirectoryForTable(dbName, tableName);
 				assertTrue("index directory for table "+tableName+" in database "+dbName+" does not exist !!", tableDir.exists());
