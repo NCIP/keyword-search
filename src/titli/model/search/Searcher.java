@@ -20,6 +20,7 @@ import org.apache.lucene.search.MultiSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.FSDirectory;
 
+import titli.controller.Name;
 import titli.controller.interfaces.TableInterface;
 import titli.controller.interfaces.TitliInterface;
 import titli.model.Database;
@@ -38,7 +39,7 @@ import titli.model.fetch.Fetcher;
 public class Searcher
 {
 	private MultiSearcher ms;
-	private Map<String, Fetcher> fetchers;
+	private Map<Name, Fetcher> fetchers;
 	
 	
 	/**
@@ -47,7 +48,7 @@ public class Searcher
 	 * @param fetchers a map of fetchers so that appropriate Fetcher is attached to each match
 	 * @throws TitliException if problems occur
 	 */
-	public Searcher(Map<String, Database> databases, Map<String, Fetcher> fetchers) throws TitliException
+	public Searcher(Map<Name, Database> databases, Map<Name, Fetcher> fetchers) throws TitliException
 	{
 		this.fetchers = fetchers;
 		
@@ -120,13 +121,10 @@ public class Searcher
 				
 			}
 			
-			fetcher = fetchers.get(document.get(TitliConstants.DOCUMENT_DATABASE_FIELD));
+			fetcher = fetchers.get(new Name(document.get(TitliConstants.DOCUMENT_DATABASE_FIELD)));
 			
 			matchList.add(new Match(document, fetcher));
-					
-			//matchList.add(new Match(hits.doc(i).get("ID"),hits.doc(i).get("TableName"),"Not Known"));
-			//System.out.println(hits.doc(i).get("Population")+"  "+hits.doc(i).get("CountryCode"));
-			
+						
 		}
 		
 		//System.out.println("\n The search took " + (end-start)/1000.0 + " seconds");
@@ -171,10 +169,10 @@ public class Searcher
 	
 	/**
 	 * initialize the multisearcher from the map of databases
-	 * @param databases the mzp of available databases
+	 * @param databases the map of available databases
 	 * @throws TitliException if problems occur
 	 */
-	private void initMultiSearcher(Map<String, Database> databases) throws TitliException 
+	private void initMultiSearcher(Map<Name, Database> databases) throws TitliException 
 	{
 		ArrayList<IndexSearcher> searcherList;
 		
@@ -192,7 +190,7 @@ public class Searcher
 			{
 				File dbDir = new File(indexDir, db.getName()+TitliConstants.INDEX_DIRECTORY_SUFFIX);
 				
-				Map<String, TableInterface> tables = db.getTables();
+				Map<Name, TableInterface> tables = db.getTables();
 				
 				//for each table
 				for(TableInterface tableInterface :  tables.values())

@@ -6,6 +6,8 @@ package titli.controller.interfaces;
 import java.util.List;
 import java.util.Map;
 
+import titli.controller.Name;
+
 
 /**
  * Represents table metadata like table name, columns etc.
@@ -18,21 +20,21 @@ public interface TableInterface
 	 * returns the name of the table
 	 * @return the name of the table
 	 */
-	String getName();
+	Name getName();
 	
 	
 	/**
 	 * Get the name of the database in which the table belongs
 	 * @return the name of the table
 	 */
-	String getDatabaseName();
+	Name getDatabaseName();
 	
 	
 	/**
 	 * Get the unique key set for the table
 	 * @return the unique key set for the table
 	 */
-	List<String> getUniqueKey();
+	List<Name> getUniqueKey();
 	
 	
 	/**
@@ -47,14 +49,14 @@ public interface TableInterface
 	 * @param name the name of the column
 	 * @return the corresponding column
 	 */
-	ColumnInterface getColumn(String name);
+	ColumnInterface getColumn(Name name);
 	
 	
 	/**
 	 * Get a map of  "column name" => "column"
 	 * @return a map of  "column name => "column"
 	 */
-	Map<String, ColumnInterface> getColumns();
+	Map<Name, ColumnInterface> getColumns();
 	
 	
 		

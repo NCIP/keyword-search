@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import titli.controller.Name;
 import titli.model.Column;
 import titli.model.Database;
 import titli.model.RDBMSReader;
@@ -242,7 +243,7 @@ public class Fetcher
 				throw new TitliFetchException("TITLI_S_020", "Unable to get name for column "+i, e);
 			}
 							
-			Column column = (Column)table.getColumn(columnName);
+			Column column = (Column)table.getColumn(new Name(columnName));
 			
 			try 
 			{

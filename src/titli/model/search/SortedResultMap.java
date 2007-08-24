@@ -6,6 +6,7 @@ package titli.model.search;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import titli.controller.Name;
 import titli.controller.interfaces.MatchInterface;
 import titli.controller.interfaces.MatchListInterface;
 import titli.controller.interfaces.ResultGroupInterface;
@@ -17,14 +18,14 @@ import titli.model.fetch.Fetcher;
  * @author Juber Patel
  *
  */
-public class SortedResultMap extends LinkedHashMap<String, ResultGroupInterface>	implements SortedResultMapInterface
+public class SortedResultMap extends LinkedHashMap<Name, ResultGroupInterface>	implements SortedResultMapInterface
 {
 	/**
 	 * 
 	 * @param matches matches on which to create the sortd result map
 	 * @param fetchers a map of fetchers
 	 */
-	public SortedResultMap(MatchListInterface matches, Map<String, Fetcher> fetchers)
+	public SortedResultMap(MatchListInterface matches, Map<Name, Fetcher> fetchers)
 	{
 		super();
 		
@@ -38,7 +39,7 @@ public class SortedResultMap extends LinkedHashMap<String, ResultGroupInterface>
 	 * @param matches the matches
 	 * @param fetchers the fetchers
 	 */
-	private void initGroups(MatchListInterface matches, Map<String, Fetcher> fetchers) 
+	private void initGroups(MatchListInterface matches, Map<Name, Fetcher> fetchers) 
 	{
 		for(MatchInterface match : matches)
 		{
@@ -48,7 +49,7 @@ public class SortedResultMap extends LinkedHashMap<String, ResultGroupInterface>
 			//if it does not exist, create the group for the match
 			if(group==null)
 			{
-				String tableName = match.getTableName();
+				Name tableName = match.getTableName();
 				
 				group = new ResultGroup(tableName, fetchers.get(match.getDatabaseName()));
 				

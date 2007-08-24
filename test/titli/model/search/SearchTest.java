@@ -64,7 +64,7 @@ public class SearchTest
 	@Test
 	public void oneMatchFound() throws TitliException
 	{
-		MatchListInterface matchList = titli.search("mit");
+		MatchListInterface matchList = titli.search("linda");
 		
 		assertEquals("Matches found not equal to 1  !!",matchList.size(), 1);
 	}

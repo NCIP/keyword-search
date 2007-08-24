@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
+import titli.controller.Name;
 import titli.controller.interfaces.MatchInterface;
 import titli.controller.interfaces.record.RecordInterface;
 import titli.model.TitliConstants;
@@ -31,12 +32,12 @@ import titli.model.fetch.TitliFetchException;
 public class Match implements MatchInterface
 {
 	//stores columns and and values alternately
-	private Map<String, String> uniqueKeys ;
+	private Map<Name, String> uniqueKeys ;
 	private String self;
 	private String queryString;
 	
-	private String dbName;
-	private String tableName;
+	private Name dbName;
+	private Name tableName;
 	
 	private Fetcher fetcher;
 	private Record record;
@@ -52,8 +53,8 @@ public class Match implements MatchInterface
 		//initialize the fields
 		
 		this.fetcher = fetcher;
-		this.tableName = doc.get(TitliConstants.DOCUMENT_TABLE_FIELD);
-		this.dbName = doc.get(TitliConstants.DOCUMENT_DATABASE_FIELD);
+		this.tableName = new Name(doc.get(TitliConstants.DOCUMENT_TABLE_FIELD));
+		this.dbName = new Name(doc.get(TitliConstants.DOCUMENT_DATABASE_FIELD));
 		
 		initUniqueKeys(doc);
 					
@@ -65,7 +66,7 @@ public class Match implements MatchInterface
 	 * the database name
 	 * @return the name of the database
 	 */
-	public String getDatabaseName()
+	public Name getDatabaseName()
 	{
 		return dbName;
 	}
@@ -74,7 +75,7 @@ public class Match implements MatchInterface
 	 * the table name
 	 * @return the name of the table
 	 */
-	public String getTableName()
+	public Name getTableName()
 	{
 		return tableName;
 	}
@@ -84,9 +85,9 @@ public class Match implements MatchInterface
 	 * get the "column name" => "column value" map of the unique key set of the record
 	 * @return the "column name" => "column value" map of the unique key set of the record
 	 */
-	public Map<String, String> getUniqueKeys()
+	public Map<Name, String> getUniqueKeys()
 	{
-		return new LinkedHashMap<String, String>(uniqueKeys);
+		return new LinkedHashMap<Name, String>(uniqueKeys);
 	}
 	
 	
@@ -104,7 +105,7 @@ public class Match implements MatchInterface
 			query.append(tableName+" WHERE ");
 			
 			//add each column and value pair 
-			for(String colName : uniqueKeys.keySet())
+			for(Name colName : uniqueKeys.keySet())
 			{
 				query.append(colName+" = '"+uniqueKeys.get(colName)+"'  and ");
 							
@@ -131,7 +132,7 @@ public class Match implements MatchInterface
 			
 			string.append("\nUnique Key Set : ");
 			
-			for(String colName : uniqueKeys.keySet())
+			for(Name colName : uniqueKeys.keySet())
 			{
 				string.append("   "+colName+" : "+uniqueKeys.get(colName));
 			}
@@ -171,7 +172,7 @@ public class Match implements MatchInterface
 	 */
 	private void initUniqueKeys(Document doc)
 	{
-		uniqueKeys = new LinkedHashMap<String, String> ();
+		uniqueKeys = new LinkedHashMap<Name, String> ();
 		
 		Enumeration e = doc.fields();
 		
@@ -185,7 +186,7 @@ public class Match implements MatchInterface
 				continue;
 			}
 					
-			uniqueKeys.put(name, doc.get(name));
+			uniqueKeys.put(new Name(name), doc.get(name));
 		}
 	
 		

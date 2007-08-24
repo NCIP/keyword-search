@@ -18,6 +18,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+import titli.controller.Name;
 import titli.controller.interfaces.ColumnInterface;
 import titli.controller.interfaces.TableInterface;
 import titli.model.Column;
@@ -131,7 +132,7 @@ public class Indexer
 	 * @param tableName the table name
 	 * @throws TitliException if problems occur
 	 */
-	public void index(String tableName) throws TitliException
+	public void index(Name tableName) throws TitliException
 	{
 		Database database;
 		try
@@ -154,7 +155,7 @@ public class Indexer
 	 * @param uniqueKey the map of unique key column => value
 	 * @throws TitliIndexException if problems occur
 	 */
-	public void index(String tableName, Map<String, String>uniqueKey) throws TitliIndexException
+	public void index(Name tableName, Map<Name, String>uniqueKey) throws TitliIndexException
 	{
 		Table table =null;
 		
@@ -171,7 +172,7 @@ public class Indexer
 		//build the SQL query
 		StringBuilder query = new StringBuilder("Select * from "+tableName+" where ");
 		
-		for(String column : uniqueKey.keySet())
+		for(Name column : uniqueKey.keySet())
 		{
 			query.append(column+"='"+uniqueKey.get(column)+"' AND ");
 		}
@@ -325,25 +326,25 @@ public class Indexer
 			
 			//System.out.println("Indexing : "+content);
 		
-			doc.add(new Field(TitliConstants.DOCUMENT_DATABASE_FIELD, reader.getDatabase().getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
-			doc.add(new Field(TitliConstants.DOCUMENT_TABLE_FIELD, table.getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+			doc.add(new Field(TitliConstants.DOCUMENT_DATABASE_FIELD, reader.getDatabase().getName().toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+			doc.add(new Field(TitliConstants.DOCUMENT_TABLE_FIELD, table.getName().toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));
 			
-			List<String> uniqueKey = table.getUniqueKey();
+			List<Name> uniqueKey = table.getUniqueKey();
 			
-			for(String key : uniqueKey)
+			for(Name key : uniqueKey)
 			{
 				//sample addition
 				//doc.add(new Field("ID",rs1.getString("ID"),Field.Store.YES,Field.Index.TOKENIZED));
 				//doc.add(new Field("TableName","City",Field.Store.YES,Field.Index.TOKENIZED));
 				
-				String value = rs.getString(key);
+				String value = rs.getString(key.toString());
 				
 				if(value==null)
 				{
 					value="null";
 				}
 			
-				doc.add(new Field(key, value, Field.Store.YES, Field.Index.NO));
+				doc.add(new Field(key.toString(), value, Field.Store.YES, Field.Index.NO));
 			
 			}
 			
@@ -379,9 +380,9 @@ public class Indexer
 		
 		int whereLength = whereClause.length();
 		
-		Map<String, ColumnInterface> columns = table.getColumns();
+		Map<Name, ColumnInterface> columns = table.getColumns();
 		
-		for(String columnName : columns.keySet())
+		for(Name columnName : columns.keySet())
 		{
 			Column column = (Column)table.getColumn(columnName);
 			
@@ -390,8 +391,8 @@ public class Indexer
 			//column refers to another column
 			if(column2!=null)
 			{
-				String anotherTable = column2.getTableName();
-				String anotherColumn = column2.getName();
+				Name anotherTable = column2.getTableName();
+				Name anotherColumn = column2.getName();
 	
 				fromClause.append(anotherTable+", ");
 				whereClause.append(table.getName()+"."+column.getName()+"="+anotherTable+"."+anotherColumn+" AND ");

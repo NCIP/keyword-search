@@ -3,6 +3,7 @@
  */
 package titli.model;
 
+import titli.controller.Name;
 import titli.controller.interfaces.ColumnInterface;
 
 
@@ -14,9 +15,9 @@ import titli.controller.interfaces.ColumnInterface;
  */
 public class Column implements ColumnInterface
 {
-	private String name;
+	private Name name;
 	private String type;
-	private String tableName;
+	private Name tableName;
 	
 	private Column referredColumn;
 	
@@ -27,7 +28,7 @@ public class Column implements ColumnInterface
 	 * @param type SQL datatype of the column
 	 * @param tableName the name of the table in which the column belongs
 	 */
-	Column(String name, String type, String tableName)
+	Column(Name name, String type, Name tableName)
 	{
 		this.name = name;
 		this.type = type;
@@ -38,7 +39,7 @@ public class Column implements ColumnInterface
 	 * 
 	 * @return name of the coloumn
 	 */
-	public String getName()
+	public Name getName()
 	{
 		return name;
 		
@@ -49,7 +50,7 @@ public class Column implements ColumnInterface
 	 * @return name of the table
 	 * 
 	 */
-	public String getTableName()
+	public Name getTableName()
 	{
 		return tableName;
 	}

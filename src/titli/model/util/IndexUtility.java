@@ -5,6 +5,7 @@ package titli.model.util;
 
 import java.io.File;
 
+import titli.controller.Name;
 import titli.model.Titli;
 import titli.model.TitliConstants;
 import titli.model.TitliException;
@@ -22,7 +23,7 @@ public class IndexUtility
 	 * @return the File object corresponding to the table index directory 
 	 * @throws TitliException if problems occur
 	 */
-	public static File getIndexDirectoryForTable(String dbName, String tableName) throws TitliException
+	public static File getIndexDirectoryForTable(Name dbName, Name tableName) throws TitliException
 	{
 		File indexDir = Titli.getInstance().getIndexLocation();
 		
@@ -38,7 +39,7 @@ public class IndexUtility
 	 * @return the File object corresponding to the table index directory 
 	 * @throws TitliException if problems occur
 	 */
-	public static File getIndexDirectoryForDatabase(String dbName) throws TitliException
+	public static File getIndexDirectoryForDatabase(Name dbName) throws TitliException
 	{
 		File indexDir = Titli.getInstance().getIndexLocation();
 		
@@ -63,7 +64,7 @@ public class IndexUtility
 			e.printStackTrace();
 		}
 		
-		System.out.println(IndexUtility.getIndexDirectoryForDatabase("catissuecore41"));
+		System.out.println(IndexUtility.getIndexDirectoryForDatabase(new Name("catissuecore41")));
 
 	}
 
