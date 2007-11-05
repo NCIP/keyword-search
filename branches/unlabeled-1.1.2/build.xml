@@ -12,11 +12,9 @@
     <property name="build.dir" value="${base.dir}/build"/>
 	
 	<!-- properties used by export_jar" -->
-	<property name="common.1.1.lib" value="${base.dir}/../CommonPackage_Core_1.1/lib" />
-	<property name="core.1.1.lib" value="${base.dir}/../core_1.1/WEB-INF/lib" />
-	<property name="common.lib" value="${base.dir}/../CommonPackage/lib" />	
-	<property name="core.lib" value="${base.dir}/../catissuecore/WEB-INF/lib" />	
-	<property name="ui.lib" value="${base.dir}/../MyGWTApp/lib" />	
+	<property name="common.lib" value="${base.dir}/../core_CommonPackage/lib" />	
+	<property name="core.lib" value="${base.dir}/../core_catissuecore/WEB-INF/lib" />	
+	
 		
 	<!-- properties for junit -->
     <property name="junit.dir" value="${base.dir}/junit"/>
@@ -141,7 +139,7 @@
 	<target name="export_jar" depends="build_jar">
 		<copy file="${build.dir}/titli-washu-1.0.jar" todir="${common.lib}" />
 		<copy file="${build.dir}/titli-washu-1.0.jar" todir="${core.lib}" />
-		<copy file="${build.dir}/titli-washu-1.0.jar" todir="${ui.lib}" />
+		
 	</target>
 	
 	<target name="export_commonpackage_to_catissucore">
