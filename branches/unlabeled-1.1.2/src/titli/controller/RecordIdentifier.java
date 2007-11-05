@@ -68,14 +68,13 @@ public class RecordIdentifier
 	 * @return true if this identifier represents the specified Document, otherwise false
 	 */
 	public boolean matches(Document doc)
-	{
-		
-		if(!doc.get(TitliConstants.DOCUMENT_DATABASE_FIELD).trim().equals(getDbName()))
+	{  
+		if(!doc.get(TitliConstants.DOCUMENT_DATABASE_FIELD).trim().equals(getDbName().toString()))
 		{
 			return false;
 		}
 		
-		if(!doc.get(TitliConstants.DOCUMENT_TABLE_FIELD).trim().equals(getTableName()))
+		if(!doc.get(TitliConstants.DOCUMENT_TABLE_FIELD).trim().equals(getTableName().toString()))
 		{
 			return false;
 		}
