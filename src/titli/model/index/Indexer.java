@@ -36,7 +36,7 @@ import titli.model.Titli;
 import titli.model.TitliConstants;
 import titli.model.TitliException;
 import titli.model.util.IndexUtility;
-import titli.model.util.TitliTableMapper;
+import titli.model.util.TitliIndexMapper;
 
 
 
@@ -186,7 +186,7 @@ public class Indexer
 		ResultSet rs = null;
 		try
 		{
-			StringBuilder queryClause = TitliTableMapper.getInstance().returnJoinMapping(tableName.toString());
+			StringBuilder queryClause = TitliIndexMapper.getInstance().returnJoinMapping(tableName.toString());
 			int i= queryClause.lastIndexOf("AND");
 			if(i!=-1)
 			{
@@ -205,7 +205,7 @@ public class Indexer
 			{
 				query = new StringBuilder(queryClause+" AND ");
 			}
-			String tableAlias = TitliTableMapper.getInstance().getAliasFor(tableName.toString());
+			String tableAlias = TitliIndexMapper.getInstance().getAliasFor(tableName.toString());
 			if(tableAlias == null)
 			{
 				tableAlias = tableName.toString();
@@ -543,9 +543,9 @@ public class Indexer
 		
 		try 
 		{
-			queryString = TitliTableMapper.getInstance().returnJoinMapping(table.getName().toString());
+			queryString = TitliIndexMapper.getInstance().returnJoinMapping(table.getName().toString());
 			
-			String orderByString = TitliTableMapper.getInstance().getOrderByClause(table.getName().toString());
+			String orderByString = TitliIndexMapper.getInstance().getOrderByClause(table.getName().toString());
 			orderByClause.append(orderByString);
 		} 
 		catch (Exception e) 
