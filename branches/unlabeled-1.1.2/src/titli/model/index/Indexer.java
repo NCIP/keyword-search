@@ -8,12 +8,18 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -21,13 +27,16 @@ import org.apache.lucene.store.FSDirectory;
 import titli.controller.Name;
 import titli.controller.interfaces.ColumnInterface;
 import titli.controller.interfaces.TableInterface;
+import titli.controller.interfaces.TitliInterface;
 import titli.model.Column;
 import titli.model.Database;
 import titli.model.RDBMSReader;
 import titli.model.Table;
+import titli.model.Titli;
 import titli.model.TitliConstants;
 import titli.model.TitliException;
 import titli.model.util.IndexUtility;
+import titli.model.util.TitliTableMapper;
 
 
 
@@ -40,8 +49,11 @@ public class Indexer
 {
 	private RDBMSReader reader;
 	private Statement indexstmt;
-	 
-	 
+	private Map<String,Map> documentMap = new Hashtable<String,Map>();
+	private final String TITLIDOC = "titliDoc";
+	private final String CONTENTLIST = "contentList";
+	
+	 public Indexer(){}
 	/**
 	 * 
 	 * @param dbReader The RDBMSReader on which to build the Indexer
@@ -115,8 +127,8 @@ public class Indexer
 		
 		for(TableInterface table : database.getTables().values())
 		{
-			indexTable((Table)table);
-			
+			documentMap = new Hashtable();
+			indexTable((Table)table);	
 		}
 		
 		//long end = new Date().getTime();
@@ -158,6 +170,8 @@ public class Indexer
 	public void index(Name tableName, Map<Name, String>uniqueKey) throws TitliIndexException
 	{
 		Table table =null;
+		documentMap = new Hashtable();
+		StringBuilder query;
 		
 		try
 		{
@@ -168,21 +182,43 @@ public class Indexer
 		{
 			throw new TitliIndexException("TITLI", "problem getting Table "+tableName, e);
 		}
-		
-		//build the SQL query
-		StringBuilder query = new StringBuilder("Select * from "+tableName+" where ");
-		
-		for(Name column : uniqueKey.keySet())
-		{
-			query.append(column+"='"+uniqueKey.get(column)+"' AND ");
-		}
-		
-		//remove last AND
-		query.delete(query.lastIndexOf("AND"), query.length());
-		
+			
 		ResultSet rs = null;
 		try
 		{
+			StringBuilder queryClause = TitliTableMapper.getInstance().returnJoinMapping(tableName.toString());
+			int i= queryClause.lastIndexOf("AND");
+			if(i!=-1)
+			{
+				queryClause.delete(i, i+3);
+			}
+			
+			String uniqueColumnName = new String();
+			
+			//build the SQL query
+			int whereIndex = queryClause.indexOf("WHERE");
+			if(whereIndex == -1)
+			{
+				query = new StringBuilder(queryClause+" where ");
+			}
+			else
+			{
+				query = new StringBuilder(queryClause+" AND ");
+			}
+			String tableAlias = TitliTableMapper.getInstance().getAliasFor(tableName.toString());
+			if(tableAlias == null)
+			{
+				tableAlias = tableName.toString();
+			}
+			for(Name column : uniqueKey.keySet())
+			{
+				uniqueColumnName = column.toString();
+				query.append(tableAlias+"."+column+"='"+uniqueKey.get(column)+"' AND ");
+			}
+			
+			//remove last AND
+			query.delete(query.lastIndexOf("AND"), query.length());
+			query.append(" order by "+tableAlias+"."+uniqueColumnName);
 			//execute query
 			rs = indexstmt.executeQuery(query.toString());
 			
@@ -197,9 +233,11 @@ public class Indexer
 		{
 			throw new TitliIndexException("TITLI", "problem executing SQL query on  "+tableName, e);
 		}
+		catch (Exception e)
+		{
+			throw new TitliIndexException("TITLI", "problem in execution ", e);
+		}
 		
-		//make the document
-		Document doc = makeDocument(rs, table);
 		IndexWriter indexWriter;
 		
 		try
@@ -207,7 +245,26 @@ public class Indexer
 			File tableDir = IndexUtility.getIndexDirectoryForTable(reader.getDatabase().getName(), tableName);
 			Directory dir = FSDirectory.getDirectory(tableDir,false);
 			indexWriter = new IndexWriter(dir, new StandardAnalyzer(), false);
-			indexWriter.addDocument(doc);
+			
+			//make the document
+			//Document doc = makeDocument(rs, table,indexWriter);
+			
+			do
+			{
+				makeDocument(rs, table,indexWriter);
+			}
+			while(rs.next());
+			Set<String> keySet = documentMap.keySet();
+			Iterator<String> iterator = keySet.iterator();
+			 if(iterator.hasNext())
+			 {
+				 String keyString = iterator.next();
+				 Map documentValueMap = documentMap.get(keyString);
+				 Document document = (Document)documentValueMap.get(TITLIDOC);
+				 indexWriter.addDocument(document);
+			 }	
+			
+			//indexWriter.addDocument(doc);
 			indexWriter.close();
 			dir.close();
 			rs.close();
@@ -265,20 +322,54 @@ public class Indexer
 				//RDBMSRecordParser parser = new RDBMSRecordParser(rs);
 				//String content = parser.getParse(new Content()).getText();
 				
-				indexWriter.addDocument(makeDocument(rs, table));
-				
-			}
+				//indexWriter.addDocument(makeDocument(rs, table));
+				makeDocument(rs,table,indexWriter);		
+			}	
 			
-			//long end = new Date().getTime();	
-			//System.out.println("Completed in "+(end-start)/1000.0+" seconds\n");
+			Set<String> keySet = documentMap.keySet();
+			Iterator<String> iterator = keySet.iterator();
+			if(iterator.hasNext())
+			{
+				String keyString = iterator.next();
+				Map documentValueMap = documentMap.get(keyString);
+				Document document = (Document)documentValueMap.get(TITLIDOC);
+				indexWriter.addDocument(document);
+			}
 			
 			indexWriter.optimize();
 			indexWriter.close();
 			dir.close();
 			
-			rs.close();
+			rs.close();	
 			
+			IndexReader reader=null;
+			try 
+			{
+				reader = IndexReader.open(tableIndexDir);
+			}
+			catch (IOException e) 
+			{
+				//throw new TitliIndexRefresherException("TITLI_S_030", "problem while creating index reader for database  :"+identifier.getDbName()+" table : "+identifier.getTableName(), e);
+			}
 			
+			int maxDoc = reader.maxDoc();
+			Document doc=null;
+			
+			int i;
+			
+			//find the doc with given columns and values
+			for(i=0; i<maxDoc; i++)
+			{
+				try 
+				{					
+					doc = reader.document(i);
+				}
+				catch (IOException e) 
+				{
+					//throw new TitliIndexRefresherException("TITLI_S_030", "problem reading document from the index reader for database  :"+identifier.getDbName()+" table : "+identifier.getTableName(), e);
+				}
+			}
+				
 		}
 		catch(IOException e)
 		{
@@ -302,54 +393,101 @@ public class Indexer
 	 * @throws TitliIndexException if problems occur
 	 * 
 	 */
-	private Document makeDocument(ResultSet rs, Table table) throws TitliIndexException
+	private void makeDocument(ResultSet rs, Table table,IndexWriter indexWriter) throws TitliIndexException
 	{
 		Document doc = new Document();
-		
-		try
-		{
-			//convert the record to a String
-			
-			StringBuilder record= new StringBuilder("");
+		try 
+		{		
+			List<String> contentList = new ArrayList<String>(); 
+			Map documentContentMap = new Hashtable();
+			String uniqueValue = new String();
 			
 			int numberOfColumns = rs.getMetaData().getColumnCount();
 			
+			//Add the columns in the list
 			for(int i=1; i<=numberOfColumns; i++)
 			{
-				
-				record.append(" ");
-				record.append(rs.getString(i));
-			
-			}
-			
-			String content = new String(record);
-			
-			//System.out.println("Indexing : "+content);
-		
-			doc.add(new Field(TitliConstants.DOCUMENT_DATABASE_FIELD, reader.getDatabase().getName().toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));
-			doc.add(new Field(TitliConstants.DOCUMENT_TABLE_FIELD, table.getName().toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));
-			
+				contentList.add(rs.getString(i));
+			}	
+					
 			List<Name> uniqueKey = table.getUniqueKey();
 			
 			for(Name key : uniqueKey)
-			{
-				//sample addition
-				//doc.add(new Field("ID",rs1.getString("ID"),Field.Store.YES,Field.Index.TOKENIZED));
-				//doc.add(new Field("TableName","City",Field.Store.YES,Field.Index.TOKENIZED));
-				
+			{				
 				String value = rs.getString(key.toString());
+				uniqueValue = value;
 				
 				if(value==null)
 				{
 					value="null";
 				}
 			
-				doc.add(new Field(key.toString(), value, Field.Store.YES, Field.Index.NO));
-			
+				if(documentMap.size()!=0)
+				{
+					//If the documentMap doesn't contain the key as value then retrieve the data from the map 
+					//to add the document to indexWriter and empty the map
+					if(!documentMap.containsKey(value))
+					{
+						Set<String> keySet = documentMap.keySet();
+						Iterator<String> iterator = keySet.iterator();
+						String keyString = iterator.next();
+						Map documentMapValue = documentMap.get(keyString);
+						Document document = (Document)documentMapValue.get(TITLIDOC);
+						List<String> tempContentList = (List<String>)documentMapValue.get(CONTENTLIST);
+						StringBuilder contentField = new StringBuilder("");
+						for(String contents : tempContentList)
+						{
+							contentField.append(" ");
+							contentField.append(contents);
+						}
+						
+						document.removeField(TitliConstants.DOCUMENT_CONTENT_FIELD);
+						document.add(new Field(TitliConstants.DOCUMENT_CONTENT_FIELD, contentField.toString(),Field.Store.NO, Field.Index.TOKENIZED));
+						
+						indexWriter.addDocument(document);
+						documentMap = new Hashtable();
+						documentContentMap = new Hashtable();
+						doc.add(new Field(key.toString(), value, Field.Store.YES, Field.Index.NO));
+					}
+				}
+				else
+				{
+					doc.add(new Field(key.toString(), value, Field.Store.YES, Field.Index.NO));
+				}
 			}
-			
-			doc.add(new Field(TitliConstants.DOCUMENT_CONTENT_FIELD, content,Field.Store.NO, Field.Index.TOKENIZED));
-			
+			//If documentMap is empty, just add the data to it
+			if(documentMap.size()==0)
+			{
+				doc.add(new Field(TitliConstants.DOCUMENT_DATABASE_FIELD, reader.getDatabase().getName().toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+				doc.add(new Field(TitliConstants.DOCUMENT_TABLE_FIELD, table.getName().toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+				StringBuilder contentField = new StringBuilder("");
+				for(String contents : contentList)
+				{
+					contentField.append(" ");
+					contentField.append(contents);
+				}
+				doc.add(new Field(TitliConstants.DOCUMENT_CONTENT_FIELD, contentField.toString(),Field.Store.NO, Field.Index.TOKENIZED));
+				
+				documentContentMap.put(TITLIDOC, doc);
+				documentContentMap.put(CONTENTLIST, contentList);
+				documentMap.put(uniqueValue, documentContentMap);
+			}
+			else
+			{
+				Map documentMapValue = documentMap.get(uniqueValue);
+				Document tempDoc = (Document)documentMapValue.get(TITLIDOC);
+				List<String> tempContentList = (List<String>)documentMapValue.get(CONTENTLIST);
+				
+				for(String contents : contentList)
+				{
+					if(!tempContentList.contains(contents))
+					{
+						tempContentList.add(contents);
+					}
+				}
+				documentMapValue.remove(CONTENTLIST);
+				documentMapValue.put(CONTENTLIST,tempContentList);
+			}
 		}
 		catch(SQLException e)
 		{
@@ -359,10 +497,10 @@ public class Indexer
 		{
 			throw new TitliIndexException("TITLI_S_012", "Problem in getting Database object", e);
 		}
-		
-		
-		return doc;
-			
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}			
 	}
 	
 	
@@ -373,11 +511,15 @@ public class Indexer
 	 * @param table the table for which to produce the extended query
 	 * @return the query that will return a resultset consisting of all the fields of the table as well as of the tables refrenced through joins with this table 
 	 */
-	private String getExtendedQuery(Table table)
+	
+	private String getExtendedQuery(Table table) 
 	{
-		StringBuilder fromClause = new StringBuilder(" FROM "+table.getName()+", ");
+		StringBuilder fromClause = new StringBuilder();
 		StringBuilder whereClause = new StringBuilder(" WHERE ");
+		StringBuilder orderByClause = new StringBuilder(" ORDER BY ");
+		StringBuilder queryString = new StringBuilder();
 		
+		int orderByLength = orderByClause.length();
 		int whereLength = whereClause.length();
 		
 		Map<Name, ColumnInterface> columns = table.getColumns();
@@ -399,9 +541,17 @@ public class Indexer
 			}
 		}
 		
-		//remove the last ","
-		fromClause.delete(fromClause.lastIndexOf(","), fromClause.lastIndexOf(",")+1);
-		
+		try 
+		{
+			queryString = TitliTableMapper.getInstance().returnJoinMapping(table.getName().toString());
+			
+			String orderByString = TitliTableMapper.getInstance().getOrderByClause(table.getName().toString());
+			orderByClause.append(orderByString);
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
 		//remove the last "AND"
 		int i= whereClause.lastIndexOf("AND");
 		if(i!=-1)
@@ -409,23 +559,107 @@ public class Indexer
 			whereClause.delete(i, i+3);
 		}
 		
+		i= queryString.lastIndexOf("AND");
+		if(i!=-1)
+		{
+			queryString.delete(i, i+3);
+		}
+		
 		String query;
 		
+		if(orderByClause.length() == orderByLength)
+			orderByClause = new StringBuilder();
 		//Don't add whereClause  if nothing is appended to it
 		if(whereClause.length()==whereLength)
 		{
-			query = "SELECT * "+fromClause;
+			query = queryString+" "+orderByClause;
 		}
 		else
 		{	
-			query = "SELECT * "+fromClause+whereClause;
+			query = queryString+" "+whereClause+orderByClause;
 		}
-		
 		
 		System.out.println("Extended Query : "+query);
 		
 		return query;
 		
+	}
+	
+	
+	public static void main(String args[]) throws TitliException
+	{
+		TitliInterface titli=null;
+		try
+		{
+			titli = Titli.getInstance();
+		}
+		catch(TitliException e)
+		{
+			System.out.println(e+"\n"+e.getCause());
+		}
+		
+		
+		long start = new Date().getTime();
+			
+		try 
+		{
+			titli.index(new Name("db3"));
+		}
+		catch (TitliIndexException e) 
+		{
+			System.out.println(e+"\n"+e.getCause());
+		}
+		
+		
+		long end = new Date().getTime();
+		
+		
+		/*System.out.println("Indexing took "+(end-start)/1000.0+" seconds");
+		System.out.println("uniqueValueList : ");
+		for(String uniqueValue : uniqueValueList)
+		{
+			System.out.println(uniqueValueList+" ");
+		}*/
+		
+		/*MatchListInterface  matchList=null;
+		try 
+		{	
+			matchList =titli.search("Bladder neck");
+		}
+		catch (TitliSearchException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  //AND (table:(+countrylanguage))");
+		
+		//MatchListInterface  matchList =titli.search("kalmykia");
+		
+		
+		start = new Date().getTime();
+		
+		//MatchListInterface  matchList =titli.search("+united +states ");
+		
+		end = new Date().getTime();
+		
+		for(Map.Entry<Name, ResultGroupInterface> e : matchList.getSortedResultMap().entrySet())
+		{
+			//if(e.getKey().equals("catissue_participant"))
+			//{	
+				try
+				{
+					System.out.println(e.getValue().fetch());
+				}
+				catch (TitliFetchException e1) 
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			//}	
+		}
+		*/
+		//System.out.println("\n\nMatches : "+matchList.size()+"   Time : "+matchList.getTimeTaken()+" seconds   Time :  "+(end-start)/1000.0);
+		
+		//new Indexer().getContainmentIdentifier("catissue_specimen_char", "17");
 	}
 
 
