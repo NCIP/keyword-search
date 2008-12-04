@@ -1,8 +1,12 @@
 package titli.model.util;
 
+/**
+ * 
+ */
+
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -13,7 +17,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public final class TitliTableMapper 
+import titli.controller.Name;
+
+/**
+ * This class reads the mapping  xml file and gets the tree into the memory
+ * it's a sigleton 
+ * 
+ * @author Juber Patel
+ *
+ */
+public final class TitliTableMapper
 {
 	/**
 	 * the only instance of this class
@@ -26,27 +39,6 @@ public final class TitliTableMapper
 	 */
 	private Document document;
 	
-	private static final String FROM = " FROM ";
-	private static final String SELECT = " SELECT ";
-	private static final String WHERE = " WHERE ";
-	private static final String JOIN = " join ";
-	private static final String LEFT_JOIN = " left join ";
-	private static final String SELECT_ALL = " SELECT * ";
-	private static final String ALIAS = "alias";
-	private static final String JOIN_MAPPING = "join";
-	private static final String LEFT_JOIN_MAPPING = "leftjoin";
-	private static final String NAME = "name";
-	private static final String TABLE = "table";
-	private static final String KEY_COLUMN = "keyColumn";
-	private static final String JOIN_COLUMN = "joinColumn";
-	private static final String LEFTJOIN = "leftJoin";
-	private static final String SELECT_COLUMN = "selectColumns";
-	private static final String TABLE_NAME = "tableName";
-	private static final String ACTIVITY_STATUS = "activityStatus";
-	private static final String TABLE_JOIN_MAPPING = "tablejoinmapping";
-	private static final String DOT = ".";
-	private static final String COMMA = ",";
-	private static final String COMMA_SPACE = " , ";
 	
 	/**
 	 * the private constructor for singleton behaviour
@@ -55,8 +47,20 @@ public final class TitliTableMapper
 	 */
 	private TitliTableMapper()
 	{
-		InputStream in = this.getClass().getClassLoader().getResourceAsStream("titli-index-mapping.xml");
-			
+		InputStream in = this.getClass().getClassLoader().getResourceAsStream("titli-table-mapping.xml");
+		
+		/*
+		InputStream in=null;
+		try
+		{
+			in = new FileInputStream("E:/juber/workspace/catissuecore/WEB-INF/src/titli-table-mapping.xml");
+		}
+		catch (FileNotFoundException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}*/
+		
 		DocumentBuilder builder = null;
 		
 		try
@@ -69,20 +73,23 @@ public final class TitliTableMapper
 		} 
 		
 		try
-		{	
+		{			
 			document = builder.parse(in);
 			in.close();
 		}
 		catch (SAXException e) 
 		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		catch (IOException e) 
 		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	
 	}
+	
 	
 	/**
 	 * get the only instance of this class
@@ -98,258 +105,218 @@ public final class TitliTableMapper
 		return mapper;
 	}
 	
+	
 	/**
-	 * Return the query formed
-	 * @param tableName Name of the table
-	 * @return selectClause
-	 * @throws Exception
+	 * get the the label corresponding to the specified table name
+	 * @param tableName the table name
+	 * @return the table name
+	 * @throws Exception if problems occur
 	 */
-	public StringBuilder returnJoinMapping(String tableName) throws Exception
+	public String getLabel(Name tableName) throws Exception
 	{
-		StringBuilder joinMapping = new StringBuilder(FROM+tableName+" ");	
-		StringBuilder activityStatusCondition = new StringBuilder(WHERE);
-		StringBuilder selectClause = new StringBuilder(SELECT);
-		int selectClauseLength = selectClause.length();
-		int activityStatusConditionLength = activityStatusCondition.length();
+		String label=tableName.toString();
+		
 		Element root = null;
 		root = document.getDocumentElement();
+		
 		
 		if(root==null)
 		{
 			throw new Exception("Tilti table mapping file can not be read");
 		}
 		
-		NodeList nodeList =root.getElementsByTagName(TABLE_JOIN_MAPPING);
+		NodeList nodeList =root.getElementsByTagName("mapping");
 		
 		int length = nodeList.getLength();
-		for(int i=0;i<length;i++)
+		
+		for(int i=0; i<length; i++)
 		{
-			Element node = (Element)(nodeList.item(i));
-			NodeList nodelist = node.getElementsByTagName(TABLE);
-			int nodeLength = nodelist.getLength();
+			Element element = (Element)(nodeList.item(i));
 			
-			for(int j=0;j<nodeLength;j++)
+			if(new Name(element.getAttribute("table")).equals(tableName))
 			{
-				Element tableNode = (Element)(nodelist.item(j));
-				if(tableNode.getAttribute(NAME).equals(tableName))
-				{
-					String tableAlias = tableNode.getAttribute(ALIAS);
-					String tableColumn = tableNode.getAttribute(KEY_COLUMN);
-					String activityStatusCond = tableNode.getAttribute(ACTIVITY_STATUS);
-					if(activityStatusCond.length()!=0)
-					{
-						selectClause.append(tableAlias+DOT+activityStatusCond+COMMA_SPACE);
-						activityStatusCondition.append(tableAlias+DOT+activityStatusCond+" != 'Disabled' AND ");
-					}
-					
-					selectClause.append(tableAlias+DOT+tableColumn+COMMA_SPACE);
-					String includeColumns = tableNode.getAttribute(SELECT_COLUMN);
-					StringTokenizer st = new StringTokenizer(includeColumns,COMMA);
-					while(st.hasMoreTokens())
-					{
-						String nextToken = st.nextToken();
-						selectClause.append(tableAlias+DOT+nextToken+COMMA_SPACE);
-					}
-					joinMapping.append(tableAlias);
-					NodeList joinTableList = tableNode.getElementsByTagName(JOIN_MAPPING);
-					int joinTableLength = joinTableList.getLength();
-					for(int k=0;k<joinTableLength;k++)
-					{
-						joinMapping.append(JOIN);
-						Element joinTableNode = (Element)(joinTableList.item(k));
-						String joinTable = joinTableNode.getAttribute(TABLE_NAME);
-						String joinColumn = joinTableNode.getAttribute(JOIN_COLUMN);
-						String joinAlias = joinTableNode.getAttribute(ALIAS);
-						selectClause.append(joinAlias+DOT+joinColumn+COMMA_SPACE);
-						String activityStatus = joinTableNode.getAttribute(ACTIVITY_STATUS);
-						String joinIncludeCols = joinTableNode.getAttribute(SELECT_COLUMN);
-						StringTokenizer st1 = new StringTokenizer(joinIncludeCols,COMMA);
-						while(st1.hasMoreTokens())
-						{
-							String nextToken = st1.nextToken();
-							selectClause.append(joinAlias+DOT+nextToken+COMMA_SPACE);
-						}
-						if(activityStatus.length()!=0)
-						{
-							selectClause.append(joinAlias+DOT+activityStatus+COMMA_SPACE);
-							activityStatusCondition.append(joinAlias+DOT+activityStatus+" != 'Disabled' AND ");
-						}
-						joinMapping.append(joinTable+" "+joinAlias+" on (");
-						joinMapping.append(tableAlias+DOT+tableColumn+" = "+joinAlias+DOT+joinColumn+") ");
-						NodeList leftJoinList = joinTableNode.getElementsByTagName(LEFT_JOIN_MAPPING);
-						int leftJoinLength = leftJoinList.getLength();
-						for(int l=0;l<leftJoinLength;l++)
-						{
-							joinMapping.append(LEFT_JOIN);
-							Element leftJoinNode = (Element)(leftJoinList.item(l));
-							String leftJoinTable = leftJoinNode.getAttribute(TABLE_NAME);
-							String leftJoinAlias = leftJoinNode.getAttribute(ALIAS);
-							String leftJoinColumn = leftJoinNode.getAttribute(KEY_COLUMN);
-							String joinCol = leftJoinNode.getAttribute(JOIN_COLUMN);
-							selectClause.append(leftJoinAlias+DOT+leftJoinColumn+COMMA_SPACE+joinAlias+DOT+joinCol+COMMA_SPACE);
-							String leftJoinIncludeCols = leftJoinNode.getAttribute(SELECT_COLUMN);
-							StringTokenizer st2 = new StringTokenizer(leftJoinIncludeCols,COMMA);
-							while(st2.hasMoreTokens())
-							{
-								String nextToken = st2.nextToken();
-								selectClause.append(leftJoinAlias+DOT+nextToken+COMMA_SPACE);
-							}
-							
-							joinMapping.append(leftJoinTable+" "+leftJoinAlias+" on ("+leftJoinAlias+DOT+leftJoinColumn+" = "+joinAlias+DOT+joinCol+") ");
-						}
-					}
-										
-					NodeList leftJoinTableList = tableNode.getElementsByTagName(LEFTJOIN);
-					int leftJoinTableLength = leftJoinTableList.getLength();
-					for(int k=0;k<leftJoinTableLength;k++)
-					{
-						joinMapping.append(LEFT_JOIN);
-						Element leftJoinTableNode = (Element)(leftJoinTableList.item(k));
-						String leftJoinTable = leftJoinTableNode.getAttribute(TABLE_NAME);
-						String leftJoinColumn = leftJoinTableNode.getAttribute(KEY_COLUMN);
-						String leftJoinAlias = leftJoinTableNode.getAttribute(ALIAS);
-						String joinColumnName = leftJoinTableNode.getAttribute(JOIN_COLUMN);
-						selectClause.append(leftJoinAlias+DOT+leftJoinColumn+COMMA_SPACE+tableAlias+DOT+joinColumnName+COMMA_SPACE);
-						String joinIncludeColumn = leftJoinTableNode.getAttribute(SELECT_COLUMN);
-						StringTokenizer st3 = new StringTokenizer(joinIncludeColumn,COMMA);
-						while(st3.hasMoreTokens())
-						{
-							String nextToken = st3.nextToken();
-							selectClause.append(leftJoinAlias+DOT+nextToken+COMMA_SPACE);
-						}
-						
-						joinMapping.append(leftJoinTable+" "+leftJoinAlias+" on (");
-						joinMapping.append(tableAlias+DOT+joinColumnName+" = "+leftJoinAlias+DOT+leftJoinColumn+") ");
-					}
-				}
+				label= element.getAttribute("label");
+				break;
 			}
+			
 		}
-		if(activityStatusCondition.length() == activityStatusConditionLength)
-			activityStatusCondition = new StringBuilder();
 		
-		if(selectClause.length() == selectClauseLength)
-		{
-			selectClause = new StringBuilder(SELECT_ALL);
-		}
-		else
-		{
-			selectClause.delete(selectClause.lastIndexOf(COMMA), selectClause.lastIndexOf(COMMA)+1);
-		}
-		joinMapping.append(" "+activityStatusCondition).toString();
-		
-		return selectClause.append(" "+joinMapping);	
+		return label;
 	}
 	
 	
 	/**
-	 * Returns the alias for the corresponding table
-	 * @param tableName Name of the table
-	 * @return aliasName Alias for tableName
-	 * @throws Exception
+	 * get the pageOf string corresponding to the specified label
+	 * @param label the label
+	 * @return the pageOf string
 	 */
-	public String getAliasFor(String tableName) throws Exception
+	public String getPageOf(String label)
 	{
-		String aliasName = null;
-		Element root = null;
-		root = document.getDocumentElement();
+		String pageOf=null;
 		
-		if(root==null)
-		{
-			throw new Exception("Tilti table mapping file can not be read");
-		}
+		Element root = document.getDocumentElement();
 		
-		NodeList nodeList =root.getElementsByTagName(TABLE_JOIN_MAPPING);
+		NodeList nodeList =root.getElementsByTagName("mapping");
 		
 		int length = nodeList.getLength();
-		for(int i=0;i<length;i++)
+		
+		for(int i=0; i<length; i++)
 		{
-			Element node = (Element)(nodeList.item(i));
-			NodeList nodelist = node.getElementsByTagName(TABLE);
-			int nodeLength = nodelist.getLength();
+			Element element = (Element)(nodeList.item(i));
 			
-			for(int j=0;j<nodeLength;j++)
+			if(element.getAttribute("label").equals(label))
 			{
-				Element tableNode = (Element)(nodelist.item(j));
-				if(tableNode.getAttribute(NAME).equals(tableName))
-				{
-					return tableNode.getAttribute(ALIAS);
-				}
+				pageOf= element.getAttribute("pageOf");
+				break;
 			}
+			
 		}
-		return aliasName;
+		
+		return pageOf;
+	}
+
+	
+	/**
+	 * get the table name corrsponding to the specified label
+	 * @param label the label
+	 * @return the table name
+	 */
+	public Name getTable(String label)
+	{
+		Name table =null;
+		
+		Element root = document.getDocumentElement();
+		
+		NodeList nodeList =root.getElementsByTagName("mapping");
+		
+		int length = nodeList.getLength();
+		
+		for(int i=0; i<length; i++)
+		{
+			Element element = (Element)(nodeList.item(i));
+			
+			if(element.getAttribute("label").equals(label))
+			{
+				table = new Name(element.getAttribute("table"));
+				break;
+			}
+			
+		}
+		
+		return table;
+	
 	}
 	
 	/**
-	 * Returns the order by clause
-	 * @param tableName
-	 * @return orderByClause
-	 * @throws Exception
+	 * Returns the main table of the specified input table
+	 * @param inputTable
+	 * @return main table
 	 */
-	public String getOrderByClause(String tableName) throws Exception
+	public String returnMainTable(String inputTable)
 	{
-		StringBuffer orderByClause = new StringBuffer();
-		
-		Element root = null;
-		root = document.getDocumentElement();
-		
-		if(root==null)
-		{
-			throw new Exception("Tilti table mapping file can not be read");
-		}
-		
-		NodeList nodeList =root.getElementsByTagName(TABLE_JOIN_MAPPING);
-		
+		Element root = document.getDocumentElement();
+		NodeList nodeList =root.getElementsByTagName("table-relation-mapping");
+		root.getAttributes();
 		int length = nodeList.getLength();
-		for(int i=0;i<length;i++)
+		
+		for(int i=0; i<length; i++)
 		{
 			Element node = (Element)(nodeList.item(i));
-			NodeList nodelist = node.getElementsByTagName(TABLE);
+			NodeList nodelist = node.getElementsByTagName("main");
 			int nodeLength = nodelist.getLength();
 			
 			for(int j=0;j<nodeLength;j++)
 			{
-				Element tableNode = (Element)(nodelist.item(j));
-				if(tableNode.getAttribute(NAME).equals(tableName))
+				Element mainNode = (Element)(nodelist.item(j));
+				NodeList relatedNodeList = mainNode.getElementsByTagName("related");
+				int relatedNodeLength = relatedNodeList.getLength();
+				if(relatedNodeLength == 0)
 				{
-					
-					String alias = tableNode.getAttribute(ALIAS);
-					String uniqueColumn = tableNode.getAttribute(KEY_COLUMN);
-					orderByClause.append(alias+DOT+uniqueColumn+" ");
-					return orderByClause.toString();
+					System.out.println("No related tables for table : "+mainNode.getAttribute("label"));
+				}
+				for(int relatedCtr=0;relatedCtr<relatedNodeLength;relatedCtr++)
+				{
+					Element relatedNode = (Element)(relatedNodeList.item(relatedCtr));
+					if(relatedNode.getAttribute("table").equals(inputTable))
+					{
+						return mainNode.getAttribute("table");
+					}
 				}
 			}
-		}	
-		return orderByClause.toString();
+		}
+		return null;
 	}
 	
-	public static void main(String args[]) throws Exception
-	{
+	
+	/**
+	 * 
+	 * @param args args for main
+	 * @throws Exception if problems occur
+	 */
+	public static void main(String[] args) throws Exception
+	{	
 		TitliTableMapper tableMapper = TitliTableMapper.getInstance();
 		
-		/*String referredTable = new String();
-		String table = mapper.getReferredColumnAndTable("IDENTIFIER","catissue_specimen_char");
-		if(!table.equals(""))
+		//mapper.returnTableInheritance("catissue_abs_speci_coll_group");
+		System.out.println(mapper.getLabel(new Name("catissue_institution")));
+//		System.out.println(mapper.getTable("Specimen Collection Group"));
+		//System.out.println(mapper.getToTable(new Name("catissue_abs_speci_coll_group")));
+		//System.out.println(mapper.getFromTable(new Name("catissue_specimen")));
+		
+		/*List<String> tables = new ArrayList<String>();
+		tables=mapper.refreshTables("catissue_specimen_coll_group",tables);
+		if(tables.size() == 0)
 		{
-			System.out.println("table : "+table);
+			System.out.println("null");
 		}
 		else
 		{
-			System.out.println("empty...........");
+			for(String table:tables)
+			{
+				System.out.println(table);
+			}
+		}
+		System.out.println("----------------------------------------");
+		tables = new ArrayList<String>();
+		tables=mapper.refreshTables("catissue_specimen",tables);
+		for(String table:tables)
+		{
+			System.out.println(table);
+		}
+		
+		System.out.println("----------------------------------------");
+		tables = new ArrayList<String>();
+		tables=mapper.refreshTables("catissue_tissue_specimen",tables);
+		for(String table:tables)
+		{
+			System.out.println(table);
+		}
+		
+		System.out.println("----------------------------------------");
+		tables = new ArrayList<String>();
+		tables=mapper.refreshTables("catissue_tisse_specimen",tables);
+		for(String table:tables)
+		{
+			System.out.println(table);
 		}*/
-		
-		/*List<String> fromTables = new ArrayList<String>();
-		fromTables = mapper.getFromTables("catissue_abstract_specimen");
-		
+		//mapper.returnRelatedTables("catissue_specimen");
+		/*List<String> fromTables = mapper.getFromTable(new Name("catissue_specimen"));
 		for(String fromTable : fromTables)
 		{
-			System.out.println(fromTable);
+			System.out.println(new Name(fromTable));
 		}*/
-		/*boolean flag = mapper.isContainmentRelation("catissue_specimen_char");
-		System.out.println("flag : "+flag);*/
-		/*String containment = mapper.getContainmentColumn("catissue_specimen_char");
-		System.out.println(containment);*/
+//		List<String> relatedTables = mapper.returnTablesToBeRefreshed("catissue_specimen_coll_group");
+//		for(String table:relatedTables)
+//		{
+//			System.out.println(table);
+//		}
+		String mainTable = mapper.returnMainTable("catissue_tissue_specimen");
+		if(mainTable != null)
+			System.out.println(mainTable);
+		else
+			System.out.println("NULL.........");
 		
-		StringBuilder mappingString = mapper.returnJoinMapping("catissue_specimen_array");
-		System.out.println("mapping : "+mappingString);
 	}
+	
+
 }
