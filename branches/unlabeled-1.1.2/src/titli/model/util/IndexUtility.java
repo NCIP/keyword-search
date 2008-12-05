@@ -42,9 +42,32 @@ public class IndexUtility
 	public static File getIndexDirectoryForDatabase(Name dbName) throws TitliException
 	{
 		File indexDir = Titli.getInstance().getIndexLocation();
-		
+		deleteIndexDirectories(indexDir);
 		return new File(indexDir, dbName+TitliConstants.INDEX_DIRECTORY_SUFFIX);
-		
+	}
+	
+	/**
+	 * Delete the index directories that are already present
+	 * @param indexDir
+	 */
+	private static void deleteIndexDirectories(File indexDir)
+	{
+		File[] listOfFiles = indexDir.listFiles();
+		if(listOfFiles != null)
+		{
+			for(int i=0;i<listOfFiles.length;i++)
+			{
+				if(listOfFiles[i].isDirectory())
+				{
+					deleteIndexDirectories(listOfFiles[i]);
+				}
+				else
+				{
+					listOfFiles[i].delete();
+				}
+			}
+		}
+		indexDir.delete();
 	}
 
 
@@ -64,7 +87,7 @@ public class IndexUtility
 			e.printStackTrace();
 		}
 		
-		System.out.println(IndexUtility.getIndexDirectoryForDatabase(new Name("catissuecore41")));
+		System.out.println(IndexUtility.getIndexDirectoryForDatabase(new Name("db4")));
 
 	}
 
