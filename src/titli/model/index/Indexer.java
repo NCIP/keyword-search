@@ -404,13 +404,16 @@ public class Indexer
 			
 			int numberOfColumns = rs.getMetaData().getColumnCount();
 			
+			List<Name> uniqueKey = table.getUniqueKey();
+			
 			//Add the columns in the list
 			for(int i=1; i<=numberOfColumns; i++)
 			{
-				contentList.add(rs.getString(i));
+				if(!uniqueKey.toString().contains(rs.getMetaData().getColumnName(i)))
+				{
+					contentList.add(rs.getString(i));
+				}
 			}	
-					
-			List<Name> uniqueKey = table.getUniqueKey();
 			
 			for(Name key : uniqueKey)
 			{				
@@ -603,7 +606,7 @@ public class Indexer
 			
 		try 
 		{
-			titli.index(new Name("db3"));
+			titli.index(new Name("db24"));
 		}
 		catch (TitliIndexException e) 
 		{
