@@ -106,7 +106,7 @@ public final class TitliIndexMapper
 	 */
 	public StringBuilder returnJoinMapping(String tableName) throws Exception
 	{
-		StringBuilder joinMapping = new StringBuilder(FROM+tableName+" ");	
+		StringBuilder joinMapping = new StringBuilder(FROM+tableName.toUpperCase()+" ");	
 		StringBuilder activityStatusCondition = new StringBuilder(WHERE);
 		StringBuilder selectClause = new StringBuilder(SELECT);
 		int selectClauseLength = selectClause.length();
@@ -131,14 +131,13 @@ public final class TitliIndexMapper
 			for(int j=0;j<nodeLength;j++)
 			{
 				Element tableNode = (Element)(nodelist.item(j));
-				if(tableNode.getAttribute(NAME).equals(tableName))
+				if(tableNode.getAttribute(NAME).equalsIgnoreCase(tableName))
 				{
 					String tableAlias = tableNode.getAttribute(ALIAS);
 					String tableColumn = tableNode.getAttribute(KEY_COLUMN);
 					String activityStatusCond = tableNode.getAttribute(ACTIVITY_STATUS);
 					if(activityStatusCond.length()!=0)
 					{
-						selectClause.append(tableAlias+DOT+activityStatusCond+COMMA_SPACE);
 						activityStatusCondition.append(tableAlias+DOT+activityStatusCond+" != 'Disabled' AND ");
 					}
 					
@@ -160,7 +159,6 @@ public final class TitliIndexMapper
 						String joinTable = joinTableNode.getAttribute(TABLE_NAME);
 						String joinColumn = joinTableNode.getAttribute(JOIN_COLUMN);
 						String joinAlias = joinTableNode.getAttribute(ALIAS);
-						selectClause.append(joinAlias+DOT+joinColumn+COMMA_SPACE);
 						String activityStatus = joinTableNode.getAttribute(ACTIVITY_STATUS);
 						String joinIncludeCols = joinTableNode.getAttribute(SELECT_COLUMN);
 						StringTokenizer st1 = new StringTokenizer(joinIncludeCols,COMMA);
@@ -171,7 +169,6 @@ public final class TitliIndexMapper
 						}
 						if(activityStatus.length()!=0)
 						{
-							selectClause.append(joinAlias+DOT+activityStatus+COMMA_SPACE);
 							activityStatusCondition.append(joinAlias+DOT+activityStatus+" != 'Disabled' AND ");
 						}
 						joinMapping.append(joinTable+" "+joinAlias+" on (");
@@ -186,7 +183,6 @@ public final class TitliIndexMapper
 							String leftJoinAlias = leftJoinNode.getAttribute(ALIAS);
 							String leftJoinColumn = leftJoinNode.getAttribute(KEY_COLUMN);
 							String joinCol = leftJoinNode.getAttribute(JOIN_COLUMN);
-							selectClause.append(leftJoinAlias+DOT+leftJoinColumn+COMMA_SPACE+joinAlias+DOT+joinCol+COMMA_SPACE);
 							String leftJoinIncludeCols = leftJoinNode.getAttribute(SELECT_COLUMN);
 							StringTokenizer st2 = new StringTokenizer(leftJoinIncludeCols,COMMA);
 							while(st2.hasMoreTokens())
@@ -209,7 +205,6 @@ public final class TitliIndexMapper
 						String leftJoinColumn = leftJoinTableNode.getAttribute(KEY_COLUMN);
 						String leftJoinAlias = leftJoinTableNode.getAttribute(ALIAS);
 						String joinColumnName = leftJoinTableNode.getAttribute(JOIN_COLUMN);
-						selectClause.append(leftJoinAlias+DOT+leftJoinColumn+COMMA_SPACE+tableAlias+DOT+joinColumnName+COMMA_SPACE);
 						String joinIncludeColumn = leftJoinTableNode.getAttribute(SELECT_COLUMN);
 						StringTokenizer st3 = new StringTokenizer(joinIncludeColumn,COMMA);
 						while(st3.hasMoreTokens())
@@ -270,7 +265,7 @@ public final class TitliIndexMapper
 			for(int j=0;j<nodeLength;j++)
 			{
 				Element tableNode = (Element)(nodelist.item(j));
-				if(tableNode.getAttribute(NAME).equals(tableName))
+				if(tableNode.getAttribute(NAME).equalsIgnoreCase(tableName))
 				{
 					return tableNode.getAttribute(ALIAS);
 				}
@@ -309,9 +304,8 @@ public final class TitliIndexMapper
 			for(int j=0;j<nodeLength;j++)
 			{
 				Element tableNode = (Element)(nodelist.item(j));
-				if(tableNode.getAttribute(NAME).equals(tableName))
-				{
-					
+				if(tableNode.getAttribute(NAME).equalsIgnoreCase(tableName))
+				{	
 					String alias = tableNode.getAttribute(ALIAS);
 					String uniqueColumn = tableNode.getAttribute(KEY_COLUMN);
 					orderByClause.append(alias+DOT+uniqueColumn+" ");
@@ -324,7 +318,7 @@ public final class TitliIndexMapper
 	
 	public static void main(String args[]) throws Exception
 	{
-		TitliTableMapper tableMapper = TitliTableMapper.getInstance();
+		TitliIndexMapper indexMapper = TitliIndexMapper.getInstance();
 		
 		/*String referredTable = new String();
 		String table = mapper.getReferredColumnAndTable("IDENTIFIER","catissue_specimen_char");
@@ -349,7 +343,7 @@ public final class TitliIndexMapper
 		/*String containment = mapper.getContainmentColumn("catissue_specimen_char");
 		System.out.println(containment);*/
 		
-		StringBuilder mappingString = mapper.returnJoinMapping("catissue_specimen_array");
+		StringBuilder mappingString = mapper.returnJoinMapping("catissue_specimen");
 		System.out.println("mapping : "+mappingString);
 	}
 }

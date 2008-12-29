@@ -69,12 +69,12 @@ public class RecordIdentifier
 	 */
 	public boolean matches(Document doc)
 	{  
-		if(!doc.get(TitliConstants.DOCUMENT_DATABASE_FIELD).trim().equals(getDbName().toString()))
+		if(!doc.get(TitliConstants.DOCUMENT_DATABASE_FIELD).trim().equalsIgnoreCase(getDbName().toString()))
 		{
 			return false;
 		}
 		
-		if(!doc.get(TitliConstants.DOCUMENT_TABLE_FIELD).trim().equals(getTableName().toString()))
+		if(!doc.get(TitliConstants.DOCUMENT_TABLE_FIELD).trim().equalsIgnoreCase(getTableName().toString()))
 		{
 			return false;
 		}
@@ -86,7 +86,7 @@ public class RecordIdentifier
 				return false;
 			}
 			
-			if(!doc.get(column.toString()).trim().equals(getUniqueKey().get(column)))
+			if(!doc.get(column.toString()).trim().equalsIgnoreCase(getUniqueKey().get(column)))
 			{
 				return false;
 			}
