@@ -28,7 +28,7 @@ public class IndexUtility
 		File indexDir = Titli.getInstance().getIndexLocation();
 		
 		File dbDir = new File(indexDir, dbName+TitliConstants.INDEX_DIRECTORY_SUFFIX);
-		return new File(dbDir, tableName+TitliConstants.INDEX_DIRECTORY_SUFFIX);
+		return new File(dbDir, tableName.toString().toLowerCase()+TitliConstants.INDEX_DIRECTORY_SUFFIX);
 		
 	}
 	

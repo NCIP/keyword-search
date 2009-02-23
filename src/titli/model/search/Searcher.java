@@ -200,7 +200,7 @@ public class Searcher
 					FSDirectory fsDir=null;
 					try
 					{
-						File tableDir = new File(dbDir, table.getName()+TitliConstants.INDEX_DIRECTORY_SUFFIX);
+						File tableDir = new File(dbDir, table.getName().toString().toLowerCase()+TitliConstants.INDEX_DIRECTORY_SUFFIX);
 										
 						fsDir = FSDirectory.getDirectory(tableDir,false);
 						searcherList.add(new IndexSearcher(fsDir));
