@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.store.FSDirectory;
 
 import titli.controller.Name;
@@ -53,12 +54,6 @@ public class IndexRefresher implements IndexRefresherInterface
 	 */
 	public void insert(RecordIdentifier identifier) throws TitliException
 	{
-		//check if document already exists in the index
-		if(isIndexed(identifier))
-		{
-			return;
-		}
-		
 		Indexer indexer = indexers.get(identifier.getDbName());
 		try 
 		{
@@ -94,63 +89,25 @@ public class IndexRefresher implements IndexRefresherInterface
 	public void delete(RecordIdentifier identifier) throws TitliException
 	{
 		File indexDir = IndexUtility.getIndexDirectoryForTable(identifier.getDbName(), identifier.getTableName());
-		IndexReader reader;
 		
-		try 
-		{
-			reader = IndexReader.open(indexDir);
-		}
-		catch (IOException e) 
-		{
-			throw new TitliIndexRefresherException("TITLI_S_030", "problem while creating index reader for database  :"+identifier.getDbName()+" table : "+identifier.getTableName(), e);
-		}
-		
-		int maxDoc = reader.maxDoc();
-		Document doc=null;
-		
-		int i;
-		
-		//find the doc with given columns and values
-		for(i=0; i<maxDoc; i++)
-		{
-			try 
-			{
-				//ignore documents marked deleted
-				if(reader.isDeleted(i))
-				{
-					continue;	
-				}
-				
-				doc = reader.document(i);
-			}
-			catch (IOException e) 
-			{
-				throw new TitliIndexRefresherException("TITLI_S_030", "problem reading document from the index reader for database  :"+identifier.getDbName()+" table : "+identifier.getTableName(), e);
-			}
-			
-			//this is not the doc we are looking for
-			if(identifier.matches(doc))
-			{
-				break;
-			}
-						
-		}
-		
-		//delete the document
 		try
 		{
-			if(i<maxDoc)
+			IndexReader reader = IndexReader.open(indexDir);
+			int co = 0;
+			for (Name column : identifier.getUniqueKey().keySet())
 			{
-				reader.deleteDocument(i);
+				Term t = new Term(column.toString(), identifier.getUniqueKey().get(column));
+				co += reader.deleteDocuments(t);
 			}
-			
 			reader.close();
+			System.out.println("Document deleted " + co);
 		}
-		catch (IOException e) 
+		catch (IOException e)
 		{
-			throw new TitliIndexRefresherException("TITLI_S_030", "problem while deleting document from the index reader for database  :"+identifier.getDbName()+" table : "+identifier.getTableName(), e);
+			throw new TitliIndexRefresherException("TITLI_S_030",
+			        "problem while creating index reader for database  :" + identifier.getDbName()
+			                + " table : " + identifier.getTableName(), e);
 		}
-		
 	}
 	
 	
