@@ -14,12 +14,12 @@
 	<property name="local-ivy-repo.dir" value="${software.dir}/local-ivy-repo"/>
 
 
-<!--
+
 	<loadfile property="dist.revision" srcFile="./.svn/entries">
 		<filterchain>
 			<headfilter lines="1" skip="4" />
 		</filterchain>
-	</loadfile>-->
+	</loadfile>
 
 	<!-- properties used by export_jar"
 	<property name="common.lib" value="${base.dir}/../core_CommonPackage/lib" />
