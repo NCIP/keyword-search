@@ -341,23 +341,25 @@ $HeadURL: http://gforge.nci.nih.gov/svnroot/automation/branches/automation-1.7.4
 	</target>
 
 	<target name="dist" description="Makes all distributions: installer, upgrader and source" depends="
-		build:all,
- 		dist:installer
-		">
-	</target>
+			build:all,
+			dist:src
+			"/>
 
 	<target name="dist:src" description="Makes source distribution">
 		<!-- Add tasks here to zip up src into a distribution, may require some additoinal properties for distribution name" -->
+		<delete file="${dist.dir}/${TiTLi_WashU-src.zip.file}" />
+		<zip destfile="${dist.dir}/${TiTLi_WashU-src.zip.file}" basedir="${dist.exploded.dir}" />
 	</target>
 
-	<!--<target name="dist:tools:retrieve" description="Downloads binary applications from commonlibrary repository" depends="
+
+	<target name="dist:tools:retrieve" description="Downloads binary applications from commonlibrary repository" depends="
 		init,
  		dist:tools:retrieve:jboss,
  		dist:tools:retrieve:jbosscp,
  		dist:tools:retrieve:jboss-bindings
 		" >
 	</target>
-	-->
+
 
 	<target name="dist:tools:retrieve:jbosscp" unless="jbosscp.tools.exists" description="Downloads JBOSS Cumulative Patch from binary repository and verifies checksum">
 		<echoproperties  prefix="jbosscp"> <propertyset negate="yes" > <propertyref regex="passw" /> </propertyset> </echoproperties>
@@ -372,7 +374,7 @@ $HeadURL: http://gforge.nci.nih.gov/svnroot/automation/branches/automation-1.7.4
 		</if>
 	</target>
 
-<!--	<target name="dist:tools:retrieve:jboss" unless="jboss.tools.exists" description="Downloads JBOSS from binary repository and verifies checksum">
+	<target name="dist:tools:retrieve:jboss" unless="jboss.tools.exists" description="Downloads JBOSS from binary repository and verifies checksum">
 		<get src="${jboss.src.url}" dest="${jboss.dest.file}" />
 		<get src="${jboss.src.url}.MD5" dest="${jboss.dest.file}.MD5" />
 		<checksum file="${jboss.dest.file}" verifyProperty="jboss.cksum.ok" />
@@ -386,7 +388,7 @@ $HeadURL: http://gforge.nci.nih.gov/svnroot/automation/branches/automation-1.7.4
 			</else>
 		</if>
 	</target>
--->
+
 
 	<target name="dist:tools:retrieve:jboss-bindings"  description="Downloads JBOSS bindings filefrom binary repository and verifies checksum">
 		<get src="${jboss-bindings.src.url}" dest="${dist.exploded.dir}/${jboss-bindings.file}" />
@@ -396,7 +398,9 @@ $HeadURL: http://gforge.nci.nih.gov/svnroot/automation/branches/automation-1.7.4
 
 		<!-- Copy db-install and db-upgrade scripts from source into distribution area. The db files need to be under db-[install/upgard]/${database.type}. Because of this fact these files were not moved to the macro. -->
 
-		<dist-prep />
+		<!--
+			<dist-prep />
+		-->
 		<copy todir="${tools.dist.dir}">
 			<fileset dir="${download.dir}">
 			</fileset>
