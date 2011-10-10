@@ -1,0 +1,186 @@
+<?xml version ="1.0"?>
+
+<!--Ant Script for create Build for Common package-->
+<project name="TiTLi" default="build_jar" basedir="../">
+
+	<!--general properties -->
+
+    <property name="src.dir" value="${basedir}/src/main"/>
+    <property name="test.dir" value="${basedir}/src/test"/>
+
+    <property name="lib.dir" value="${basedir}/src/lib"/>
+	<property name="software.dir" value="${basedir}/../"/>
+	<property name="dist.dir" value="${basedir}/dist"/>
+
+	<property name="temp.dir" value="${software.dir}/target/temp"/>
+	<property name="local-ivy-repo.dir" value="${software.dir}/local-ivy-repo"/>
+	<property file="${software.dir}/TiTLi_WashU/conf/titliDetails.properties"/>
+
+	<loadfile property="dist.revision" srcFile="./.svn/entries">
+		<filterchain>
+			<headfilter lines="1" skip="4" />
+		</filterchain>
+	</loadfile>
+
+	<!-- properties used by export_jar"
+	<property name="common.lib" value="${basedir}/../core_CommonPackage/lib" />
+	<property name="core.lib" value="${basedir}/../core_catissuecore/WEB-INF/lib" />
+-->
+
+	<!-- properties for junit -->
+	<property name="report.dir" value="${software.dir}/target/reports" />
+	<property name="junit.report.dir" value="${report.dir}/JUNIT" />
+
+    <property name="junit.classes.dir" value="${temp.dir}/junit/classes"/>
+
+	<!--Properties set for checkstyle "Tools that generate report of code convention violations"-->
+	<property name="checkstyle.dir" value="${software.dir}/common/checkstyle"/>
+	<property name="checkstyle.rules.file" value="${checkstyle.dir}/CheckStyleRules.xml"/>
+	<property name="checkstyle.report.formatter" value="${checkstyle.dir}/report_formatter/checkstyle-simple.xsl"/>
+	<property name="checkstyle.report.dir" value="${checkstyle.dir}/checkstyle_reports"/>
+	<property name="checkstyle.unformatted.report" value="${checkstyle.report.dir}/checkstyle_report.xml"/>
+	<property name="checkstyle.formatted.report" value="${checkstyle.report.dir}/TiTLi_checkstyle_report.html"/>
+
+	<!--Properties set for checkstyle "PMD scans Java source code and looks for potential code problems"-->
+	<!--Read for more details http://pmd.sourceforge.net/cpd.html -->
+	<property name="pmd.dir" value="${software.dir}/common/pmd-3.8"/>
+	<property name="pmd.report.dir" value="${pmd.dir}/reports"/>
+	<property name="pmd.report.html" value="${pmd.report.dir}/TiTLi_PMD_Report.html"/>
+
+	<path id="app.classpath">
+		<fileset dir="${lib.dir}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<path id="junit.classpath">
+		<path refid="app.classpath"/>
+		<pathelement location="${temp.dir}"/>
+	</path>
+
+	<!-- sub tasks -->
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${report.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+	<!-- Compile all files, generated and hand-written -->
+    <target name="compile" depends="init">
+    	<javac destdir="${temp.dir}" includes="**/*.*" includeAntRuntime="false">
+            <src path="${src.dir}/java"/>
+        	<src path="${test.dir}/java"/>
+            <classpath>
+              <fileset dir="${lib.dir}">
+                  <include name="*.jar"/>
+              </fileset>
+            </classpath>
+        </javac>
+   </target>
+
+    <target name="compileTest" depends="compile">
+    	<mkdir dir="${junit.classes.dir}"/>
+        <javac destdir="${junit.classes.dir}" includes="**/*.*" includeAntRuntime="false">
+            <src path="${test.dir}/java"/>
+            <classpath>
+              <fileset dir="${lib.dir}">
+                  <include name="*.jar"/>
+              </fileset>
+            	<pathelement location="${temp.dir}"/>
+            </classpath>
+        </javac>
+    </target>
+
+	<target name="build_code_zip" >
+		<copy todir="${dist.dir}" >
+			<fileset dir="${src.dir}" includes="**/*"/>
+		</copy>
+	</target>
+
+	<target name="build_jar" depends="compile" >
+        <jar jarfile="${local-ivy-repo.dir}/titli-washu-1.0.jar">
+            <fileset dir="${temp.dir}" includes="**/*" >
+            	<exclude name="**/junit/**"/>
+           	</fileset>
+        	<manifest>
+        		<section name="${titli.jar.details}">
+        			<attribute name="Version" value="${titli.jar.version}" />
+        			<attribute name="Built-By" value="${titli.jar.creator}" />
+        			<attribute name="Built-At-Time" value="${TODAY} ${TSTAMP}" />
+        			<attribute name="SVN-URL" value="${dist.revision}" />
+        		</section>
+        	</manifest>
+        </jar>
+
+		<antcall target="build_code_zip"/>
+    </target>
+
+	<target name="dist" depends="build_jar" >
+		<antcall target="test"/>
+	</target>
+
+	 <target name="test" depends="compileTest">
+	 	<mkdir dir="${junit.report.dir}"/>
+	 	<delete>
+	 		<fileset dir="${junit.report.dir}" includes="**/*"/>
+	 	</delete>
+	    <junit printsummary="yes" haltonerror="no" haltonfailure="no" fork="yes">
+		 	<test name="titli.model.TitliTest" outfile="${junit.report.dir}/TitliTest_report"/>
+      		<formatter type="plain"/>
+
+	    <!--
+	    	<batchtest todir="${junit.report.dir}">
+      			<fileset dir="${test.dir}">
+					<include name="**/TestAll.java"/>
+			    </fileset>
+			</batchtest>
+		-->
+			<classpath>
+				<pathelement location="${junit.classes.dir}"/>
+				<pathelement location="${temp.dir}"/>
+				 <fileset dir="${lib.dir}">
+	                  <include name="*.jar"/>
+				 </fileset>
+			</classpath>
+		</junit>
+	</target>
+
+	<target name="checkstyle"  description="Generates a report of code convention violations.">
+		<taskdef resource="checkstyletask.properties" classpath="${lib.dir}/checkstyle-all-4.2.jar"/>
+
+	    <checkstyle config="${checkstyle.rules.file}" failureProperty="checkstyle.failed" failOnViolation="false" >  <!--classpathref="checkstyle.classpath" > -->
+			<formatter type="xml" tofile="${checkstyle.unformatted.report}" />
+			<fileset dir="${src.dir}" />
+		</checkstyle>
+
+	    <style in="${checkstyle.unformatted.report}" out="${checkstyle.formatted.report}" style="${checkstyle.report.formatter}"/>
+	</target>
+
+
+	<!-- ,,,,,junit,logging-jakarta-commons,logging-java,migrating,,optimizations,strictexception,,,"-->
+	<target name="pmd" depends="init" description="PMD scans Java source code and looks for potential code problems.">
+		<taskdef name="pmd" classpath="${pmd.dir}/lib/pmd-3.8.jar" classname="net.sourceforge.pmd.ant.PMDTask"/>
+		<pmd shortFilenames="true">
+			<ruleset>basic</ruleset>
+			<ruleset>braces</ruleset>
+			<ruleset>clone</ruleset>
+			<ruleset>codesize</ruleset>
+			<ruleset>controversial</ruleset>
+			<ruleset>coupling</ruleset>
+			<ruleset>design</ruleset>
+			<ruleset>finalizers</ruleset>
+			<ruleset>imports</ruleset>
+			<ruleset>j2ee</ruleset>
+			<ruleset>migrating</ruleset>
+			<ruleset>naming</ruleset>
+			<ruleset>strings</ruleset>
+			<ruleset>unusedcode</ruleset>
+			<ruleset>sunsecure</ruleset>
+			<!--ruleset>javabeans</ruleset-->
+
+			<formatter type="html" toFile="${pmd.report.html}"/>
+			<fileset dir="${src.dir}"  includes="**/*.java"/>
+		</pmd>
+	</target>
+
+</project>
