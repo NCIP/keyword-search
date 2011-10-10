@@ -1,18 +1,19 @@
 <?xml version ="1.0"?>
 
 <!--Ant Script for create Build for Common package-->
-<project name="TiTLi" default="build_jar">
+<project name="TiTLi" default="build_jar" basedir="../">
 
 	<!--general properties -->
 
-	<property name="base.dir" value="."/>
-    <property name="src.dir" value="${base.dir}/src/java"/>
-    <property name="test.dir" value="${base.dir}/test"/>
-    <property name="lib.dir" value="${base.dir}/src/lib"/>
-	<property name="software.dir" value=".."/>
+    <property name="src.dir" value="${basedir}/src/main/java"/>
+    <property name="test.dir" value="${basedir}/test"/>
+    <property name="lib.dir" value="${basedir}/src/lib"/>
+	<property name="software.dir" value="${basedir}/../"/>
+	<property name="dist.dir" value="${basedir}/dist"/>
+
 	<property name="temp.dir" value="${software.dir}/target/temp"/>
 	<property name="local-ivy-repo.dir" value="${software.dir}/local-ivy-repo"/>
-	<property file="${software.dir}/TiTLi_WashU/src/conf/titliDetails.properties"/>
+	<property file="/software/TiTLi_WashU/conf/titliDetails.properties"/>
 
 	<loadfile property="dist.revision" srcFile="./.svn/entries">
 		<filterchain>
@@ -21,8 +22,8 @@
 	</loadfile>
 
 	<!-- properties used by export_jar"
-	<property name="common.lib" value="${base.dir}/../core_CommonPackage/lib" />
-	<property name="core.lib" value="${base.dir}/../core_catissuecore/WEB-INF/lib" />
+	<property name="common.lib" value="${basedir}/../core_CommonPackage/lib" />
+	<property name="core.lib" value="${basedir}/../core_catissuecore/WEB-INF/lib" />
 -->
 
 	<!-- properties for junit -->
@@ -30,8 +31,6 @@
 	<property name="junit.report.dir" value="${report.dir}/JUNIT" />
 
     <property name="junit.classes.dir" value="${temp.dir}/junit/classes"/>
-
-
 
 	<!--Properties set for checkstyle "Tools that generate report of code convention violations"-->
 	<property name="checkstyle.dir" value="${software.dir}/common/checkstyle"/>
@@ -53,33 +52,17 @@
 		</fileset>
 	</path>
 
-	<path id="xdoclet.classpath">
-		<path refid="app.classpath"/>
-        <pathelement location="${extra_lib.dir}/commons-net-1.2.2.jar"/>
-		<pathelement location="${extra_lib.dir}/hibernate-tools.jar"/>
-		<pathelement location="${extra_lib.dir}/servlet-api.jar"/>
-		<pathelement location="${extra_lib.dir}/xdoclet-1.2.jar"/>
-		<pathelement location="${extra_lib.dir}/xdoclet-hibernate-module-1.2.jar"/>
-		<pathelement location="${extra_lib.dir}/xdoclet-xdoclet-module-1.2.jar"/>
-		<pathelement location="${extra_lib.dir}/xerces.jar"/>
-		<pathelement location="${extra_lib.dir}/xjavadoc-1.0.2.jar"/>
-		<pathelement location="${extra_lib.dir}/xsdlib.jar"/>
-		<pathelement location="${test.dir}" />
-	</path>
-
 	<path id="junit.classpath">
 		<path refid="app.classpath"/>
 		<pathelement location="${temp.dir}"/>
 	</path>
 
 	<!-- sub tasks -->
-		<target name="init">
-	    	<!-- Create the time stamp -->
-		    <tstamp/>
-	    	<!-- Create the build directory structure used by compile -->
-
-			<mkdir dir="${report.dir}"/>
-		</target>
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${report.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
 
 	<!-- Compile all files, generated and hand-written -->
     <target name="compile" depends="init">

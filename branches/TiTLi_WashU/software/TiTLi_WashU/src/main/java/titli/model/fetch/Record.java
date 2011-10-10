@@ -40,7 +40,7 @@ public class Record implements RecordInterface
 
 	
 	/* (non-Javadoc)
-	 * @see titli.controller.interfaces.record.RecordInterface#getColumnMap()
+	 * @see RecordInterface#getColumnMap()
 	 */
 	
 	/**
@@ -54,7 +54,7 @@ public class Record implements RecordInterface
 
 	
 	/* (non-Javadoc)
-	 * @see titli.controller.interfaces.record.RecordInterface#getTable()
+	 * @see RecordInterface#getTable()
 	 */
 	
 	/**

@@ -14,7 +14,7 @@ public class Entry implements EntryInterface
 {
 
 	/* (non-Javadoc)
-	 * @see titli.controller.interfaces.entry.EntryInterface#getRootSubEntry()
+	 * @see EntryInterface#getRootSubEntry()
 	 */
 	/**
 	 * Get the root SubEntryInterface which is the root of the entry.
