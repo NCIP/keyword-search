@@ -5,15 +5,16 @@
 
 	<!--general properties -->
 
-    <property name="src.dir" value="${basedir}/src/main/java"/>
-    <property name="test.dir" value="${basedir}/test"/>
+    <property name="src.dir" value="${basedir}/src/main"/>
+    <property name="test.dir" value="${basedir}/src/test"/>
+
     <property name="lib.dir" value="${basedir}/src/lib"/>
 	<property name="software.dir" value="${basedir}/../"/>
 	<property name="dist.dir" value="${basedir}/dist"/>
 
 	<property name="temp.dir" value="${software.dir}/target/temp"/>
 	<property name="local-ivy-repo.dir" value="${software.dir}/local-ivy-repo"/>
-	<property file="/software/TiTLi_WashU/conf/titliDetails.properties"/>
+	<property file="${software.dir}/TiTLi_WashU/conf/titliDetails.properties"/>
 
 	<loadfile property="dist.revision" srcFile="./.svn/entries">
 		<filterchain>
@@ -67,8 +68,8 @@
 	<!-- Compile all files, generated and hand-written -->
     <target name="compile" depends="init">
     	<javac destdir="${temp.dir}" includes="**/*.*" includeAntRuntime="false">
-            <src path="${src.dir}"/>
-        	<src path="${test.dir}"/>
+            <src path="${src.dir}/java"/>
+        	<src path="${test.dir}/java"/>
             <classpath>
               <fileset dir="${lib.dir}">
                   <include name="*.jar"/>
@@ -80,7 +81,7 @@
     <target name="compileTest" depends="compile">
     	<mkdir dir="${junit.classes.dir}"/>
         <javac destdir="${junit.classes.dir}" includes="**/*.*" includeAntRuntime="false">
-            <src path="${test.dir}"/>
+            <src path="${test.dir}/java"/>
             <classpath>
               <fileset dir="${lib.dir}">
                   <include name="*.jar"/>
@@ -97,7 +98,7 @@
 	</target>
 
 	<target name="build_jar" depends="compile" >
-              <jar jarfile="${local-ivy-repo.dir}/titli-washu-1.0.jar">
+        <jar jarfile="${local-ivy-repo.dir}/titli-washu-1.0.jar">
             <fileset dir="${temp.dir}" includes="**/*" >
             	<exclude name="**/junit/**"/>
            	</fileset>
