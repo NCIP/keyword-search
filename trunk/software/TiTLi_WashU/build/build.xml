@@ -3,6 +3,8 @@
 <!--Ant Script for create Build for Common package-->
 <project name="TiTLi" default="build_jar" basedir="../">
 
+    <import file="${basedir}/build/ivy-targets.xml" />
+
 	<!--general properties -->
 
     <property name="src.dir" value="${basedir}/src/main"/>
@@ -62,7 +64,6 @@
     <target name="init">
         <tstamp/>
         <mkdir dir="${report.dir}"/>
-        <mkdir dir="${dist.dir}"/>
     </target>
 
 	<!-- Compile all files, generated and hand-written -->
