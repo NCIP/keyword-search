@@ -3,7 +3,7 @@
     <dependencies>
 
 <!-- LOCAL SVN REPO -->
-		<dependency org="local" name="local" rev="1.0"/>
+		<dependency org="local" name="KeywordSearch" rev="1.0"/>
 
 <!-- PUBLIC REPO -->
         <dependency org="log4j" name="log4j" rev="1.2.14"/>

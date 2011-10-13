@@ -1,9 +1,9 @@
 <?xml version ="1.0"?>
 
 <!--Ant Script for create Build for Common package-->
-<project name="TiTLi" default="build_jar" basedir="../">
+<project name="TiTLi" default="build_jar" basedir=".">
 
-    <import file="${basedir}/build/ivy-targets.xml" />
+    <import file="${basedir}/ivy-targets.xml" />
 
 	<!--general properties -->
 
@@ -67,7 +67,7 @@
     </target>
 
 	<!-- Compile all files, generated and hand-written -->
-    <target name="compile" depends="init">
+    <target name="compile" depends="init, resolve">
     	<javac destdir="${temp.dir}" includes="**/*.*" includeAntRuntime="false">
             <src path="${src.dir}/java"/>
         	<src path="${test.dir}/java"/>
@@ -77,6 +77,13 @@
               </fileset>
             </classpath>
         </javac>
+        <copy todir="${temp.dir}">
+            <fileset dir="${src.dir}/resources">
+                <include name="*.*"/>
+                <include name="sakila_joins"/>
+                <include name="world_joins"/>
+            </fileset>
+        </copy>
    </target>
 
     <target name="compileTest" depends="compile">
@@ -93,13 +100,15 @@
     </target>
 
 	<target name="build_code_zip" >
+<!--
 		<copy todir="${dist.dir}" >
 			<fileset dir="${src.dir}" includes="**/*"/>
 		</copy>
+-->
 	</target>
 
-	<target name="build_jar" depends="compile" >
-        <jar jarfile="${local-ivy-repo.dir}/titli-washu-1.0.jar">
+	<target name="build_jar" depends="compile">
+        <jar jarfile="${dist.dir}/titli-washu.jar">
             <fileset dir="${temp.dir}" includes="**/*" >
             	<exclude name="**/junit/**"/>
            	</fileset>
@@ -113,11 +122,12 @@
         	</manifest>
         </jar>
 
+        <copy file="${dist.dir}/titli-washu.jar" todir="${local-ivy-repo.dir}" />
+
 		<antcall target="build_code_zip"/>
     </target>
 
 	<target name="dist" depends="build_jar" >
-		<antcall target="test"/>
 	</target>
 
 	 <target name="test" depends="compileTest">
