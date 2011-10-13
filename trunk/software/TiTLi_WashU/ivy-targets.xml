@@ -6,15 +6,15 @@
     <property name="ivy.jar.dir" value="${user.home}/.ivy"/>
     <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
     <property name="ivy.local.jars" value="${basedir}/ivy.local.jars"/>
-    <property name="ivy.dep.file" value="${basedir}/build/ivy.xml"/>
+    <property name="ivy.dep.file" value="${basedir}/ivy.xml"/>
 
     <property name="dist.dir" value="${basedir}/dist"/>
     <property name="organization" value="gov.nih.nci.catissue"/>
 
     <!-- CHANGE THE NEXT PROPERTIES TO MATCH YOUR PROJECT -->
-    <property name="pub.revision" value="1.2"/>
-    <property name="revision" value="1.2"/>
-    <property name="module" value="AdvancedQuery"/>
+    <property name="pub.revision" value="1.0"/>
+    <property name="revision" value="1.0"/>
+    <property name="module" value="KeywordSearch"/>
 
 
     <!-- IVY -->
