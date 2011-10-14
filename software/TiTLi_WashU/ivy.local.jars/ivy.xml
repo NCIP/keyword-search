@@ -1,7 +1,14 @@
 <ivy-module version="2.0">
   <info organisation="local" module="KeywordSearch" revision="1.0"/>
   <publications>
-    	<!--<artifact name="DAO-1.1.9.1" ext="jar" type="jar"/>-->
+      <artifact name="checkstyle-all-4.2" ext="jar" type="jar"/>
+      <artifact name="junit-4.1" ext="jar" type="jar"/>
+      <artifact name="lucene-core-2.0.0" ext="jar" type="jar"/>
+      <artifact name="mysql-connector-java-3.0.16-ga-bin" ext="jar" type="jar"/>
+      <artifact name="mysql-connector-java-5.0.4-bin" ext="jar" type="jar"/>
+      <artifact name="oracleDriver" ext="jar" type="jar"/>
+      <artifact name="postgresql-8.1-405.jdbc3" ext="jar" type="jar"/>
+      <artifact name="postgresql-8.2-504.jdbc4" ext="jar" type="jar"/>
   </publications>
 </ivy-module>
 
