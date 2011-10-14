@@ -1,7 +1,7 @@
 <?xml version ="1.0"?>
 
 <!--Ant Script for create Build for Common package-->
-<project name="TiTLi" default="build_jar" basedir=".">
+<project name="TiTLi" default="dist" basedir=".">
 
     <import file="${basedir}/ivy-targets.xml" />
 
@@ -127,7 +127,7 @@
 		<antcall target="build_code_zip"/>
     </target>
 
-	<target name="dist" depends="build_jar" >
+	<target name="dist" depends="resolve, build_jar" >
 	</target>
 
 	 <target name="test" depends="compileTest">
