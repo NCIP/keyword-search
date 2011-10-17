@@ -4,15 +4,15 @@
 	<classpathentry kind="src" path="software/TiTLi_WashU/src/main/resources"/>
 	<classpathentry kind="src" path="software/TiTLi_WashU/src/main/java"/>
 	<classpathentry kind="src" path="software/TiTLi_WashU/src/test/java"/>
-	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="software/TiTLi_WashU/src/lib/checkstyle-all-4.2.jar"/>
-	<classpathentry kind="lib" path="software/TiTLi_WashU/src/lib/junit-4.1.jar"/>
-	<classpathentry kind="lib" path="software/TiTLi_WashU/src/lib/lucene-core-2.0.0.jar"/>
-	<classpathentry kind="lib" path="software/TiTLi_WashU/src/lib/mysql-connector-java-3.0.16-ga-bin.jar"/>
-	<classpathentry kind="lib" path="software/TiTLi_WashU/src/lib/mysql-connector-java-5.0.4-bin.jar"/>
-	<classpathentry kind="lib" path="software/TiTLi_WashU/src/lib/oracleDriver.jar"/>
-	<classpathentry kind="lib" path="software/TiTLi_WashU/src/lib/postgresql-8.1-405.jdbc3.jar"/>
-	<classpathentry kind="lib" path="software/TiTLi_WashU/src/lib/postgresql-8.2-504.jdbc4.jar"/>
+	<classpathentry kind="lib" path="software/TiTLi_WashU/lib/checkstyle-all-4.2-1.0.jar"/>
+	<classpathentry kind="lib" path="software/TiTLi_WashU/lib/junit-4.1-1.0.jar"/>
+	<classpathentry kind="lib" path="software/TiTLi_WashU/lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="software/TiTLi_WashU/lib/lucene-core-2.0.0-1.0.jar"/>
+	<classpathentry kind="lib" path="software/TiTLi_WashU/lib/mysql-connector-java-3.0.16-ga-bin-1.0.jar"/>
+	<classpathentry kind="lib" path="software/TiTLi_WashU/lib/mysql-connector-java-5.0.4-bin-1.0.jar"/>
+	<classpathentry kind="lib" path="software/TiTLi_WashU/lib/oracleDriver-1.0.jar"/>
+	<classpathentry kind="lib" path="software/TiTLi_WashU/lib/postgresql-8.1-405.jdbc3-1.0.jar"/>
+	<classpathentry kind="lib" path="software/TiTLi_WashU/lib/postgresql-8.2-504.jdbc4-1.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
