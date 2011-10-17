@@ -13,7 +13,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/src/lib/mysql-connector-java-3.0.16-ga-bin.jar!/" />
+          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/lib/postgresql-8.2-504.jdbc4-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -22,7 +22,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/src/lib/lucene-core-2.0.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/lib/log4j-1.2.14.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -31,7 +31,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/src/lib/junit-4.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/lib/checkstyle-all-4.2-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -40,7 +40,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/src/lib/checkstyle-all-4.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/lib/lucene-core-2.0.0-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -49,7 +49,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/src/lib/postgresql-8.2-504.jdbc4.jar!/" />
+          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/lib/junit-4.1-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -58,7 +58,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/src/lib/postgresql-8.1-405.jdbc3.jar!/" />
+          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/lib/mysql-connector-java-5.0.4-bin-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -67,7 +67,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/src/lib/oracleDriver.jar!/" />
+          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/lib/mysql-connector-java-3.0.16-ga-bin-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -76,7 +76,16 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/src/lib/mysql-connector-java-5.0.4-bin.jar!/" />
+          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/lib/postgresql-8.1-405.jdbc3-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/software/TiTLi_WashU/lib/oracleDriver-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
