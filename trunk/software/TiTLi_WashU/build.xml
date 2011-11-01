@@ -10,7 +10,7 @@
     <property name="src.dir" value="${basedir}/src/main"/>
     <property name="test.dir" value="${basedir}/src/test"/>
 
-    <property name="lib.dir" value="${basedir}/src/lib"/>
+    <property name="lib.dir" value="${basedir}/lib"/>
 	<property name="software.dir" value="${basedir}/../"/>
 	<property name="dist.dir" value="${basedir}/dist"/>
 
@@ -64,6 +64,7 @@
     <target name="init">
         <tstamp/>
         <mkdir dir="${report.dir}"/>
+        <mkdir dir="${temp.dir}"/>
     </target>
 
 	<!-- Compile all files, generated and hand-written -->
