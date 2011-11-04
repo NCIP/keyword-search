@@ -14,7 +14,7 @@
     <!-- CHANGE THE NEXT PROPERTIES TO MATCH YOUR PROJECT -->
     <property name="pub.revision" value="1.0"/>
     <property name="revision" value="1.0"/>
-    <property name="module" value="KeywordSearch"/>
+    <property name="module" value="keyword-search"/>
 
 
     <!-- IVY -->
