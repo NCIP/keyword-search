@@ -1,5 +1,12 @@
 <ivy-module version="2.0">
-    <info organisation="gov.nih.nci.catissue" module="keyword-search"/>
+	
+	<info organisation="gov.nih.nci.catissue" module="keyword-search" revision="${titli.jar.version}" status="integration" />
+	
+	<publications>
+		<artifact name="titli-washu" ext="jar" type="jar" />
+		<artifact name="keyword-search" ext="pom" type="pom" />
+	</publications>
+    
     <dependencies>
 
 <!--
