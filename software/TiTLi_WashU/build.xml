@@ -125,7 +125,9 @@ L-->
         			<attribute name="Version" value="${titli.jar.version}" />
         			<attribute name="Built-By" value="${titli.jar.creator}" />
         			<attribute name="Built-At-Time" value="${TODAY} ${TSTAMP}" />
+        			<!--
         			<attribute name="SVN-URL" value="${dist.revision}" />
+        			-->
         		</section>
         	</manifest>
         </jar>
