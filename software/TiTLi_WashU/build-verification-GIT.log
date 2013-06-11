@@ -1,0 +1,42 @@
+Buildfile: C:\Users\narra\Documents\GitHub\catissue-git\keyword-search\software\TiTLi_WashU\build.xml
+
+download-ivy:
+     [echo] Installing ivy...
+      [get] Getting: http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.0.0/ivy-2.0.0.jar
+      [get] To: C:\Users\narra\.ivy\ivy.jar
+      [get] Not modified - so not downloaded
+
+init-ivy:
+
+resolve:
+No ivy:settings found for the default reference 'ivy.instance'.  A default instance will be used
+[ivy:retrieve] :: Ivy 2.0.0 - 20090108225011 :: http://ant.apache.org/ivy/ ::
+:: loading settings :: file = C:\Users\narra\Documents\GitHub\catissue-git\keyword-search\software\TiTLi_WashU\ivysettings.xml
+[ivy:retrieve] :: resolving dependencies :: gov.nih.nci.catissue#keyword-search;1.0-SNAPSHOT
+[ivy:retrieve] 	confs: [default]
+[ivy:retrieve] 	found local#KeywordSearch;1.0 in local-repo-jars
+[ivy:retrieve] 	found log4j#log4j;1.2.14 in mvn.repo
+[ivy:retrieve] :: resolution report :: resolve 203ms :: artifacts dl 37ms
+	---------------------------------------------------------------------
+	|                  |            modules            ||   artifacts   |
+	|       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+	---------------------------------------------------------------------
+	|      default     |   2   |   0   |   0   |   0   ||   10  |   0   |
+	---------------------------------------------------------------------
+[ivy:retrieve] :: retrieving :: gov.nih.nci.catissue#keyword-search
+[ivy:retrieve] 	confs: [default]
+[ivy:retrieve] 	conflict on C:\Users\narra\Documents\GitHub\catissue-git\keyword-search\software\TiTLi_WashU\lib\log4j-1.2.14.jar in [default]: 1.2.14 won
+[ivy:retrieve] 	0 artifacts copied, 9 already retrieved (0kB/16ms)
+
+init:
+
+compile:
+
+build_jar:
+
+build_code_zip:
+
+dist:
+
+BUILD SUCCESSFUL
+Total time: 1 second
