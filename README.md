@@ -13,4 +13,4 @@ You will find more details about the caTissue Keyword Search in the following li
  * [Issue Tracker] (https://bugzilla.wustl.edu/bugzilla/)
  * [Code Repository] (https://github.com/NCIP/keyword-search)
 
-Please join us in further developing and improving the Keyword Search.
+Please join us in further developing and improving the Keyword Search project.
