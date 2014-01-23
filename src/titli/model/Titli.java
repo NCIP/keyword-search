@@ -65,25 +65,29 @@ public final class Titli implements TitliInterface
 	File indexLocation;
 	
 	
+	private Properties loadProperties() throws TitliException {
+
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream(TitliConstants.PROPERTIES_FILE);
+        Properties props = new Properties();
+        
+        try
+        {
+            props.load(in);
+            in.close();
+        }
+        catch(IOException e)
+        {
+            throw new TitliException("TITLI_S_001", "I/O problem while opening titli.properties", e);
+        }
+        return props;
+	}
 	/**
 	 * private constructor for singleton behavaiour
 	 * @throws TitliException if problems occur  
 	 */
 	private Titli() throws TitliException
 	{
-		InputStream in = this.getClass().getClassLoader().getResourceAsStream(TitliConstants.PROPERTIES_FILE);
-		Properties props = new Properties();
-		
-		try
-		{
-			props.load(in);
-			in.close();
-		}
-		catch(IOException e)
-		{
-			throw new TitliException("TITLI_S_001", "I/O problem while opening titli.properties", e);
-		}
-		
+	    Properties props =  loadProperties();
 		initSystemProperties(props);
 		
 		initResources(props);
@@ -151,6 +155,33 @@ public final class Titli implements TitliInterface
 		return indexLocation;
 	}
 	
+	public Properties getDbProperties(Name dbName, Properties props){
+	
+    	Properties dbProps = new Properties();
+        
+        String propName = "jdbc.database";
+        dbProps.setProperty(propName, dbName.toString());
+                
+        propName = "jdbc."+dbName+".type";
+        dbProps.setProperty(propName, props.getProperty(propName));
+        
+        propName = "jdbc."+dbName+".url";
+        dbProps.setProperty(propName, props.getProperty(propName));
+        
+        propName = "jdbc."+dbName+".username";
+        dbProps.setProperty(propName, props.getProperty(propName));
+        
+        propName = "jdbc."+dbName+".password";
+        dbProps.setProperty(propName, props.getProperty(propName));
+        
+        propName = "titli."+dbName+".noindex.prefix";
+        dbProps.setProperty(propName, props.getProperty(propName));
+        
+        propName = "titli."+dbName+".noindex.table";
+        dbProps.setProperty(propName, props.getProperty(propName));
+        
+        return dbProps;
+	}	
 	
 	/**
 	 * index all the databases from the scratch
@@ -160,13 +191,17 @@ public final class Titli implements TitliInterface
 	public void index() throws TitliException
 	{
 		//index all databases
+	    Properties props = loadProperties();
 		for(Name dbName : databases.keySet())
 		{
 			//Database db = databases.get(dbName);
 			
 			//System.out.println("Creating indexer for "+dbName);
-			Indexer indexer = indexers.get(dbName);
+		    Properties dbProps = getDbProperties(dbName,props);
+		    Indexer indexer = indexers.get(dbName);
+		    indexer.initReaderConnection(dbProps);
 			indexer.index();
+			indexer.closeReaderConnection();
 		}
 		
 	}
@@ -262,6 +297,7 @@ public final class Titli implements TitliInterface
 			
 			//make db reader
 			RDBMSReader reader = createRDBMSReader(dbName, props);
+			reader.initSQL(getDbProperties(dbName, props));
 			
 			//create Indexer for the reader
 			indexers.put(dbName, new Indexer(reader));
@@ -271,7 +307,9 @@ public final class Titli implements TitliInterface
 			
 			//add DatabaseInterface to the list
 			databases.put(dbName, reader.getDatabase());
+			reader.finalize();
 		}
+		
 		
 	}
 

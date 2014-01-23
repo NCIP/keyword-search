@@ -14,6 +14,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -63,7 +64,7 @@ public class Indexer
 	{
 		reader = dbReader;
 		
-		try
+		/*try
 		{
 		
 			//create the database index directory
@@ -73,7 +74,21 @@ public class Indexer
 		{
 			throw new TitliIndexException("TITLI_S_004", "problem while trying to get index Statement ", e);
 			
-		}
+		}*/
+	}
+	
+	public void initIndexStatement() throws TitliIndexException{
+	    try
+        {
+        
+            //create the database index directory
+            indexstmt = reader.getIndexConnection().createStatement();
+        }
+        catch(SQLException e)
+        {
+            throw new TitliIndexException("TITLI_S_004", "problem while trying to get index Statement ", e);
+            
+        }
 	}
 	
 	/**
@@ -679,5 +694,13 @@ public class Indexer
 		//new Indexer().getContainmentIdentifier("catissue_specimen_char", "17");
 	}
 
+	public void closeReaderConnection(){
+	    reader.finalize();
+	}
+	
+	public void initReaderConnection(Properties props) throws TitliException{
+	    reader.initSQL(props);
+	    initIndexStatement();
+	}
 
 }

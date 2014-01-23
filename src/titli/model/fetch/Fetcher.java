@@ -42,7 +42,7 @@ public class Fetcher
 	public Fetcher(RDBMSReader dbReader) throws TitliFetchException
 	{
 		reader = dbReader;
-		try
+		/*try
 		{
 			fetchstmt = reader.getFetchConnection().createStatement();
 		}
@@ -50,7 +50,7 @@ public class Fetcher
 		{
 			throw new TitliFetchException("TITLI_S_013", "Problem getting fetch Statement", e);
 			
-		}
+		}*/
 		
 		
 		

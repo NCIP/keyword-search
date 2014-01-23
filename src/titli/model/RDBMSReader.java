@@ -89,7 +89,7 @@ public class RDBMSReader
 	 */
 	public RDBMSReader(Properties props) throws TitliException 
 	{
-		initSQL(props);
+		//initSQL(props);
 		initInvisibleTablesLists(props);
 		
 	}
@@ -219,7 +219,7 @@ public class RDBMSReader
 	 * close the database connections
 	 * 
 	 */
-	protected void finalize() 
+	public void finalize() 
 	{
 		try
 		{
@@ -240,7 +240,7 @@ public class RDBMSReader
 	 * @param props the properties
 	 * @throws TitliException if problems occur in sql connections
 	 */
-	private void initSQL(Properties props) throws TitliException
+	public void initSQL(Properties props) throws TitliException
 	{
 		dbName = new Name(props.getProperty("jdbc.database"));
 		
@@ -277,7 +277,7 @@ public class RDBMSReader
 		invisibleTables = new ArrayList<Name>();
 		
 		//populate lists of tables NOT to be indexed
-		Scanner s = new Scanner(props.getProperty("titli."+dbName+".noindex.prefix"));
+		Scanner s = new Scanner(props.getProperty("titli."+new Name(props.getProperty("jdbc.database"))+".noindex.prefix"));
 		
 		s.useDelimiter(TitliConstants.PROPERTIES_FILE_DELIMITER_PATTERN);
 		while(s.hasNext())
@@ -289,7 +289,7 @@ public class RDBMSReader
 			//invisiblePrefixes.add(tablePrefix.toLowerCase());
 		}
 		
-		s = new Scanner(props.getProperty("titli."+dbName+".noindex.table"));
+		s = new Scanner(props.getProperty("titli."+new Name(props.getProperty("jdbc.database"))+".noindex.table"));
 		s.useDelimiter(TitliConstants.PROPERTIES_FILE_DELIMITER_PATTERN);
 		while(s.hasNext())
 		{
